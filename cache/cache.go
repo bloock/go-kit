@@ -4,7 +4,7 @@ import (
 	"time"
 )
 
-//go:generate mockgen -package=mocks -source=cache/cache.go -destination mocks/mock_cache.go
+//go:generate mockgen -source=cache/cache.go -destination mocks/cache/mock_cache.go
 type Cache interface {
 	TTL() time.Duration
 	Set(key string, data []byte, expiration time.Duration) error
