@@ -7,7 +7,7 @@ type Bus interface {
 	Register(Type, Handler)
 }
 
-//go:generate mockgen -source=query/query.go -destination mocks/mock_query.go
+//go:generate mockgen -package=mocks -source=query/query.go -destination mocks/mock_query.go
 type Type string
 
 type Query interface {

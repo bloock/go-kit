@@ -7,7 +7,7 @@ import (
 	"github.com/google/uuid"
 )
 
-//go:generate mockgen -source=event/event.go -destination mocks/mock_event.go
+//go:generate mockgen -package=mocks -source=event/event.go -destination mocks/mock_event.go
 type Bus interface {
 	Publish(context.Context, []Event) error
 }

@@ -7,7 +7,7 @@ type Bus interface {
 	Register(Type, Handler)
 }
 
-//go:generate mockgen -source=command/command.go -destination mocks/mock_command.go
+//go:generate mockgen -package=mocks -source=command/command.go -destination mocks/mock_command.go
 type Type string
 
 type Command interface {
