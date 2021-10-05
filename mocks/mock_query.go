@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	query "github.com/bloock/kit/query"
+	query "github.com/bloock/go-kit/query"
 	gomock "github.com/golang/mock/gomock"
 )
 

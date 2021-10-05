@@ -9,7 +9,7 @@ import (
 	reflect "reflect"
 	time "time"
 
-	event "github.com/bloock/kit/event"
+	event "github.com/bloock/go-kit/event"
 	gomock "github.com/golang/mock/gomock"
 )
 

@@ -8,7 +8,7 @@ import (
 	context "context"
 	reflect "reflect"
 
-	command "github.com/bloock/kit/command"
+	command "github.com/bloock/go-kit/command"
 	gomock "github.com/golang/mock/gomock"
 )
 

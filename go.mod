@@ -1,4 +1,4 @@
-module github.com/bloock/kit
+module github.com/bloock/go-kit
 
 go 1.17
 
