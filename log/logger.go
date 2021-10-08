@@ -14,11 +14,13 @@ type Logger struct {
 	fileErrorName string
 }
 
-func NewLogger(path, app string, debugEnable bool) Logger {
+var Log Logger
+
+func InitLogger(path, app string, debugEnable bool) {
 	fullFileName := fmt.Sprintf("%s/full_%s.log", path, app)
 	errorFileName := fmt.Sprintf("%s/error_%s.log", path, app)
 
-	return Logger{
+	Log = Logger{
 		debugEnable:   debugEnable,
 		app:           app,
 		fileFullName:  fullFileName,

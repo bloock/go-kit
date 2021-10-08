@@ -15,10 +15,10 @@ func TestLogger(t *testing.T) {
 		msg := "Test info msg"
 		file := fmt.Sprintf("./full_%s.log", app)
 		os.Remove(file)
-		l := NewLogger("./", "test", false)
+		InitLogger("./", "test", false)
 
 		// When
-		l.Info(msg)
+		Log.Info(msg)
 
 		// Then
 		data, err := os.ReadFile(file)
@@ -37,10 +37,10 @@ func TestLogger(t *testing.T) {
 		errorFile := fmt.Sprintf("./error_%s.log", app)
 		os.Remove(fullFile)
 		os.Remove(errorFile)
-		l := NewLogger("./", "test", false)
+		InitLogger("./", "test", false)
 
 		// When
-		l.Error(msg)
+		Log.Error(msg)
 
 		// Then
 		dataFull, err := os.ReadFile(fullFile)
@@ -66,10 +66,10 @@ func TestLogger(t *testing.T) {
 		errorFile := fmt.Sprintf("./error_%s.log", app)
 		os.Remove(fullFile)
 		os.Remove(errorFile)
-		l := NewLogger("./", "test", false)
+		InitLogger("./", "test", false)
 
 		// When
-		l.Fatal(msg)
+		Log.Fatal(msg)
 
 		// Then
 		dataFull, err := os.ReadFile(fullFile)
@@ -93,10 +93,10 @@ func TestLogger(t *testing.T) {
 		msg := "Test warning msg"
 		file := fmt.Sprintf("./full_%s.log", app)
 		os.Remove(file)
-		l := NewLogger("./", "test", false)
+		InitLogger("./", "test", false)
 
 		// When
-		l.Warning(msg)
+		Log.Warning(msg)
 
 		// Then
 		data, err := os.ReadFile(file)
@@ -113,10 +113,10 @@ func TestLogger(t *testing.T) {
 		msg := "Test debug msg"
 		file := fmt.Sprintf("./full_%s.log", app)
 		os.Remove(file)
-		l := NewLogger("./", "test", true)
+		InitLogger("./", "test", true)
 
 		// When
-		l.Debug(msg)
+		Log.Debug(msg)
 
 		// Then
 		data, err := os.ReadFile(file)
@@ -133,10 +133,10 @@ func TestLogger(t *testing.T) {
 		msg := "Test debug msg"
 		file := fmt.Sprintf("./full_%s.log", app)
 		os.Remove(file)
-		l := NewLogger("./", "test", false)
+		InitLogger("./", "test", false)
 
 		// When
-		l.Debug(msg)
+		Log.Debug(msg)
 
 		// Then
 		_, err := os.ReadFile(file)
