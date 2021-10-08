@@ -5,6 +5,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"strings"
 )
 
 type Logger struct {
@@ -17,8 +18,8 @@ type Logger struct {
 var Log Logger
 
 func InitLogger(path, app string, debugEnable bool) {
-	fullFileName := fmt.Sprintf("%s/full_%s.log", path, app)
-	errorFileName := fmt.Sprintf("%s/error_%s.log", path, app)
+	fullFileName := fmt.Sprintf("%s/full_%s.log", path, strings.Replace(app, " ", "_", -1))
+	errorFileName := fmt.Sprintf("%s/error_%s.log", path, strings.Replace(app, " ", "_", -1))
 
 	Log = Logger{
 		debugEnable:   debugEnable,
