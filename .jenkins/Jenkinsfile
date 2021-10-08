@@ -1,0 +1,12 @@
+pipeline {
+    agent any
+    stages {
+        stage('Running test') {
+            steps {
+                container('golang') {
+                    sh 'CGO_ENABLED=0 go test ./... -v --tags=unit'
+                }
+            }
+        }
+    }
+}
