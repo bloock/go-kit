@@ -49,9 +49,17 @@ func formatMsg(lvl, app, msg string) string {
 	return fmt.Sprintf("[%s] %s | %s\n", lvl, app, msg)
 }
 
+func (l Logger) Fatalf(format string, i ...interface{}) {
+	l.Fatal(fmt.Sprintf(format, i...))
+}
+
 func (l Logger) Fatal(msg string) {
 	fatalMsg := formatMsg("FATAL", l.app, msg)
 	writeMsg([]string{l.fileFullName, l.fileErrorName}, fatalMsg)
+}
+
+func (l Logger) Warningf(format string, i ...interface{}) {
+	l.Warning(fmt.Sprintf(format, i...))
 }
 
 func (l Logger) Warning(msg string) {
@@ -59,9 +67,17 @@ func (l Logger) Warning(msg string) {
 	writeMsg([]string{l.fileFullName}, warningMsg)
 }
 
+func (l Logger) Infof(format string, i ...interface{}) {
+	l.Info(fmt.Sprintf(format, i...))
+}
+
 func (l Logger) Info(msg string) {
 	infoMsg := formatMsg("INFO", l.app, msg)
 	writeMsg([]string{l.fileFullName}, infoMsg)
+}
+
+func (l Logger) Debugf(format string, i ...interface{}) {
+	l.Debug(fmt.Sprintf(format, i...))
 }
 
 func (l Logger) Debug(msg string) {
@@ -69,6 +85,10 @@ func (l Logger) Debug(msg string) {
 		debugMsg := formatMsg("DEBUG", l.app, msg)
 		writeMsg([]string{l.fileFullName}, debugMsg)
 	}
+}
+
+func (l Logger) Errorf(format string, i ...interface{}) {
+	l.Error(fmt.Sprintf(format, i...))
 }
 
 func (l Logger) Error(msg string) {
