@@ -3,6 +3,7 @@ package health
 import (
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -13,8 +14,6 @@ type ExternalService interface {
 }
 
 type Health struct {
-	version     string
-	relaseID    string
 	services    []ExternalService
 	output      string
 	id          string
@@ -23,10 +22,8 @@ type Health struct {
 	description string
 }
 
-func NewHealth(v, r, o, i, d string, n, l []string, e []ExternalService) Health {
+func NewHealth(o, i, d string, n, l []string, e []ExternalService) Health {
 	return Health{
-		version:     v,
-		relaseID:    r,
 		services:    e,
 		output:      o,
 		id:          i,
@@ -112,10 +109,13 @@ func (h Health) CheckHandler() gin.HandlerFunc {
 			output = fmt.Sprintf("%s %s", h.output, strings.Join(err[:], ","))
 		}
 
+		version := os.Getenv("IMAGE")
+		release := os.Getenv("IMAGE")
+
 		health := HealthResponse{
 			Status:      "pass",
-			Version:     h.version,
-			RelaseID:    h.relaseID,
+			Version:     version,
+			RelaseID:    release,
 			Notes:       h.notes,
 			Output:      output,
 			Details:     details,
