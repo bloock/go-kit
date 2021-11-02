@@ -9,7 +9,7 @@ import (
 )
 
 type ExternalService interface {
-	healthCheck() ExternalServiceDetails
+	HealthCheck() ExternalServiceDetails
 }
 
 type Health struct {
@@ -18,6 +18,8 @@ type Health struct {
 	services    []ExternalService
 	output      string
 	id          string
+	notes       []string
+	links       []string
 	description string
 }
 
@@ -27,6 +29,8 @@ func NewHealth(v, r, o, i, d string, n, l []string) Health {
 		relaseID:    r,
 		output:      o,
 		id:          i,
+		notes:       n,
+		links:       l,
 		description: d,
 	}
 }
@@ -94,7 +98,7 @@ func (h Health) CheckHandler() gin.HandlerFunc {
 	var err []string
 
 	for _, service := range h.services {
-		detail := service.healthCheck()
+		detail := service.HealthCheck()
 		details = append(details, detail)
 		if detail.Error != "" {
 			err = append(err, detail.Error)
@@ -110,8 +114,10 @@ func (h Health) CheckHandler() gin.HandlerFunc {
 		Status:      "pass",
 		Version:     h.version,
 		RelaseID:    h.relaseID,
+		Notes:       h.notes,
 		Output:      output,
 		Details:     details,
+		Links:       h.links,
 		ServiceID:   h.id,
 		Description: h.description,
 	}
