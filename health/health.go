@@ -23,10 +23,11 @@ type Health struct {
 	description string
 }
 
-func NewHealth(v, r, o, i, d string, n, l []string) Health {
+func NewHealth(v, r, o, i, d string, n, l []string, e []ExternalService) Health {
 	return Health{
 		version:     v,
 		relaseID:    r,
+		services:    e,
 		output:      o,
 		id:          i,
 		notes:       n,
