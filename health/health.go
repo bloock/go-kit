@@ -95,37 +95,37 @@ type HealthResponse struct {
 //		500:
 func (h Health) CheckHandler() gin.HandlerFunc {
 
-	fmt.Printf("Call handler health")
-	var details []ExternalServiceDetails
-	var err []string
-
-	for _, service := range h.services {
-		fmt.Printf("Service")
-		detail := service.HealthCheck()
-		fmt.Printf("Check %+v", detail)
-		details = append(details, detail)
-		if detail.Error != "" {
-			err = append(err, detail.Error)
-		}
-	}
-
-	var output string
-	if len(err) > 0 {
-		output = fmt.Sprintf("%s %s", h.output, strings.Join(err[:], ","))
-	}
-
-	health := HealthResponse{
-		Status:      "pass",
-		Version:     h.version,
-		RelaseID:    h.relaseID,
-		Notes:       h.notes,
-		Output:      output,
-		Details:     details,
-		Links:       h.links,
-		ServiceID:   h.id,
-		Description: h.description,
-	}
 	return func(ctx *gin.Context) {
+		fmt.Printf("Call handler health")
+		var details []ExternalServiceDetails
+		var err []string
+
+		for _, service := range h.services {
+			fmt.Printf("Service")
+			detail := service.HealthCheck()
+			fmt.Printf("Check %+v", detail)
+			details = append(details, detail)
+			if detail.Error != "" {
+				err = append(err, detail.Error)
+			}
+		}
+
+		var output string
+		if len(err) > 0 {
+			output = fmt.Sprintf("%s %s", h.output, strings.Join(err[:], ","))
+		}
+
+		health := HealthResponse{
+			Status:      "pass",
+			Version:     h.version,
+			RelaseID:    h.relaseID,
+			Notes:       h.notes,
+			Output:      output,
+			Details:     details,
+			Links:       h.links,
+			ServiceID:   h.id,
+			Description: h.description,
+		}
 		ctx.JSON(http.StatusOK, health)
 	}
 }
