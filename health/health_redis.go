@@ -3,16 +3,17 @@ package health
 import (
 	"database/sql"
 
+	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type HealthMysql struct {
-	db          *sql.DB
+type HealthRedis struct {
+	client      *redis.Client
 	description string
 	version     string
 }
 
-func NewHealthMysql(db *sql.DB, description, version string) HealthMysql {
+func NewHealthRedis(db *sql.DB, description, version string) HealthMysql {
 	return HealthMysql{
 		db:          db,
 		description: description,
@@ -20,10 +21,12 @@ func NewHealthMysql(db *sql.DB, description, version string) HealthMysql {
 	}
 }
 
-func (h HealthMysql) HealthCheck() ExternalServiceDetails {
+func (h HealthRedis) HealthCheck() ExternalServiceDetails {
 	s := "pass"
 	var e string
-	if err := h.db.Ping(); err != nil {
+
+	_, err := h.client.Ping().Result()
+	if err != nil {
 		s = "error"
 		e = err.Error()
 	}
