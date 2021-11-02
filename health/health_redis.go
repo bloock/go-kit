@@ -1,8 +1,6 @@
 package health
 
 import (
-	"database/sql"
-
 	"github.com/go-redis/redis"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -13,9 +11,9 @@ type HealthRedis struct {
 	version     string
 }
 
-func NewHealthRedis(db *sql.DB, description, version string) HealthMysql {
-	return HealthMysql{
-		db:          db,
+func NewHealthRedis(client *redis.Client, description, version string) HealthRedis {
+	return HealthRedis{
+		client:      client,
 		description: description,
 		version:     version,
 	}
