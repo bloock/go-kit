@@ -49,9 +49,19 @@ func (h HealthHttp) HealthCheck() ExternalServiceDetails {
 		}
 	}
 
+	description := data.Description
+	if data.Description == "" {
+		description = h.description
+	}
+
+	version := data.ServiceID
+	if data.Version == "" {
+		version = h.version
+	}
+
 	return ExternalServiceDetails{
-		Description: data.Description,
-		Version:     data.ServiceID,
+		Description: description,
+		Version:     version,
 		Status:      data.Status,
 		Error:       data.Output,
 	}
