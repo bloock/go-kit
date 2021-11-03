@@ -96,10 +96,12 @@ func (h Health) CheckHandler() gin.HandlerFunc {
 		var details []ExternalServiceDetails
 		var err []string
 
+		serviceDown := false
 		for _, service := range h.services {
 			detail := service.HealthCheck()
 			details = append(details, detail)
 			if detail.Error != "" {
+				serviceDown = true
 				err = append(err, detail.Error)
 			}
 		}
@@ -112,8 +114,13 @@ func (h Health) CheckHandler() gin.HandlerFunc {
 		version := os.Getenv("IMAGE")
 		release := os.Getenv("IMAGE")
 
+		status := "pass"
+		if serviceDown {
+			status = "unestable"
+		}
+
 		health := HealthResponse{
-			Status:      "pass",
+			Status:      status,
 			Version:     version,
 			RelaseID:    release,
 			Notes:       h.notes,
