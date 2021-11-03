@@ -26,7 +26,7 @@ func (h HealthHttp) HealthCheck() ExternalServiceDetails {
 
 	response, err := client.Get(h.path)
 
-	if err != nil {
+	if err != nil || response.StatusCode == 200 {
 		return ExternalServiceDetails{
 			Description: h.description,
 			Version:     h.version,
