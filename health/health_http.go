@@ -26,7 +26,7 @@ func (h HealthHttp) HealthCheck() ExternalServiceDetails {
 
 	response, err := client.Get(h.path)
 
-	if err != nil {
+	if err != nil || response.StatusCode == 200 {
 		return ExternalServiceDetails{
 			Description: h.description,
 			Version:     h.version,
@@ -49,10 +49,25 @@ func (h HealthHttp) HealthCheck() ExternalServiceDetails {
 		}
 	}
 
+	description := data.Description
+	if data.Description == "" {
+		description = h.description
+	}
+
+	version := data.ServiceID
+	if data.Version == "" {
+		version = h.version
+	}
+
+	status := data.Status
+	if data.Status == "" {
+		status = "pass"
+	}
+
 	return ExternalServiceDetails{
-		Description: data.Description,
-		Version:     data.ServiceID,
-		Status:      data.Status,
+		Description: description,
+		Version:     version,
+		Status:      status,
 		Error:       data.Output,
 	}
 }
