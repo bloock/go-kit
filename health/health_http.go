@@ -2,6 +2,7 @@ package health
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -29,7 +30,7 @@ func (h HealthHttp) HealthCheck() ExternalServiceDetails {
 	if err != nil || response.StatusCode == 200 {
 		var m string
 		if err == nil {
-			m = "Unknown error"
+			m = fmt.Sprintf("Unknown error with status %d", response.StatusCode)
 		} else {
 			m = err.Error()
 		}
