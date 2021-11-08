@@ -27,14 +27,17 @@ func (h HealthHttp) HealthCheck() ExternalServiceDetails {
 	response, err := client.Get(h.path)
 
 	if err != nil || response.StatusCode == 200 {
+		var m string
 		if err == nil {
-			err := "Unknown error"
+			m = "Unknown error"
+		} else {
+			m = err.Error()
 		}
 		return ExternalServiceDetails{
 			Description: h.description,
 			Version:     h.version,
 			Status:      "error",
-			Error:       err.Error(),
+			Error:       m,
 		}
 	}
 	defer response.Body.Close()
