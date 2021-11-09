@@ -30,7 +30,7 @@ func (h HealthHttp) HealthCheck() ExternalServiceDetails {
 	if err != nil || response.StatusCode != 200 {
 		var m string
 		if err == nil {
-			m = fmt.Sprintf("Unknown error with status %d", response.StatusCode)
+			m = fmt.Sprintf("Unknown error with status %d path %s", response.StatusCode, h.path)
 		} else {
 			m = err.Error()
 		}
