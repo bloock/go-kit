@@ -46,14 +46,14 @@ type BodyProductListResponse struct {
 type ExternalServiceDetails struct {
 	// Required: true
 	// description: human-friendly description of the service.
-	Description string
+	Description string `json:"description,omitempty"`
 	// description: public version of the service.
-	Version string
+	Version string `json:"version,omitempty"`
 	// Required: true
 	// description: indicates whether the service status is acceptable or not. API publishers
-	Status string
+	Status string `json:"status,omitempty"`
 	// description: error msg
-	Error string
+	Error string `json:"error,omitempty"`
 }
 
 type HealthResponse struct {
