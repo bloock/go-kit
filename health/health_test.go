@@ -12,8 +12,7 @@ import (
 
 func TestHandler_Check(t *testing.T) {
 
-	health := NewHealth("v0.0.1", "v0.0.1-release", "Error health check", "commit", "example test",
-		nil, nil)
+	health := NewHealth("v0.0.1", "v0.0.1-release", "Error health check", nil, nil, nil)
 	gin.SetMode(gin.TestMode)
 	r := gin.New()
 	r.GET("/health", health.CheckHandler())
