@@ -9,6 +9,7 @@ require (
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
 	github.com/icza/bitio v1.0.0
+	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/stretchr/testify v1.7.0
 	go.mongodb.org/mongo-driver v1.7.4
 )
@@ -22,6 +23,7 @@ require (
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/golang/snappy v0.0.1 // indirect
+	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/json-iterator/go v1.1.9 // indirect
 	github.com/klauspost/compress v1.13.6 // indirect
 	github.com/leodido/go-urn v1.2.0 // indirect
