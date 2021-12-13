@@ -33,7 +33,7 @@ func TestPaginationMongo(t *testing.T) {
 		var res []struct {
 			Hello string `bson:"hello"`
 		}
-		p, err := FindWithPagination(mt.Coll, context.Background(), nil, pq, &res)
+		p, err := FindWithPagination(context.Background(), mt.Coll, nil, pq, &res)
 
 		assert.NoError(t, err)
 		assert.Equal(t, "world", res[0].Hello)
@@ -58,7 +58,7 @@ func TestPaginationMongo(t *testing.T) {
 		var res []struct {
 			Hello string `bson:"hello"`
 		}
-		p, err := FindWithPagination(mt.Coll, context.Background(), nil, pq, &res)
+		p, err := FindWithPagination(context.Background(), mt.Coll, nil, pq, &res)
 
 		assert.NoError(t, err)
 		assert.Equal(t, 0, len(res))

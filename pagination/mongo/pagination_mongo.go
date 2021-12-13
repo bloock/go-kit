@@ -6,6 +6,7 @@ import (
 	"github.com/bloock/go-kit/pagination"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"reflect"
 )
 
@@ -17,7 +18,11 @@ type paginationResponse struct {
 	Data []bson.M `bson:"data"`
 }
 
-func FindWithPagination(coll *mongo.Collection, ctx context.Context, filter bson.D, pq pagination.PaginationQuery, res interface{}) (pagination.Pagination, error) {
+func FindWithPagination(ctx context.Context, coll *mongo.Collection, filter bson.D, pq pagination.PaginationQuery, res interface{}) (pagination.Pagination, error) {
+	return FindWithPaginationWithIndex(ctx, coll, nil, filter, pq, res)
+}
+
+func FindWithPaginationWithIndex(ctx context.Context, coll *mongo.Collection, index interface{}, filter bson.D, pq pagination.PaginationQuery, res interface{}) (pagination.Pagination, error) {
 	match := bson.D{
 		{"$match", filter},
 	}
@@ -34,7 +39,7 @@ func FindWithPagination(coll *mongo.Collection, ctx context.Context, filter bson
 		}},
 	}
 
-	cursor, err := coll.Aggregate(ctx, mongo.Pipeline{match, facet})
+	cursor, err := coll.Aggregate(ctx, mongo.Pipeline{match, facet}, &options.AggregateOptions{Hint: index})
 	if err != nil {
 		return pagination.Pagination{}, err
 	}
