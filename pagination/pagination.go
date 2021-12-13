@@ -2,7 +2,6 @@ package pagination
 
 import (
 	"github.com/gin-gonic/gin"
-	"math"
 )
 
 var FirstPage = int64(1)
@@ -41,14 +40,32 @@ type Pagination struct {
 }
 
 func NewPagination(currentPage, perPage, total int64) Pagination {
-	from := (currentPage - FirstPage) * perPage
-	lastPage := int64(math.Ceil(float64(total / perPage)))
+	from := ((currentPage - FirstPage) * perPage) + 1
+
+	var lastPage int64
+	if total == 0 {
+		lastPage = 1
+	} else {
+		if total%perPage != 0 {
+			lastPage = total/perPage + 1
+		} else {
+			lastPage = total / perPage
+		}
+	}
 
 	var to int64
-	if lastPage == currentPage {
-		to = total - ((currentPage - FirstPage) * perPage)
+	if total == 0 {
+		to = 1
 	} else {
-		to = from + perPage
+		if currentPage == lastPage {
+			if perPage <= total {
+				to = total
+			} else {
+				to = (currentPage-FirstPage)*perPage + (total % perPage)
+			}
+		} else {
+			to = currentPage * perPage
+		}
 	}
 
 	return Pagination{

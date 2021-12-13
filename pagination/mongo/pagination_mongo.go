@@ -49,11 +49,12 @@ func FindWithPagination(coll *mongo.Collection, ctx context.Context, filter bson
 		return pagination.Pagination{}, err
 	}
 
+	var p pagination.Pagination
 	if len(response.Metadata) < 1 {
-		return pagination.Pagination{}, fmt.Errorf("couldn't retrieve pagination metadata")
+		p = pagination.NewPagination(1, pq.PerPage, 0)
+	} else {
+		p = pagination.NewPagination(response.Metadata[0].Page, pq.PerPage, response.Metadata[0].Total)
 	}
-
-	p := pagination.NewPagination(response.Metadata[0].Page, pq.PerPage, response.Metadata[0].Total)
 
 	if err = decodeResult(response.Data, res); err != nil {
 		return pagination.Pagination{}, err
