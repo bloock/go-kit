@@ -18,11 +18,11 @@ type paginationResponse struct {
 	Data []bson.M `bson:"data"`
 }
 
-func FindWithPagination(ctx context.Context, coll *mongo.Collection, filter bson.D, pq pagination.PaginationQuery, res interface{}) (pagination.Pagination, error) {
-	return FindWithPaginationWithIndex(ctx, coll, nil, filter, pq, res)
+func FindWithPagination(ctx context.Context, coll *mongo.Collection, filter bson.D, sortBy bson.D, pq pagination.PaginationQuery, res interface{}) (pagination.Pagination, error) {
+	return FindWithPaginationWithIndex(ctx, coll, nil, filter, sortBy, pq, res)
 }
 
-func FindWithPaginationWithIndex(ctx context.Context, coll *mongo.Collection, index interface{}, filter bson.D, pq pagination.PaginationQuery, res interface{}) (pagination.Pagination, error) {
+func FindWithPaginationWithIndex(ctx context.Context, coll *mongo.Collection, index interface{}, filter bson.D, sortBy bson.D, pq pagination.PaginationQuery, res interface{}) (pagination.Pagination, error) {
 	match := bson.D{
 		{"$match", filter},
 	}
@@ -39,7 +39,11 @@ func FindWithPaginationWithIndex(ctx context.Context, coll *mongo.Collection, in
 		}},
 	}
 
-	cursor, err := coll.Aggregate(ctx, mongo.Pipeline{match, facet}, &options.AggregateOptions{Hint: index})
+	sort := bson.D{
+		{"$sort", sortBy},
+	}
+
+	cursor, err := coll.Aggregate(ctx, mongo.Pipeline{match, facet, sort}, &options.AggregateOptions{Hint: index})
 	if err != nil {
 		return pagination.Pagination{}, err
 	}
