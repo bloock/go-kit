@@ -1,12 +1,25 @@
 package pagination
 
-import "math"
+import (
+	"github.com/gin-gonic/gin"
+	"math"
+)
 
 var FirstPage = int64(1)
 
 type PaginationQuery struct {
-	Page    int64 `json:"page"`
-	PerPage int64 `json:"per_page"`
+	Page    int64 `form:"page" json:"page"`
+	PerPage int64 `form:"per_page" json:"per_page"`
+}
+
+func NewPaginationQuery(ctx *gin.Context) (PaginationQuery, error) {
+	var pq PaginationQuery
+	err := ctx.BindQuery(&pq)
+	if err != nil {
+		return PaginationQuery{}, err
+	}
+
+	return pq, nil
 }
 
 func (p PaginationQuery) Skip() *int64 {
