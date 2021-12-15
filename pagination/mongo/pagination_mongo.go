@@ -33,17 +33,14 @@ func FindWithPaginationWithIndex(ctx context.Context, coll *mongo.Collection, in
 				bson.D{{"$addFields", bson.D{{"page", pq.Page}}}},
 			}},
 			{"data", bson.A{
+				bson.D{{"$sort", sortBy}},
 				bson.D{{"$skip", pq.Skip()}},
 				bson.D{{"$limit", pq.PerPage}},
 			}},
 		}},
 	}
 
-	sort := bson.D{
-		{"$sort", sortBy},
-	}
-
-	cursor, err := coll.Aggregate(ctx, mongo.Pipeline{match, facet, sort}, &options.AggregateOptions{Hint: index})
+	cursor, err := coll.Aggregate(ctx, mongo.Pipeline{match, facet}, &options.AggregateOptions{Hint: index})
 	if err != nil {
 		return pagination.Pagination{}, err
 	}
