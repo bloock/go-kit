@@ -1,6 +1,7 @@
 package pagination
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +17,14 @@ func NewPaginationQuery(ctx *gin.Context) (PaginationQuery, error) {
 	err := ctx.BindQuery(&pq)
 	if err != nil {
 		return PaginationQuery{}, err
+	}
+
+	if pq.Page < FirstPage {
+		return PaginationQuery{}, fmt.Errorf("page number should be bigger than %d", FirstPage)
+	}
+
+	if pq.PerPage < 1 {
+		return PaginationQuery{}, fmt.Errorf("per page value should be bigger than 1")
 	}
 
 	return pq, nil
