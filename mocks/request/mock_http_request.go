@@ -48,3 +48,17 @@ func (mr *MockHttpRequestMockRecorder) Get(url interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpRequest)(nil).Get), url)
 }
+
+// Post mocks base method.
+func (m *MockHttpRequest) Post(url string, body, response interface{}) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Post", url, body, response)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Post indicates an expected call of Post.
+func (mr *MockHttpRequestMockRecorder) Post(url, body, response interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockHttpRequest)(nil).Post), url, body, response)
+}
