@@ -6,4 +6,5 @@ import "net/http"
 type HttpRequest interface {
 	Get(url string) (resp *http.Response, err error)
 	Post(url string, body interface{}, response interface{}) error
+	PostWithHeaders(url string, body, response interface{}, headers map[string]string) error
 }
