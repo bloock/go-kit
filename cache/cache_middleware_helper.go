@@ -17,6 +17,17 @@ type Cached struct {
 	Header http.Header
 }
 
+func CacheInvalidate(c *gin.Context, key string, cache Cache) {
+	err := cache.Del(key)
+	if err != nil {
+		log.Printf("Conection err with redis %s", err.Error())
+		c.Next()
+		return
+	}
+
+	log.Printf("Invalidate cache from key %s", key)
+}
+
 func CacheRequest(c *gin.Context, key string, cache Cache, duration time.Duration) {
 
 	ca, err := cache.Get(key)
