@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -25,5 +26,20 @@ func Middleware(cache Cache, duration time.Duration) gin.HandlerFunc {
 		rawQuery := c.Request.URL.RawQuery
 		key = PREFIX + md5String(fmt.Sprintf("%s%s", uri, rawQuery))
 		CacheRequest(c, key, cache, duration)
+	}
+}
+
+type InvalidateCacheFunc func(uri string) gin.HandlerFunc
+
+func InvalidateMiddleware(cache Cache) InvalidateCacheFunc {
+	return func(uri string) gin.HandlerFunc {
+		return func(c *gin.Context) {
+			var key, newUri string
+			userID := c.GetHeader("X-User-ID")
+			newUri = strings.Replace(uri, ":user_id", userID, 1)
+			rawQuery := c.Request.URL.RawQuery
+			key = PREFIX + md5String(fmt.Sprintf("%s%s", newUri, rawQuery))
+			CacheInvalidate(c, key, cache)
+		}
 	}
 }
