@@ -29,11 +29,12 @@ func TestJwt(t *testing.T) {
 			map[string][]string{
 				"foo.bar": {"create"},
 			},
+			true,
 		)
 
 		token, err := NewJWT(jc, "secret")
 		assert.NoError(t, err)
-		assert.Equal(t, token, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQwOTgxNjcxMjYsIm5iZiI6MTQxNTc5MjcyNiwiaWF0IjoxNDE1NzkyNzI2LCJjbGllbnRfaWQiOiI1ZmUxZmY1ZC1kZDMxLTQ5NmEtOWRmYS1jOTVjYzc4NDdkZjgiLCJwbGFuIjp7ImlkIjoiOTMwYjVmMTAtZjQ1Ny00YWQ4LTk5NzctNTZjMzhmMmYxYWE5IiwibWV0YWRhdGEiOnsibWF4X2FwaV9rZXlzIjoxMCwibWF4X3N1YnNjcmlwdGlvbl9yZWNvcmRzIjoyMDAwLCJzY29wZSI6ImxpdmUsdGVzdCJ9fSwidXNlciI6eyJuYW1lIjoiSm9lIiwic3VybmFtZSI6IkRvZSIsImVtYWlsIjoiam9lQGRvZS5jb20iLCJhY3RpdmF0ZWQiOnRydWV9LCJzY29wZXMiOnsiZm9vLmJhciI6WyJjcmVhdGUiXX19.gp1GL7IigMGZ17iyJAReK-AxNNhPXTm7A7cY4rZfrmY")
+		assert.Equal(t, token, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQwOTgxNjcxMjYsIm5iZiI6MTQxNTc5MjcyNiwiaWF0IjoxNDE1NzkyNzI2LCJjbGllbnRfaWQiOiI1ZmUxZmY1ZC1kZDMxLTQ5NmEtOWRmYS1jOTVjYzc4NDdkZjgiLCJwbGFuIjp7ImlkIjoiOTMwYjVmMTAtZjQ1Ny00YWQ4LTk5NzctNTZjMzhmMmYxYWE5IiwibWV0YWRhdGEiOnsibWF4X2FwaV9rZXlzIjoxMCwibWF4X3N1YnNjcmlwdGlvbl9yZWNvcmRzIjoyMDAwLCJzY29wZSI6ImxpdmUsdGVzdCJ9fSwidXNlciI6eyJuYW1lIjoiSm9lIiwic3VybmFtZSI6IkRvZSIsImVtYWlsIjoiam9lQGRvZS5jb20iLCJhY3RpdmF0ZWQiOnRydWUsInZlcmlmaWVkIjp0cnVlfSwic2NvcGVzIjp7ImZvby5iYXIiOlsiY3JlYXRlIl19fQ.BYr_ac0VB4-5CM4n9rZR9idTUTyn-TnRq4uK9Gh6WfM")
 	})
 
 	t.Run("Given a valid claim should parse jwt claims successfully", func(t *testing.T) {
@@ -52,11 +53,12 @@ func TestJwt(t *testing.T) {
 			map[string][]string{
 				"foo.bar": {"create"},
 			},
+			true,
 		)
 
 		var claims JWTClaims
 		err := DecodeJWT(
-			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQwOTgxNjcxMjYsIm5iZiI6MTQxNTc5MjcyNiwiaWF0IjoxNDE1NzkyNzI2LCJjbGllbnRfaWQiOiI1ZmUxZmY1ZC1kZDMxLTQ5NmEtOWRmYS1jOTVjYzc4NDdkZjgiLCJwbGFuIjp7ImlkIjoiOTMwYjVmMTAtZjQ1Ny00YWQ4LTk5NzctNTZjMzhmMmYxYWE5IiwibWV0YWRhdGEiOnsibWF4X2FwaV9rZXlzIjoxMCwibWF4X3N1YnNjcmlwdGlvbl9yZWNvcmRzIjoyMDAwLCJzY29wZSI6ImxpdmUsdGVzdCJ9fSwidXNlciI6eyJuYW1lIjoiSm9lIiwic3VybmFtZSI6IkRvZSIsImVtYWlsIjoiam9lQGRvZS5jb20iLCJhY3RpdmF0ZWQiOnRydWV9LCJzY29wZXMiOnsiZm9vLmJhciI6WyJjcmVhdGUiXX19.gp1GL7IigMGZ17iyJAReK-AxNNhPXTm7A7cY4rZfrmY",
+			"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQwOTgxNjcxMjYsIm5iZiI6MTQxNTc5MjcyNiwiaWF0IjoxNDE1NzkyNzI2LCJjbGllbnRfaWQiOiI1ZmUxZmY1ZC1kZDMxLTQ5NmEtOWRmYS1jOTVjYzc4NDdkZjgiLCJwbGFuIjp7ImlkIjoiOTMwYjVmMTAtZjQ1Ny00YWQ4LTk5NzctNTZjMzhmMmYxYWE5IiwibWV0YWRhdGEiOnsibWF4X2FwaV9rZXlzIjoxMCwibWF4X3N1YnNjcmlwdGlvbl9yZWNvcmRzIjoyMDAwLCJzY29wZSI6ImxpdmUsdGVzdCJ9fSwidXNlciI6eyJuYW1lIjoiSm9lIiwic3VybmFtZSI6IkRvZSIsImVtYWlsIjoiam9lQGRvZS5jb20iLCJhY3RpdmF0ZWQiOnRydWUsInZlcmlmaWVkIjp0cnVlfSwic2NvcGVzIjp7ImZvby5iYXIiOlsiY3JlYXRlIl19fQ.BYr_ac0VB4-5CM4n9rZR9idTUTyn-TnRq4uK9Gh6WfM",
 			"secret",
 			&claims,
 		)
