@@ -18,6 +18,7 @@ type userClaims struct {
 	Surname   string `json:"surname,omitempty"`
 	Email     string `json:"email,omitempty"`
 	Activated bool   `json:"activated,omitempty"`
+	Verified bool `json:"verified,omitempty"`
 	Deleted   bool   `json:"deleted,omitempty"`
 }
 
@@ -33,7 +34,7 @@ func (c JWTClaims) Valid() error {
 	return nil
 }
 
-func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, planID string, planMetadata map[string]interface{}, userName string, userSurname string, userEmail string, userActivated, userDeleted bool, scopes map[string][]string) JWTClaims {
+func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, planID string, planMetadata map[string]interface{}, userName string, userSurname string, userEmail string, userActivated, userDeleted bool, scopes map[string][]string, userVerified bool) JWTClaims {
 	return JWTClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
@@ -50,6 +51,7 @@ func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, plan
 			Surname:   userSurname,
 			Email:     userEmail,
 			Activated: userActivated,
+			Verified: userVerified,
 			Deleted:   userDeleted,
 		},
 		Scopes: scopes,
