@@ -18,7 +18,7 @@ type userClaims struct {
 	Surname   string `json:"surname,omitempty"`
 	Email     string `json:"email,omitempty"`
 	Activated bool   `json:"activated,omitempty"`
-	Verified bool `json:"verified,omitempty"`
+	Verified  bool   `json:"verified,omitempty"`
 	Deleted   bool   `json:"deleted,omitempty"`
 }
 
@@ -51,7 +51,7 @@ func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, plan
 			Surname:   userSurname,
 			Email:     userEmail,
 			Activated: userActivated,
-			Verified: userVerified,
+			Verified:  userVerified,
 			Deleted:   userDeleted,
 		},
 		Scopes: scopes,
@@ -91,6 +91,19 @@ func DecodeJWT(tokenString string, secret string, claims *JWTClaims) error {
 	})
 
 	if _, ok := token.Claims.(*JWTClaims); ok && token.Valid {
+		return nil
+	} else {
+		return err
+	}
+}
+
+func DecodeJWTUnverified(tokenString string, claims *JWTClaims) error {
+	tokenClaims, _, err := new(jwt.Parser).ParseUnverified(tokenString, claims)
+	if err != nil {
+		return err
+	}
+
+	if _, ok := tokenClaims.Claims.(jwt.MapClaims); ok {
 		return nil
 	} else {
 		return err
