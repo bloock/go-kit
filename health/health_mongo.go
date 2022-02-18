@@ -2,21 +2,22 @@ package health
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/bloock/go-kit/client"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
 type HealthMongo struct {
-	client      *mongo.Client
+	client      *client.MongoClient
 	description string
 	version     string
 }
 
-func NewHealthMongo(client *mongo.Client, description, version string) HealthMongo {
+func NewHealthMongo(client *client.MongoClient, description string) HealthMongo {
 	return HealthMongo{
 		client:      client,
 		description: description,
-		version:     version,
+		version:     DepVersion("mongo-driver"),
 	}
 }
 
@@ -25,7 +26,7 @@ func (h HealthMongo) HealthCheck() ExternalServiceDetails {
 	var e string
 
 	ctx := context.Background()
-	err := h.client.Ping(ctx, readpref.Primary())
+	err := h.client.DB().Ping(ctx, readpref.Primary())
 	if err != nil {
 		s = "error"
 		e = err.Error()

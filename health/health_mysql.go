@@ -1,29 +1,28 @@
 package health
 
 import (
-	"database/sql"
-
+	"github.com/bloock/go-kit/client"
 	_ "github.com/go-sql-driver/mysql"
 )
 
 type HealthMysql struct {
-	db          *sql.DB
+	client      *client.MysqlClient
 	description string
 	version     string
 }
 
-func NewHealthMysql(db *sql.DB, description, version string) HealthMysql {
+func NewHealthMysql(client *client.MysqlClient, description string) HealthMysql {
 	return HealthMysql{
-		db:          db,
+		client:      client,
 		description: description,
-		version:     version,
+		version:     DepVersion("go-sql-driver/mysql"),
 	}
 }
 
 func (h HealthMysql) HealthCheck() ExternalServiceDetails {
 	s := "pass"
 	var e string
-	if err := h.db.Ping(); err != nil {
+	if err := h.client.DB().Ping(); err != nil {
 		s = "error"
 		e = err.Error()
 	}
