@@ -4,4 +4,4 @@ mocks:
 	mockgen -source=request/http_request.go -destination mocks/request/mock_http_request.go
 	mockgen -source=cache/cache.go -destination mocks/cache/mock_cache.go
 	mockgen -source=event/event.go -destination mocks/event/mock_event.go
-	mockgen -source=publisher/amqp_publisher.go -destination mocks/publisher/mock_amqp_publisher.go
+	mockgen -source=publisher/publisher.go -destination mocks/publisher/mock_publisher.go
