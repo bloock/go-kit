@@ -3,6 +3,7 @@ module github.com/bloock/go-kit
 go 1.17
 
 require (
+	github.com/gin-contrib/logger v0.2.2
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-openapi/runtime v0.23.1
 	github.com/go-redis/redis v6.15.9+incompatible

@@ -2,10 +2,12 @@ package runtime
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"time"
 
 	"github.com/bloock/go-kit/client"
+	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	openApiMiddleware "github.com/go-openapi/runtime/middleware"
 	"github.com/rs/zerolog"
@@ -13,13 +15,15 @@ import (
 
 type GinRuntime struct {
 	client       *client.GinEngine
+	debug        bool
 	shutdownTime time.Duration
 	logger       zerolog.Logger
 }
 
-func NewGinRuntime(c *client.GinEngine, shutdownTime time.Duration, l zerolog.Logger) (*GinRuntime, error) {
+func NewGinRuntime(c *client.GinEngine, debug bool, shutdownTime time.Duration, l zerolog.Logger) (*GinRuntime, error) {
 	e := GinRuntime{
 		client:       c,
+		debug:        debug,
 		shutdownTime: shutdownTime,
 		logger:       l,
 	}
@@ -28,6 +32,22 @@ func NewGinRuntime(c *client.GinEngine, shutdownTime time.Duration, l zerolog.Lo
 }
 
 func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
+	if e.debug {
+		l := logger.SetLogger(
+			logger.WithUTC(true),
+			logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
+				return e.logger.With().
+					Int("status", c.Writer.Status()).
+					Str("method", c.Request.Method).
+					Str("path", c.Request.URL.Path).
+					Str("ip", c.ClientIP()).
+					Dur("latency", latency).
+					Str("user_agent", c.Request.UserAgent()).
+					Logger()
+			}),
+		)
+		e.client.Engine().Use(l)
+	}
 	f(e.client.Engine())
 	e.enableSwagger()
 }
