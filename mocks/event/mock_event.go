@@ -5,87 +5,12 @@
 package mock_event
 
 import (
-	context "context"
 	reflect "reflect"
 	time "time"
 
 	event "github.com/bloock/go-kit/event"
 	gomock "github.com/golang/mock/gomock"
 )
-
-// MockBus is a mock of Bus interface.
-type MockBus struct {
-	ctrl     *gomock.Controller
-	recorder *MockBusMockRecorder
-}
-
-// MockBusMockRecorder is the mock recorder for MockBus.
-type MockBusMockRecorder struct {
-	mock *MockBus
-}
-
-// NewMockBus creates a new mock instance.
-func NewMockBus(ctrl *gomock.Controller) *MockBus {
-	mock := &MockBus{ctrl: ctrl}
-	mock.recorder = &MockBusMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockBus) EXPECT() *MockBusMockRecorder {
-	return m.recorder
-}
-
-// Publish mocks base method.
-func (m *MockBus) Publish(arg0 context.Context, arg1 []event.Event) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Publish", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Publish indicates an expected call of Publish.
-func (mr *MockBusMockRecorder) Publish(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockBus)(nil).Publish), arg0, arg1)
-}
-
-// MockHandler is a mock of Handler interface.
-type MockHandler struct {
-	ctrl     *gomock.Controller
-	recorder *MockHandlerMockRecorder
-}
-
-// MockHandlerMockRecorder is the mock recorder for MockHandler.
-type MockHandlerMockRecorder struct {
-	mock *MockHandler
-}
-
-// NewMockHandler creates a new mock instance.
-func NewMockHandler(ctrl *gomock.Controller) *MockHandler {
-	mock := &MockHandler{ctrl: ctrl}
-	mock.recorder = &MockHandlerMockRecorder{mock}
-	return mock
-}
-
-// EXPECT returns an object that allows the caller to indicate expected use.
-func (m *MockHandler) EXPECT() *MockHandlerMockRecorder {
-	return m.recorder
-}
-
-// Handle mocks base method.
-func (m *MockHandler) Handle(arg0 context.Context, arg1 event.Event) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Handle", arg0, arg1)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Handle indicates an expected call of Handle.
-func (mr *MockHandlerMockRecorder) Handle(arg0, arg1 interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Handle", reflect.TypeOf((*MockHandler)(nil).Handle), arg0, arg1)
-}
 
 // MockEvent is a mock of Event interface.
 type MockEvent struct {
@@ -110,20 +35,6 @@ func (m *MockEvent) EXPECT() *MockEventMockRecorder {
 	return m.recorder
 }
 
-// AggregateID mocks base method.
-func (m *MockEvent) AggregateID() string {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "AggregateID")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// AggregateID indicates an expected call of AggregateID.
-func (mr *MockEventMockRecorder) AggregateID() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AggregateID", reflect.TypeOf((*MockEvent)(nil).AggregateID))
-}
-
 // ID mocks base method.
 func (m *MockEvent) ID() string {
 	m.ctrl.T.Helper()
@@ -136,21 +47,6 @@ func (m *MockEvent) ID() string {
 func (mr *MockEventMockRecorder) ID() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ID", reflect.TypeOf((*MockEvent)(nil).ID))
-}
-
-// Marshaller mocks base method.
-func (m *MockEvent) Marshaller() ([]byte, error) {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Marshaller")
-	ret0, _ := ret[0].([]byte)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// Marshaller indicates an expected call of Marshaller.
-func (mr *MockEventMockRecorder) Marshaller() *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Marshaller", reflect.TypeOf((*MockEvent)(nil).Marshaller))
 }
 
 // OccurredOn mocks base method.
@@ -167,6 +63,20 @@ func (mr *MockEventMockRecorder) OccurredOn() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OccurredOn", reflect.TypeOf((*MockEvent)(nil).OccurredOn))
 }
 
+// Payload mocks base method.
+func (m *MockEvent) Payload() []byte {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Payload")
+	ret0, _ := ret[0].([]byte)
+	return ret0
+}
+
+// Payload indicates an expected call of Payload.
+func (mr *MockEventMockRecorder) Payload() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Payload", reflect.TypeOf((*MockEvent)(nil).Payload))
+}
+
 // Type mocks base method.
 func (m *MockEvent) Type() event.Type {
 	m.ctrl.T.Helper()
@@ -179,4 +89,18 @@ func (m *MockEvent) Type() event.Type {
 func (mr *MockEventMockRecorder) Type() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Type", reflect.TypeOf((*MockEvent)(nil).Type))
+}
+
+// Unmarshall mocks base method.
+func (m *MockEvent) Unmarshall(arg0 interface{}) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Unmarshall", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Unmarshall indicates an expected call of Unmarshall.
+func (mr *MockEventMockRecorder) Unmarshall(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unmarshall", reflect.TypeOf((*MockEvent)(nil).Unmarshall), arg0)
 }
