@@ -15,15 +15,13 @@ import (
 
 type GinRuntime struct {
 	client       *client.GinEngine
-	debug        bool
 	shutdownTime time.Duration
 	logger       zerolog.Logger
 }
 
-func NewGinRuntime(c *client.GinEngine, debug bool, shutdownTime time.Duration, l zerolog.Logger) (*GinRuntime, error) {
+func NewGinRuntime(c *client.GinEngine, shutdownTime time.Duration, l zerolog.Logger) (*GinRuntime, error) {
 	e := GinRuntime{
 		client:       c,
-		debug:        debug,
 		shutdownTime: shutdownTime,
 		logger:       l,
 	}
@@ -32,7 +30,7 @@ func NewGinRuntime(c *client.GinEngine, debug bool, shutdownTime time.Duration, 
 }
 
 func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
-	if e.debug {
+	if e.client.Debug() {
 		l := logger.SetLogger(
 			logger.WithUTC(true),
 			logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {

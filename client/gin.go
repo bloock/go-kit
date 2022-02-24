@@ -9,6 +9,7 @@ import (
 
 type GinEngine struct {
 	addr   string
+	debug  bool
 	engine *gin.Engine
 	logger zerolog.Logger
 }
@@ -24,6 +25,7 @@ func NewGinEngine(addr string, port uint, debug bool, l zerolog.Logger) *GinEngi
 
 	return &GinEngine{
 		addr:   fmt.Sprintf("%s:%d", addr, port),
+		debug:  debug,
 		engine: gin.New(),
 		logger: l,
 	}
@@ -35,4 +37,8 @@ func (g GinEngine) Addr() string {
 
 func (g GinEngine) Engine() *gin.Engine {
 	return g.engine
+}
+
+func (g GinEngine) Debug() bool {
+	return g.debug
 }
