@@ -13,7 +13,7 @@ import (
 	"github.com/streadway/amqp"
 )
 
-type AMQPHandler func(event.Event) error
+type AMQPHandler func(context.Context, event.Event) error
 
 var (
 	ErrDisconnected = errors.New("disconnected from rabbitmq, trying to reconnect")
@@ -62,7 +62,7 @@ func NewAMQPClient(ctx context.Context, consumer string, user, password, host, p
 }
 
 // Consume implements the event.Bus interface.
-func (a *AMQPClient) Consume(_type event.Type, handlers ...AMQPHandler) error {
+func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQPHandler) error {
 	a.wg.Add(1)
 	for {
 		if a.isConnected {
@@ -77,7 +77,7 @@ func (a *AMQPClient) Consume(_type event.Type, handlers ...AMQPHandler) error {
 	}
 
 	err = a.consumeChannel.ExchangeDeclare(
-		string(_type),
+		string(t),
 		amqp.ExchangeFanout,
 		true,
 		false,
@@ -90,7 +90,7 @@ func (a *AMQPClient) Consume(_type event.Type, handlers ...AMQPHandler) error {
 	}
 
 	q, err := a.consumeChannel.QueueDeclare(
-		fmt.Sprintf("%s.%s", string(_type), a.consumer),
+		fmt.Sprintf("%s.%s", string(t), a.consumer),
 		true,
 		false,
 		false,
@@ -101,19 +101,19 @@ func (a *AMQPClient) Consume(_type event.Type, handlers ...AMQPHandler) error {
 		return err
 	}
 
-	err = a.consumeChannel.QueueBind(q.Name, "", string(_type), false, nil)
+	err = a.consumeChannel.QueueBind(q.Name, "", string(t), false, nil)
 	if err != nil {
 		return err
 	}
 
 	msgs, err := a.consumeChannel.Consume(
 		q.Name,
-		a.consumerName(string(_type)), // Consumer
-		false,                         // Auto-Ack
-		false,                         // Exclusive
-		false,                         // No-local
-		false,                         // No-Wait
-		nil,                           // Args
+		a.consumerName(string(t)), // Consumer
+		false,                     // Auto-Ack
+		false,                     // Exclusive
+		false,                     // No-local
+		false,                     // No-Wait
+		nil,                       // Args
 	)
 	if err != nil {
 		return err
@@ -132,7 +132,7 @@ func (a *AMQPClient) Consume(_type event.Type, handlers ...AMQPHandler) error {
 				}
 				startTime := time.Now()
 
-				evt := event.NewAMQPEvent(msg, _type)
+				evt := event.NewAMQPEvent(msg, t)
 
 				defer func(e event.Event, m amqp.Delivery) {
 					if err := recover(); err != nil {
@@ -144,7 +144,7 @@ func (a *AMQPClient) Consume(_type event.Type, handlers ...AMQPHandler) error {
 				}(evt, msg)
 
 				for _, handler := range handlers {
-					err := handler(evt)
+					err := handler(ctx, evt)
 					if err != nil {
 						a.logAndNack(msg, startTime, err.Error())
 						break

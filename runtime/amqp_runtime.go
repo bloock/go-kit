@@ -35,7 +35,7 @@ func (e *AMQPRuntime) SetHandlers(h map[event.Type][]client.AMQPHandler) {
 
 func (e *AMQPRuntime) Run(ctx context.Context) {
 	for t, h := range e.handlers {
-		err := e.client.Consume(t, h...)
+		err := e.client.Consume(ctx, t, h...)
 		if err != nil {
 			e.logger.Error().Msgf("error consuming type %s: %s", t, err.Error())
 			continue
