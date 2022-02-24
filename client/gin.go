@@ -13,7 +13,7 @@ type GinEngine struct {
 	logger zerolog.Logger
 }
 
-func NewGinEngine(addr string, port string, debug bool, l zerolog.Logger) *GinEngine {
+func NewGinEngine(addr string, port uint, debug bool, l zerolog.Logger) *GinEngine {
 	l = l.With().Str("layer", "infrastructure").Str("component", "gin").Logger()
 
 	if !debug {
@@ -23,7 +23,7 @@ func NewGinEngine(addr string, port string, debug bool, l zerolog.Logger) *GinEn
 	gin.DefaultErrorWriter = l.With().Str("level", "error").Logger()
 
 	return &GinEngine{
-		addr:   fmt.Sprintf("%s:%s", addr, port),
+		addr:   fmt.Sprintf("%s:%d", addr, port),
 		engine: gin.New(),
 		logger: l,
 	}
