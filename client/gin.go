@@ -1,6 +1,8 @@
 package client
 
 import (
+	"fmt"
+
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 )
@@ -11,7 +13,7 @@ type GinEngine struct {
 	logger zerolog.Logger
 }
 
-func NewGinEngine(addr string, debug bool, l zerolog.Logger) *GinEngine {
+func NewGinEngine(addr string, port string, debug bool, l zerolog.Logger) *GinEngine {
 	l = l.With().Str("layer", "infrastructure").Str("component", "gin").Logger()
 
 	if !debug {
@@ -21,7 +23,7 @@ func NewGinEngine(addr string, debug bool, l zerolog.Logger) *GinEngine {
 	gin.DefaultErrorWriter = l.With().Str("level", "error").Logger()
 
 	return &GinEngine{
-		addr:   addr,
+		addr:   fmt.Sprintf("%s:%s", addr, port),
 		engine: gin.New(),
 		logger: l,
 	}
