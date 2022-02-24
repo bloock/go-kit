@@ -11,7 +11,7 @@ import (
 
 type AMQPRuntime struct {
 	client   *client.AMQPClient
-	handlers map[string][]client.AMQPHandler
+	handlers map[event.Type][]client.AMQPHandler
 
 	shutdownTime time.Duration
 
@@ -21,7 +21,7 @@ type AMQPRuntime struct {
 func NewAMQPRuntime(c *client.AMQPClient, shutdownTime time.Duration, l zerolog.Logger) (*AMQPRuntime, error) {
 	e := AMQPRuntime{
 		client:       c,
-		handlers:     make(map[string][]client.AMQPHandler),
+		handlers:     make(map[event.Type][]client.AMQPHandler),
 		shutdownTime: shutdownTime,
 		logger:       l,
 	}
@@ -29,13 +29,13 @@ func NewAMQPRuntime(c *client.AMQPClient, shutdownTime time.Duration, l zerolog.
 	return &e, nil
 }
 
-func (e *AMQPRuntime) SetHandlers(h map[string][]client.AMQPHandler) {
+func (e *AMQPRuntime) SetHandlers(h map[event.Type][]client.AMQPHandler) {
 	e.handlers = h
 }
 
 func (e *AMQPRuntime) Run(ctx context.Context) {
 	for t, h := range e.handlers {
-		err := e.client.Consume(event.Type(t), h...)
+		err := e.client.Consume(t, h...)
 		if err != nil {
 			e.logger.Error().Msgf("error consuming type %s: %s", t, err.Error())
 			continue

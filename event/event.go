@@ -17,40 +17,6 @@ type Event interface {
 	Unmarshall(interface{}) error
 }
 
-type BaseEvent struct {
-	eventID    string
-	_type      Type
-	occurredOn time.Time
-}
-
-func NewBaseEvent(aggregateID, _type string) Event {
-	return BaseEvent{
-		eventID:    uuid.New().String(),
-		occurredOn: time.Now(),
-		_type:      Type(_type),
-	}
-}
-
-func (b BaseEvent) ID() string {
-	return b.eventID
-}
-
-func (b BaseEvent) Type() Type {
-	return b._type
-}
-
-func (b BaseEvent) OccurredOn() time.Time {
-	return b.occurredOn
-}
-
-func (b BaseEvent) Unmarshall(i interface{}) error {
-	return nil
-}
-
-func (e BaseEvent) Payload() []byte {
-	return []byte{}
-}
-
 type EntityEvent struct {
 	eventID    string
 	_type      Type
@@ -58,7 +24,7 @@ type EntityEvent struct {
 	occurredOn time.Time
 }
 
-func NewEntityEvent(_type string, payload interface{}) (Event, error) {
+func NewEntityEvent(_type Type, payload interface{}) (Event, error) {
 	b, err := json.Marshal(payload)
 	if err != nil {
 		return nil, err
@@ -66,7 +32,7 @@ func NewEntityEvent(_type string, payload interface{}) (Event, error) {
 
 	return EntityEvent{
 		eventID:    uuid.New().String(),
-		_type:      Type(_type),
+		_type:      _type,
 		payload:    b,
 		occurredOn: time.Now(),
 	}, nil
