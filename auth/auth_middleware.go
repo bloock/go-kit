@@ -11,17 +11,7 @@ const (
 	BEARER_PREFIX        = "Bearer"
 )
 
-type Auth struct {
-	jwtSecret string
-}
-
-func NewAuth(jwtSecret string) Auth {
-	return Auth{
-		jwtSecret: jwtSecret,
-	}
-}
-
-func (a *Auth) Middleware(ability Ability) gin.HandlerFunc {
+func Middleware(ability Ability) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorizationHeader := c.Request.Header.Get(AUTHORIZATION_HEADER)
 		if authorizationHeader == "" {
@@ -32,7 +22,7 @@ func (a *Auth) Middleware(ability Ability) gin.HandlerFunc {
 		}
 
 		var claims JWTClaims
-		err := DecodeJWT(authorizationHeader, a.jwtSecret, &claims)
+		err := DecodeJWTUnverified(authorizationHeader, &claims)
 		if err != nil {
 			c.Writer.WriteHeader(http.StatusUnauthorized)
 			c.Writer.Write([]byte("invalid token provided"))
