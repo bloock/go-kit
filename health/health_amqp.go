@@ -4,25 +4,25 @@ import (
 	"github.com/bloock/go-kit/client"
 )
 
-type HealthRedis struct {
-	client      *client.Redis
+type HealthAMQP struct {
+	client      *client.AMQPClient
 	description string
 	version     string
 }
 
-func NewHealthRedis(client *client.Redis, description string) HealthRedis {
-	return HealthRedis{
+func NewHealtAMQP(client *client.AMQPClient, description string) HealthAMQP {
+	return HealthAMQP{
 		client:      client,
 		description: description,
-		version:     DepVersion("go-redis/redis"),
+		version:     DepVersion("streadway/amqp"),
 	}
 }
 
-func (h HealthRedis) HealthCheck() ExternalServiceDetails {
+func (h HealthAMQP) HealthCheck() ExternalServiceDetails {
 	s := "pass"
 	var e string
 
-	_, err := h.client.Client().Ping().Result()
+	err := h.client.Ping()
 	if err != nil {
 		s = "error"
 		e = err.Error()

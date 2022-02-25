@@ -1,53 +1,59 @@
 package event
 
 import (
-	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/google/uuid"
 )
 
-//go:generate mockgen -source=event/event.go -destination mocks/event/mock_event.go
-type Bus interface {
-	Publish(context.Context, []Event) error
-}
-
-type Handler interface {
-	Handle(context.Context, Event) error
-}
-
 type Type string
 
 type Event interface {
 	ID() string
-	AggregateID() string
 	OccurredOn() time.Time
 	Type() Type
-	Marshaller() ([]byte, error)
+	Payload() []byte
+	Unmarshall(interface{}) error
 }
 
-type BaseEvent struct {
-	eventID     string
-	aggregateID string
-	occurredOn  time.Time
+type EntityEvent struct {
+	eventID    string
+	_type      Type
+	payload    []byte
+	occurredOn time.Time
 }
 
-func NewBaseEvent(aggregateID string) BaseEvent {
-	return BaseEvent{
-		eventID:     uuid.New().String(),
-		aggregateID: aggregateID,
-		occurredOn:  time.Now(),
+func NewEntityEvent(_type Type, payload interface{}) (Event, error) {
+	b, err := json.Marshal(payload)
+	if err != nil {
+		return nil, err
 	}
+
+	return EntityEvent{
+		eventID:    uuid.New().String(),
+		_type:      _type,
+		payload:    b,
+		occurredOn: time.Now(),
+	}, nil
 }
 
-func (b BaseEvent) ID() string {
+func (b EntityEvent) ID() string {
 	return b.eventID
 }
 
-func (b BaseEvent) OccurredOn() time.Time {
+func (b EntityEvent) OccurredOn() time.Time {
 	return b.occurredOn
 }
 
-func (b BaseEvent) AggregateID() string {
-	return b.aggregateID
+func (b EntityEvent) Type() Type {
+	return b._type
+}
+
+func (b EntityEvent) Unmarshall(i interface{}) error {
+	return json.Unmarshal(b.payload, &i)
+}
+
+func (e EntityEvent) Payload() []byte {
+	return e.payload
 }
