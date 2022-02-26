@@ -2,7 +2,6 @@ package auth
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -74,7 +73,6 @@ func ValidJWT(tokenString string, secret string) bool {
 	})
 
 	if err != nil {
-		log.Println(err.Error())
 		return false
 	}
 

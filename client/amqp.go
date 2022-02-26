@@ -68,7 +68,13 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 		if a.isConnected {
 			break
 		}
-		time.Sleep(1 * time.Second)
+		time.Sleep(a.reconnectDelay)
+
+		select {
+		case <-a.ctx.Done():
+			return fmt.Errorf("could not connect to client")
+		default:
+		}
 	}
 
 	err := a.consumeChannel.Qos(1, 0, false)
@@ -186,6 +192,8 @@ func (a *AMQPClient) Publish(event event.Event) error {
 			if confirm.Ack {
 				return nil
 			}
+		case <-a.ctx.Done():
+			return fmt.Errorf("could not connect to client")
 		case <-time.After(a.resendDelay):
 		}
 	}
