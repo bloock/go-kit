@@ -126,6 +126,8 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 			select {
 			case <-a.ctx.Done():
 				return
+			case <-a.consumeNotifyClose:
+				return
 			case msg, ok := <-msgs:
 				if !ok {
 					return
@@ -195,6 +197,10 @@ func (c *AMQPClient) Ping() error {
 	}
 
 	return nil
+}
+
+func (c *AMQPClient) NotifyConsumeClose() chan *amqp.Error {
+	return c.consumeNotifyClose
 }
 
 func (c *AMQPClient) Close() error {
