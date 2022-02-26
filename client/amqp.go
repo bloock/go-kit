@@ -143,20 +143,27 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 					}
 				}(evt, msg)
 
-				for _, handler := range handlers {
-					err := handler(ctx, evt)
-					if err != nil {
-						a.logAndNack(msg, startTime, err.Error())
-						break
-					}
+				err = a.handleMessage(ctx, evt, handlers...)
+				if err != nil {
+					a.logAndNack(msg, startTime, err.Error())
+				} else {
+					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(evt.Type())).Str("id", evt.ID()).Msg("successfully consumed message")
+					msg.Ack(false)
 				}
-
-				a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(evt.Type())).Str("id", evt.ID()).Msg("successfully consumed message")
-				msg.Ack(false)
 			}
 		}
 	}()
 
+	return nil
+}
+
+func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handlers ...AMQPHandler) error {
+	for _, handler := range handlers {
+		err := handler(ctx, evt)
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
