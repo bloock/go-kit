@@ -82,6 +82,37 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 		return err
 	}
 
+	eDlxName := fmt.Sprintf("%s.dead", string(t))
+	err = a.consumeChannel.ExchangeDeclare(
+		eDlxName,
+		amqp.ExchangeDirect,
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	qdlx, err := a.consumeChannel.QueueDeclare(
+		fmt.Sprintf("%s.%s.dead", string(t), a.consumer),
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		return err
+	}
+
+	err = a.consumeChannel.QueueBind(qdlx.Name, fmt.Sprintf("%s.%s", string(t), a.consumer), eDlxName, false, nil)
+	if err != nil {
+		return err
+	}
+
 	err = a.consumeChannel.ExchangeDeclare(
 		string(t),
 		amqp.ExchangeFanout,
@@ -101,7 +132,10 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 		false,
 		false,
 		false,
-		nil,
+		amqp.Table{
+			"x-dead-letter-exchange":    eDlxName,
+			"x-dead-letter-routing-key": fmt.Sprintf("%s.%s", string(t), a.consumer),
+		},
 	)
 	if err != nil {
 		return err
