@@ -19,8 +19,11 @@ func NewAMQPPublisher(client *client.AMQPClient, l zerolog.Logger) Publisher {
 	}
 }
 
-func (p AMQPPublisher) Publish(event event.Event) error {
-	err := p.client.Publish(event)
+func (p AMQPPublisher) Publish(event event.Event, args *PublisherArgs) error {
+	if args == nil {
+		args = &PublisherArgs{}
+	}
+	err := p.client.Publish(event, args.Headers, args.Expiration)
 	if err != nil {
 		p.logger.Error().Msgf("error publishing event %s with ID %s: %s", event.Type(), event.ID(), err.Error())
 		return err

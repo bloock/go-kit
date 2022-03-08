@@ -1,6 +1,6 @@
 package event_entity
 
-type Plan struct {
+type SubscriptionsPlan struct {
 	PlanID                 string `json:"plan_id"`
 	PlanScope              string `json:"plan_scope"`
 	License                string `json:"license"`
@@ -8,8 +8,8 @@ type Plan struct {
 	MaxSubscriptionRecords int    `json:"max_sub_records"`
 }
 
-func NewPlanEventEntity(planID, planScope, license string, maxApiKeys, maxSubRecords int) Plan {
-	return Plan{
+func NewPlanEventEntity(planID, planScope, license string, maxApiKeys, maxSubRecords int) SubscriptionsPlan {
+	return SubscriptionsPlan{
 		PlanID:                 planID,
 		PlanScope:              planScope,
 		License:                license,

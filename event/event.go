@@ -15,6 +15,7 @@ type Event interface {
 	Type() Type
 	Payload() []byte
 	Unmarshall(interface{}) error
+	Headers() map[string]interface{}
 }
 
 type EntityEvent struct {
@@ -56,4 +57,8 @@ func (b EntityEvent) Unmarshall(i interface{}) error {
 
 func (e EntityEvent) Payload() []byte {
 	return e.payload
+}
+
+func (e EntityEvent) Headers() map[string]interface{} {
+	return map[string]interface{}{}
 }

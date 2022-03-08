@@ -55,6 +55,14 @@ var (
 	NetworkConfirmed = newEvent(transactions, network, "confirmed")
 )
 
+// Notification events
+var (
+	webhook           = "webhook"
+	WebhookScheduler  = newEvent(notifications, webhook, "schedule")
+	WebhookInvocation = newEvent(notifications, webhook, "invocation")
+	WebhookRetry      = newEvent(notifications, webhook, "retry")
+)
+
 func newEvent(service, entity, action string) Type {
 	return Type(fmt.Sprintf("%s.%s.%s", service, entity, action))
 }

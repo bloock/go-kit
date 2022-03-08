@@ -38,3 +38,7 @@ func (e AMQPEvent) Payload() []byte {
 func (e AMQPEvent) Unmarshall(i interface{}) error {
 	return json.Unmarshal(e.Delivery.Body, &i)
 }
+
+func (e AMQPEvent) Headers() map[string]interface{} {
+	return e.Delivery.Headers
+}

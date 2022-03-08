@@ -8,6 +8,7 @@ import (
 	reflect "reflect"
 
 	event "github.com/bloock/go-kit/event"
+	publisher "github.com/bloock/go-kit/publisher"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,15 +36,15 @@ func (m *MockPublisher) EXPECT() *MockPublisherMockRecorder {
 }
 
 // Publish mocks base method.
-func (m *MockPublisher) Publish(event event.Event) error {
+func (m *MockPublisher) Publish(event event.Event, args *publisher.PublisherArgs) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Publish", event)
+	ret := m.ctrl.Call(m, "Publish", event, args)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Publish indicates an expected call of Publish.
-func (mr *MockPublisherMockRecorder) Publish(event interface{}) *gomock.Call {
+func (mr *MockPublisherMockRecorder) Publish(event, args interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockPublisher)(nil).Publish), event)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Publish", reflect.TypeOf((*MockPublisher)(nil).Publish), event, args)
 }

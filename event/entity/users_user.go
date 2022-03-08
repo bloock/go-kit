@@ -1,6 +1,6 @@
 package event_entity
 
-type User struct {
+type UsersUser struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`
 	Surname     string `json:"surname"`
@@ -11,8 +11,8 @@ type User struct {
 	Deleted     bool   `json:"deleted"`
 }
 
-func NewUserEventEntity(id, name, surname, email, password, verifyToken string, activated, deleted bool) User {
-	return User{
+func NewUserEventEntity(id, name, surname, email, password, verifyToken string, activated, deleted bool) UsersUser {
+	return UsersUser{
 		ID:          id,
 		Name:        name,
 		Surname:     surname,
