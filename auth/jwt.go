@@ -2,6 +2,7 @@ package auth
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -106,4 +107,13 @@ func DecodeJWTUnverified(tokenString string, claims *JWTClaims) error {
 	} else {
 		return err
 	}
+}
+
+func GetBearerToken(token string) string {
+	splitToken := strings.Split(token, BEARER_PREFIX)
+
+	if len(splitToken) != 2 {
+		return ""
+	}
+	return strings.TrimSpace(splitToken[1])
 }

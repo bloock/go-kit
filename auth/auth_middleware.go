@@ -21,11 +21,19 @@ func Middleware(ability Ability) gin.HandlerFunc {
 			return
 		}
 
-		var claims JWTClaims
-		err := DecodeJWTUnverified(authorizationHeader, &claims)
-		if err != nil {
+		jwtToken := GetBearerToken(authorizationHeader)
+		if jwtToken == "" {
 			c.Writer.WriteHeader(http.StatusUnauthorized)
 			c.Writer.Write([]byte("invalid token provided"))
+			c.Abort()
+			return
+		}
+
+		var claims JWTClaims
+		err := DecodeJWTUnverified(jwtToken, &claims)
+		if err != nil {
+			c.Writer.WriteHeader(http.StatusUnauthorized)
+			c.Writer.Write([]byte("invalid token content provided"))
 			c.Abort()
 			return
 		}
