@@ -61,6 +61,9 @@ var (
 	WebhookScheduler  = newEvent(notifications, webhook, "schedule")
 	WebhookInvocation = newEvent(notifications, webhook, "invocation")
 	WebhookRetry      = newEvent(notifications, webhook, "retry")
+
+	email     = "email"
+	SendEmail = newEvent(notifications, email, "send")
 )
 
 func newEvent(service, entity, action string) Type {
