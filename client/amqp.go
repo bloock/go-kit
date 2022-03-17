@@ -375,6 +375,11 @@ func (a *AMQPClient) UnsafePush(exchange string, id string, data []byte, headers
 	if !a.isConnected {
 		return ErrDisconnected
 	}
+
+	exp := ""
+	if expiration != 0 {
+		exp = fmt.Sprintf("%d", expiration)
+	}
 	return a.publishChannel.Publish(
 		exchange, // Exchange
 		"",       // Routing key
@@ -385,7 +390,7 @@ func (a *AMQPClient) UnsafePush(exchange string, id string, data []byte, headers
 			CorrelationId: id,
 			Body:          data,
 			Headers:       headers,
-			Expiration:    fmt.Sprintf("%d", expiration),
+			Expiration:    exp,
 		},
 	)
 }
