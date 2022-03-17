@@ -3,6 +3,7 @@ module github.com/bloock/go-kit
 go 1.17
 
 require (
+	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/gin-contrib/logger v0.2.2
 	github.com/gin-gonic/gin v1.7.4
 	github.com/go-openapi/runtime v0.23.1
@@ -12,6 +13,7 @@ require (
 	github.com/golang-migrate/migrate/v4 v4.15.1
 	github.com/golang/mock v1.6.0
 	github.com/google/uuid v1.3.0
+	github.com/huandu/go-sqlbuilder v1.13.0
 	github.com/icza/bitio v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/rs/zerolog v1.26.1
@@ -46,6 +48,7 @@ require (
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/hashicorp/errwrap v1.0.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.0 // indirect
+	github.com/huandu/xstrings v1.3.2 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/klauspost/compress v1.14.2 // indirect

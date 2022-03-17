@@ -3,17 +3,18 @@ package pagination_mongo
 import (
 	"context"
 	"fmt"
+	"reflect"
+
 	"github.com/bloock/go-kit/pagination"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"reflect"
 )
 
 type paginationResponse struct {
 	Metadata []struct {
-		Total int64 `bson:"total"`
-		Page  int64 `bson:"page"`
+		Total int `bson:"total"`
+		Page  int `bson:"page"`
 	} `bson:"metadata"`
 	Data []bson.M `bson:"data"`
 }
