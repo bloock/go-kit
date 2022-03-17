@@ -13,11 +13,10 @@ type paginationResponse struct {
 	Total int `db:"total"`
 }
 
-func GetPagination(ctx context.Context, db *sql.DB, table string, pq pagination.PaginationQuery) (pagination.Pagination, error) {
+func GetPagination(ctx context.Context, db *sql.DB, sb *sqlbuilder.SelectBuilder, pq pagination.PaginationQuery) (pagination.Pagination, error) {
 	paginationSQLStruct := sqlbuilder.NewStruct(new(paginationResponse))
-	sb := sqlbuilder.NewSelectBuilder()
-	sb.Select("count(*) as total").
-		From(table)
+
+	sb.Select("count(*) as total").Limit(-1).Offset(-1)
 
 	query, args := sb.Build()
 
