@@ -55,7 +55,13 @@ var (
 var (
 	anchor          = "anchor"
 	AnchorCreated   = newEvent(core, anchor, create)
+	AnchorUpdated   = newEvent(core, anchor, update)
 	AnchorFinalized = newEvent(core, anchor, "finalized")
+
+	anchorNetwork          = "anchor_network"
+	AnchorNetworkCreated   = newEvent(core, anchorNetwork, create)
+	AnchorNetworkUpdated   = newEvent(core, anchorNetwork, update)
+	AnchorNetworkConfirmed = newEvent(core, anchorNetwork, "confirmed")
 )
 
 // Transaction events
@@ -71,6 +77,7 @@ var (
 	WebhookScheduler  = newEvent(notifications, webhook, "schedule")
 	WebhookInvocation = newEvent(notifications, webhook, "invocation")
 	WebhookRetry      = newEvent(notifications, webhook, "retry")
+	WebhookConfirmed  = newEvent(notifications, webhook, "confirmed")
 
 	email     = "email"
 	SendEmail = newEvent(notifications, email, "send")
