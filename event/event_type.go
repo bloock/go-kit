@@ -18,6 +18,7 @@ var (
 	create = "create"
 	update = "update"
 	delete = "delete"
+	mail   = "mail"
 )
 
 // User events
@@ -26,6 +27,9 @@ var (
 	UserCreated = newEvent(users, user, create)
 	UserUpdated = newEvent(users, user, update)
 	UserDeleted = newEvent(users, user, delete)
+
+	verification          = "verification"
+	UsersVerificationMail = newEvent(users, verification, mail)
 )
 
 // Subscription events
@@ -39,6 +43,12 @@ var (
 	PlanCreated = newEvent(subscriptions, plan, create)
 	PlanUpdated = newEvent(subscriptions, plan, update)
 	PlanDeleted = newEvent(subscriptions, plan, delete)
+)
+
+// Credential events
+var (
+	passwordReset                = "password_reset"
+	CredentialsPasswordResetMail = newEvent(credentials, passwordReset, mail)
 )
 
 // Core events
