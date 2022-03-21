@@ -132,9 +132,9 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 				} else {
 					err := msg.Ack(false)
 					if err != nil {
-						a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(evt.Type())).Str("id", evt.ID()).Msg("successfully consumed message")
-					} else {
 						a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(evt.Type())).Str("id", evt.ID()).Msgf("error while sending ack: %s", err.Error())
+					} else {
+						a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(evt.Type())).Str("id", evt.ID()).Msg("successfully consumed message")
 					}
 				}
 			}
@@ -402,9 +402,9 @@ func (a *AMQPClient) UnsafePush(exchange string, id string, data []byte, headers
 func (a *AMQPClient) logAndNack(msg amqp.Delivery, t time.Time, err string, args ...interface{}) {
 	nErr := msg.Nack(false, false)
 	if nErr != nil {
-		a.logger.Error().Int64("took-ms", time.Since(t).Milliseconds()).Msg(fmt.Sprintf(err, args...))
+		a.logger.Error().Int64("took-ms", time.Since(t).Milliseconds()).Msgf("error while sending nack with error %s: %s", nErr.Error(), fmt.Sprintf(err, args...))
 	} else {
-		a.logger.Error().Int64("took-ms", time.Since(t).Milliseconds()).Msgf("error while sending nack: %s", fmt.Sprintf(err, args...))
+		a.logger.Error().Int64("took-ms", time.Since(t).Milliseconds()).Msg(fmt.Sprintf(err, args...))
 	}
 }
 
