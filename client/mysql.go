@@ -3,6 +3,7 @@ package client
 import (
 	"database/sql"
 	"fmt"
+	"time"
 
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
@@ -25,6 +26,10 @@ func NewMysqlClient(user, pass, host, port, dbName string, l zerolog.Logger) (*M
 		l.Error().Msgf("error opening mysql on uri %s: %s", mysqlURI, err.Error())
 		return nil, err
 	}
+
+	db.SetConnMaxLifetime(time.Minute * 3)
+	db.SetMaxOpenConns(10)
+	db.SetMaxIdleConns(10)
 
 	return &MysqlClient{
 		db:     db,
