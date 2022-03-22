@@ -19,6 +19,7 @@ var (
 	update = "update"
 	delete = "delete"
 	mail   = "mail"
+	send   = "send"
 )
 
 // User events
@@ -69,6 +70,21 @@ var (
 	network          = "network"
 	NetworkCreated   = newEvent(transactions, network, create)
 	NetworkConfirmed = newEvent(transactions, network, "confirmed")
+
+	anchorBloockchain           = "anchor_bloockchain"
+	anchorBloockchainTest       = "anchor_bloockchain_test"
+	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send)
+	AnchorBloockchainSenderTest = newEvent(transactions, anchorBloockchainTest, send)
+
+	anchorRinkeby           = "anchor_rinkeby"
+	anchorRinkebyTest       = "anchor_rinkeby_test"
+	AnchorRinkebySender     = newEvent(transactions, anchorRinkeby, send)
+	AnchorRinkebySenderTest = newEvent(transactions, anchorRinkebyTest, send)
+
+	anchorMainnet           = "anchor_mainnet"
+	anchorMainnetTest       = "anchor_mainnet_test"
+	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send)
+	AnchorMainnetSenderTest = newEvent(transactions, anchorMainnetTest, send)
 )
 
 // Notification events
