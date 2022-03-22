@@ -29,10 +29,7 @@ type AMQPClient struct {
 
 	logger               zerolog.Logger
 	connection           *amqp.Connection
-	publishChannel       *amqp.Channel
 	consumeChannel       *amqp.Channel
-	publishNotifyClose   chan *amqp.Error
-	publishNotifyConfirm chan amqp.Confirmation
 	consumeNotifyClose   chan *amqp.Error
 	consumeNotifyConfirm chan amqp.Confirmation
 	isConnected          bool
@@ -157,8 +154,17 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 // Publish implements the event.Bus interface.
 func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, expiration int) error {
 	for {
+		publishConfirm := make(chan amqp.Confirmation)
+
 		if a.isConnected {
-			err := a.UnsafePush(string(event.Type()), event.ID(), event.Payload(), headers, expiration)
+			ch, err := a.connection.Channel()
+			if err != nil {
+				continue
+			}
+			ch.Confirm(false)
+			ch.NotifyPublish(publishConfirm)
+
+			err = a.UnsafePush(ch, string(event.Type()), event.ID(), event.Payload(), headers, expiration)
 			if err != nil {
 				if err == ErrDisconnected {
 					continue
@@ -167,7 +173,7 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 			}
 		}
 		select {
-		case confirm := <-a.publishNotifyConfirm:
+		case confirm := <-publishConfirm:
 			if confirm.Ack {
 				return nil
 			}
@@ -322,7 +328,6 @@ func (a *AMQPClient) handleReconnect(addr string) {
 		select {
 		case <-a.ctx.Done():
 			return
-		case <-a.publishNotifyClose:
 		case <-a.consumeNotifyClose:
 		}
 
@@ -338,35 +343,24 @@ func (a *AMQPClient) connect(addr string) bool {
 		a.logger.Printf("failed to dial rabbitMQ server: %v", err)
 		return false
 	}
-	pch, err := conn.Channel()
-	if err != nil {
-		a.logger.Printf("failed connecting to channel: %v", err)
-		return false
-	}
-	pch.Confirm(false)
 	cch, err := conn.Channel()
 	if err != nil {
 		a.logger.Printf("failed connecting to channel: %v", err)
 		return false
 	}
 	cch.Confirm(false)
-	a.changeConnection(conn, pch, cch)
+	a.changeConnection(conn, cch)
 	a.isConnected = true
 	return true
 }
 
 // changeConnection takes a new connection to the queue,
 // and updates the channel listeners to reflect this.
-func (c *AMQPClient) changeConnection(connection *amqp.Connection, pch *amqp.Channel, cch *amqp.Channel) {
+func (c *AMQPClient) changeConnection(connection *amqp.Connection, cch *amqp.Channel) {
 	c.connection = connection
-	c.publishChannel = pch
 	c.consumeChannel = cch
-	c.publishNotifyClose = make(chan *amqp.Error)
-	c.publishNotifyConfirm = make(chan amqp.Confirmation)
 	c.consumeNotifyClose = make(chan *amqp.Error)
 	c.consumeNotifyConfirm = make(chan amqp.Confirmation)
-	c.publishChannel.NotifyClose(c.publishNotifyClose)
-	c.publishChannel.NotifyPublish(c.publishNotifyConfirm)
 	c.consumeChannel.NotifyClose(c.consumeNotifyClose)
 	c.consumeChannel.NotifyPublish(c.consumeNotifyConfirm)
 }
@@ -375,7 +369,7 @@ func (c *AMQPClient) changeConnection(connection *amqp.Connection, pch *amqp.Cha
 // confirmation. It returns an error if it fails to connect.
 // No guarantees are provided for whether the server will
 // receive the message.
-func (a *AMQPClient) UnsafePush(exchange string, id string, data []byte, headers map[string]interface{}, expiration int) error {
+func (a *AMQPClient) UnsafePush(ch *amqp.Channel, exchange string, id string, data []byte, headers map[string]interface{}, expiration int) error {
 	if !a.isConnected {
 		return ErrDisconnected
 	}
@@ -384,7 +378,7 @@ func (a *AMQPClient) UnsafePush(exchange string, id string, data []byte, headers
 	if expiration != 0 {
 		exp = fmt.Sprintf("%d", expiration)
 	}
-	return a.publishChannel.Publish(
+	return ch.Publish(
 		exchange, // Exchange
 		"",       // Routing key
 		false,    // Mandatory
