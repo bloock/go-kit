@@ -104,7 +104,8 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 			select {
 			case <-a.ctx.Done():
 				return
-			case <-a.consumeNotifyClose:
+			case err = <-a.consumeNotifyClose:
+				a.logger.Warn().Str("type", string(t)).Msgf("consumer channel closed with error %s", err.Error())
 				return
 			case msg, ok := <-msgs:
 				if !ok {
@@ -156,9 +157,13 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 	for {
 		publishConfirm := make(chan amqp.Confirmation)
 
+		var ch *amqp.Channel
+		var err error
+
 		if a.isConnected {
-			ch, err := a.connection.Channel()
+			ch, err = a.connection.Channel()
 			if err != nil {
+				a.logger.Warn().Str("type", string(event.Type())).Msgf("error while creating publishing channel with error %s", err.Error())
 				continue
 			}
 			ch.Confirm(false)
@@ -166,6 +171,7 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 
 			err = a.UnsafePush(ch, string(event.Type()), event.ID(), event.Payload(), headers, expiration)
 			if err != nil {
+				a.logger.Warn().Str("type", string(event.Type())).Msgf("error while publishing with error %s", err.Error())
 				if err == ErrDisconnected {
 					continue
 				}
@@ -175,6 +181,10 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 		select {
 		case confirm := <-publishConfirm:
 			if confirm.Ack {
+				err := ch.Close()
+				if err != nil {
+					a.logger.Warn().Str("type", string(event.Type())).Str("id", event.ID()).Msgf("error while closing publish channel: %s", err.Error())
+				}
 				return nil
 			}
 		case <-a.ctx.Done():
