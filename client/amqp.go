@@ -155,6 +155,7 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 // Publish implements the event.Bus interface.
 func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, expiration int) error {
 	for {
+		a.logger.Warn().Str("type", string(event.Type())).Msgf("start publishing message with id %s", event.ID())
 		publishConfirm := make(chan amqp.Confirmation)
 
 		var ch *amqp.Channel
@@ -166,8 +167,11 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 				a.logger.Warn().Str("type", string(event.Type())).Msgf("error while creating publishing channel with error %s", err.Error())
 				continue
 			}
-			ch.Confirm(false)
-			ch.NotifyPublish(publishConfirm)
+			err = ch.Confirm(false)
+			if err != nil {
+				a.logger.Warn().Str("type", string(event.Type())).Msgf("error confirming channel with error %s", err.Error())
+			}
+			publishConfirm = ch.NotifyPublish(publishConfirm)
 
 			err = a.UnsafePush(ch, string(event.Type()), event.ID(), event.Payload(), headers, expiration)
 			if err != nil {
@@ -186,6 +190,8 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 					a.logger.Warn().Str("type", string(event.Type())).Str("id", event.ID()).Msgf("error while closing publish channel: %s", err.Error())
 				}
 				return nil
+			} else {
+				a.logger.Warn().Str("type", string(event.Type())).Str("id", event.ID()).Msgf("publish confirm is not ack")
 			}
 		case <-a.ctx.Done():
 			return fmt.Errorf("could not connect to client")
