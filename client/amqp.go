@@ -190,6 +190,7 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 		case <-a.ctx.Done():
 			return fmt.Errorf("could not connect to client")
 		case <-time.After(a.resendDelay):
+			a.logger.Warn().Str("type", string(event.Type())).Msg("resending publish event")
 		}
 	}
 }
