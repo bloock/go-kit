@@ -49,7 +49,6 @@ out:
 		select {
 		case <-ctx.Done():
 			break out
-		case <-e.client.NotifyConsumeClose():
 		}
 	}
 

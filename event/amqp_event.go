@@ -4,15 +4,15 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/streadway/amqp"
+	"github.com/wagslane/go-rabbitmq"
 )
 
 type AMQPEvent struct {
-	amqp.Delivery
+	rabbitmq.Delivery
 	_type Type
 }
 
-func NewAMQPEvent(msg amqp.Delivery, _type Type) Event {
+func NewAMQPEvent(msg rabbitmq.Delivery, _type Type) Event {
 	return AMQPEvent{
 		Delivery: msg,
 		_type:    _type,

@@ -22,7 +22,7 @@ func (b *CommandBus) Dispatch(ctx context.Context, cmd Command) error {
 	if !ok {
 		return ErrorCommandBus
 	}
-	errChannel := make(chan error)
+	errChannel := make(chan error, 1)
 	go func() {
 		err := handler.Handle(ctx, cmd)
 		if err != nil {
