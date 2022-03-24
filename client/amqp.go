@@ -78,7 +78,7 @@ func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vh
 func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQPHandler) error {
 	a.wg.Add(1)
 
-	dlx, err := a.DeclareDeadLetterQueue(t)
+	q, err := a.DeclareQueue(string(t), nil)
 	if err != nil {
 		return err
 	}
@@ -113,20 +113,12 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 				}
 				return result
 			},
-			fmt.Sprintf("%s.%s", string(t), a.consumerPrefix),
+			q.Name,
 			[]string{""},
 			rabbitmq.WithConsumeOptionsConcurrency(1),
-			rabbitmq.WithConsumeOptionsQueueDurable,
-			rabbitmq.WithConsumeOptionsQuorum,
+			rabbitmq.WithConsumeOptionsQueueNoDeclare,
 			rabbitmq.WithConsumeOptionsQOSPrefetch(1),
 			rabbitmq.WithConsumeOptionsConsumerName(a.consumerName(string(t))),
-			rabbitmq.WithConsumeOptionsBindingExchangeName(string(t)),
-			rabbitmq.WithConsumeOptionsBindingExchangeKind(amqp.ExchangeFanout),
-			rabbitmq.WithConsumeOptionsBindingExchangeDurable,
-			rabbitmq.WithConsumeOptionsQueueArgs(rabbitmq.Table{
-				"x-dead-letter-exchange":    dlx,
-				"x-dead-letter-routing-key": dlx,
-			}),
 		)
 		if err != nil {
 			a.logger.Error().Str("type", string(t)).Msgf("error starting consuming queue: %s", err.Error())
@@ -178,32 +170,90 @@ type DeclareQueueArgs struct {
 	DeadLetterExchange string
 }
 
-func (a *AMQPClient) DeclareDeadLetterQueue(t event.Type) (string, error) {
-	deadLetterExchangeName := fmt.Sprintf("%s.dead", string(t))
-	deadLetterQueueName := fmt.Sprintf("%s.%s.dead", string(t), a.consumerPrefix)
-
-	err := a.consumer.StartConsuming(
-		func(d rabbitmq.Delivery) rabbitmq.Action {
-			return rabbitmq.NackRequeue
-		},
-		deadLetterQueueName,
-		[]string{deadLetterExchangeName},
-		rabbitmq.WithConsumeOptionsQOSPrefetch(0),
-		rabbitmq.WithConsumeOptionsConcurrency(0),
-		rabbitmq.WithConsumeOptionsQueueDurable,
-		rabbitmq.WithConsumeOptionsQuorum,
-		rabbitmq.WithConsumeOptionsConsumerName(a.consumerName(deadLetterExchangeName)),
-		rabbitmq.WithConsumeOptionsBindingExchangeName(deadLetterExchangeName),
-		rabbitmq.WithConsumeOptionsBindingExchangeKind(amqp.ExchangeDirect),
-		rabbitmq.WithConsumeOptionsBindingExchangeDurable,
-	)
-	if err != nil {
-		a.logger.Error().Str("type", string(t)).Msgf("error starting consuming queue: %s", err.Error())
+func (a *AMQPClient) DeclareQueue(name string, args *DeclareQueueArgs) (*amqp.Queue, error) {
+	if args == nil {
+		args = &DeclareQueueArgs{}
 	}
 
-	defer a.consumer.StopConsuming(a.consumerName(deadLetterExchangeName), false)
+	conn, err := amqp.Dial(a.addr)
+	if err != nil {
+		a.logger.Error().Msgf("cannot dial: %v: %q", err, a.addr)
+		return &amqp.Queue{}, err
+	}
 
-	return deadLetterExchangeName, nil
+	ch, err := conn.Channel()
+	if err != nil {
+		a.logger.Error().Msgf("cannot create channel: %v", err)
+		return &amqp.Queue{}, err
+	}
+
+	if args.DeadLetterExchange == "" {
+		args.DeadLetterExchange = fmt.Sprintf("%s.dead", name)
+		err := ch.ExchangeDeclare(
+			args.DeadLetterExchange,
+			amqp.ExchangeDirect,
+			true,
+			false,
+			false,
+			false,
+			nil,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		qdlx, err := ch.QueueDeclare(
+			fmt.Sprintf("%s.%s.dead", name, a.consumerPrefix),
+			true,
+			false,
+			false,
+			false,
+			nil,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		err = ch.QueueBind(qdlx.Name, fmt.Sprintf("%s.%s", name, a.consumerPrefix), args.DeadLetterExchange, false, nil)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	err = ch.ExchangeDeclare(
+		name,
+		amqp.ExchangeFanout,
+		true,
+		false,
+		false,
+		false,
+		nil,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	q, err := ch.QueueDeclare(
+		fmt.Sprintf("%s.%s", name, a.consumerPrefix),
+		true,
+		false,
+		false,
+		false,
+		amqp.Table{
+			"x-dead-letter-exchange":    args.DeadLetterExchange,
+			"x-dead-letter-routing-key": fmt.Sprintf("%s.%s", name, a.consumerPrefix),
+		},
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	err = ch.QueueBind(q.Name, "", name, false, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	return &q, nil
 }
 
 func (c *AMQPClient) Ping() error {
