@@ -10,6 +10,7 @@ var (
 	events        = "events"
 	notifications = "notifications"
 	transactions  = "transactions"
+	transactionsTest = "transactions-test"
 	core          = "core"
 )
 
@@ -71,20 +72,18 @@ var (
 	NetworkCreated   = newEvent(transactions, network, create)
 	NetworkConfirmed = newEvent(transactions, network, "confirmed")
 
-	anchorBloockchain           = "anchor_bloockchain"
-	anchorBloockchainTest       = "anchor_bloockchain_test"
+	anchorBloockchain           = "bloock_chain"
 	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send)
-	AnchorBloockchainSenderTest = newEvent(transactions, anchorBloockchainTest, send)
+	AnchorBloockchainSenderTest = newEvent(transactionsTest, anchorBloockchain, send)
 
-	anchorRinkeby           = "anchor_rinkeby"
-	anchorRinkebyTest       = "anchor_rinkeby_test"
+	anchorRinkeby           = "ethereum_rinkeby"
 	AnchorRinkebySender     = newEvent(transactions, anchorRinkeby, send)
-	AnchorRinkebySenderTest = newEvent(transactions, anchorRinkebyTest, send)
+	AnchorRinkebySenderTest = newEvent(transactionsTest, anchorRinkeby, send)
 
-	anchorMainnet           = "anchor_mainnet"
-	anchorMainnetTest       = "anchor_mainnet_test"
+	anchorMainnet           = "ethereum_mainnet"
 	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send)
-	AnchorMainnetSenderTest = newEvent(transactions, anchorMainnetTest, send)
+	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send)
+
 )
 
 // Notification events
