@@ -40,38 +40,50 @@ func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vh
 
 	addr := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", user, password, host, port, vhost)
 
-	publisher, err := rabbitmq.NewPublisher(
-		addr, amqp.Config{},
-		rabbitmq.WithPublisherOptionsLogging,
-		rabbitmq.WithPublisherOptionsLogger(&l),
-	)
-	if err != nil {
-		l.Warn().Msgf("error while creating publisher with error %s", err.Error())
-		return &AMQPClient{}, err
-	}
+	connectionCtx, cancel := context.WithTimeout(ctx, 5*time.Minute)
+	defer cancel()
 
-	consumer, err := rabbitmq.NewConsumer(
-		addr, amqp.Config{},
-		rabbitmq.WithConsumerOptionsLogging,
-		rabbitmq.WithConsumerOptionsLogger(&l),
-	)
-	if err != nil {
-		l.Warn().Msgf("couldn't create consumer: %s", err.Error())
-		return &AMQPClient{}, err
-	}
+	for {
+		select {
+		case <-connectionCtx.Done():
+			return &AMQPClient{}, fmt.Errorf("timeout waiting for amqp connection")
+		default:
+			time.Sleep(1 * time.Second)
 
-	client := AMQPClient{
-		ctx:            ctx,
-		addr:           addr,
-		consumerPrefix: c,
-		publisher:      publisher,
-		consumer:       consumer,
-		reconnectDelay: 5 * time.Second,
-		logger:         l,
-		wg:             &sync.WaitGroup{},
-	}
+			publisher, err := rabbitmq.NewPublisher(
+				addr, amqp.Config{},
+				rabbitmq.WithPublisherOptionsLogging,
+				rabbitmq.WithPublisherOptionsLogger(&l),
+			)
+			if err != nil {
+				l.Warn().Msgf("error while creating publisher with error %s", err.Error())
+				continue
+			}
 
-	return &client, nil
+			consumer, err := rabbitmq.NewConsumer(
+				addr, amqp.Config{},
+				rabbitmq.WithConsumerOptionsLogging,
+				rabbitmq.WithConsumerOptionsLogger(&l),
+			)
+			if err != nil {
+				l.Warn().Msgf("couldn't create consumer: %s", err.Error())
+				continue
+			}
+
+			client := AMQPClient{
+				ctx:            ctx,
+				addr:           addr,
+				consumerPrefix: c,
+				publisher:      publisher,
+				consumer:       consumer,
+				reconnectDelay: 5 * time.Second,
+				logger:         l,
+				wg:             &sync.WaitGroup{},
+			}
+
+			return &client, nil
+		}
+	}
 }
 
 // Consume implements the event.Bus interface.
