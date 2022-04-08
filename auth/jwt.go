@@ -109,7 +109,7 @@ func DecodeJWTUnverified(tokenString string, claims *JWTClaims) error {
 		return err
 	}
 
-	if _, ok := tokenClaims.Claims.(jwt.MapClaims); ok {
+	if _, ok := tokenClaims.Claims.(*JWTClaims); ok {
 		return nil
 	} else {
 		return fmt.Errorf("couldn't cast jwt claims")
