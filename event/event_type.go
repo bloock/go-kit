@@ -4,23 +4,24 @@ import "fmt"
 
 // Services
 var (
-	users         = "users"
-	subscriptions = "subscriptions"
-	credentials   = "credentials"
-	events        = "events"
-	notifications = "notifications"
-	transactions  = "transactions"
+	users            = "users"
+	subscriptions    = "subscriptions"
+	credentials      = "credentials"
+	events           = "events"
+	notifications    = "notifications"
+	transactions     = "transactions"
 	transactionsTest = "transactions-test"
-	core          = "core"
+	core             = "core"
 )
 
 // Actions
 var (
-	create = "create"
-	update = "update"
-	delete = "delete"
-	mail   = "mail"
-	send   = "send"
+	create  = "create"
+	update  = "update"
+	delete  = "delete"
+	mail    = "mail"
+	send    = "send"
+	confirm = "confirmed"
 )
 
 // User events
@@ -70,7 +71,10 @@ var (
 var (
 	network          = "network"
 	NetworkCreated   = newEvent(transactions, network, create)
-	NetworkConfirmed = newEvent(transactions, network, "confirmed")
+	NetworkConfirmed = newEvent(transactions, network, confirm)
+
+	anchorConfirm   = "anchor"
+	AnchorConfirmed = newEvent(transactions, anchorConfirm, confirm)
 
 	anchorBloockchain           = "bloock_chain"
 	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send)
@@ -83,7 +87,6 @@ var (
 	anchorMainnet           = "ethereum_mainnet"
 	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send)
 	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send)
-
 )
 
 // Notification events
