@@ -87,6 +87,9 @@ var (
 	anchorMainnet           = "ethereum_mainnet"
 	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send)
 	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send)
+
+	gnosisChain             = "gnosis_chain"
+	AnchorGnosisChainSender = newEvent(transactions, gnosisChain, send)
 )
 
 // Notification events
