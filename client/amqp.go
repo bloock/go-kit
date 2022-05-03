@@ -123,7 +123,7 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 					}
 				}(evt)
 
-				result, err := a.handleMessage(ctx, evt, handlers...)
+				result, err = a.handleMessage(ctx, evt, handlers...)
 				if err != nil {
 					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(t)).Msgf("error while consuming message: %s", err.Error())
 				} else {
@@ -149,13 +149,15 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 }
 
 func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handlers ...AMQPHandler) (rabbitmq.Action, error) {
+	var action rabbitmq.Action
 	for _, handler := range handlers {
-		action, err := handler(ctx, evt)
+		act, err := handler(ctx, evt)
 		if err != nil {
-			return action, err
+			return act, err
 		}
+		action = act
 	}
-	return Ack, nil
+	return action, nil
 }
 
 // Publish implements the event.Bus interface.
