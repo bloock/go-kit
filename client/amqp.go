@@ -14,10 +14,19 @@ import (
 	"github.com/wagslane/go-rabbitmq"
 )
 
-type AMQPHandler func(context.Context, event.Event) error
+type AMQPHandler func(context.Context, event.Event) (rabbitmq.Action, error)
 
 var (
 	ErrDisconnected = errors.New("disconnected from rabbitmq, trying to reconnect")
+)
+
+const (
+	// Ack default ack this msg after you have successfully processed this delivery.
+	Ack rabbitmq.Action = iota
+	// NackDiscard the message will be dropped or delivered to a server configured dead-letter queue.
+	NackDiscard
+	// NackRequeue deliver this message to a different consumer.
+	NackRequeue
 )
 
 type AMQPClient struct {
@@ -114,14 +123,11 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 					}
 				}(evt)
 
-				err = a.handleMessage(ctx, evt, handlers...)
+				result, err := a.handleMessage(ctx, evt, handlers...)
 				if err != nil {
 					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(t)).Msgf("error while consuming message: %s", err.Error())
-					result = rabbitmq.NackDiscard
 				} else {
 					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(evt.Type())).Str("id", evt.ID()).Msg("successfully consumed message")
-					result = rabbitmq.Ack
-
 				}
 				return result
 			},
@@ -142,14 +148,14 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 	return nil
 }
 
-func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handlers ...AMQPHandler) error {
+func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handlers ...AMQPHandler) (rabbitmq.Action, error) {
 	for _, handler := range handlers {
-		err := handler(ctx, evt)
+		action, err := handler(ctx, evt)
 		if err != nil {
-			return err
+			return action, err
 		}
 	}
-	return nil
+	return Ack, nil
 }
 
 // Publish implements the event.Bus interface.
