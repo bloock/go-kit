@@ -10,4 +10,6 @@ type Cache interface {
 	Set(key string, data []byte, expiration time.Duration) error
 	Get(key string) ([]byte, error)
 	Del(key string) error
+	Incr(key string) error
+	Decr(key string) error
 }
