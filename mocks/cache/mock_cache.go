@@ -34,6 +34,20 @@ func (m *MockCache) EXPECT() *MockCacheMockRecorder {
 	return m.recorder
 }
 
+// Decr mocks base method.
+func (m *MockCache) Decr(key string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Decr", key)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Decr indicates an expected call of Decr.
+func (mr *MockCacheMockRecorder) Decr(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Decr", reflect.TypeOf((*MockCache)(nil).Decr), key)
+}
+
 // Del mocks base method.
 func (m *MockCache) Del(key string) error {
 	m.ctrl.T.Helper()
@@ -61,6 +75,20 @@ func (m *MockCache) Get(key string) ([]byte, error) {
 func (mr *MockCacheMockRecorder) Get(key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockCache)(nil).Get), key)
+}
+
+// Incr mocks base method.
+func (m *MockCache) Incr(key string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Incr", key)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Incr indicates an expected call of Incr.
+func (mr *MockCacheMockRecorder) Incr(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Incr", reflect.TypeOf((*MockCache)(nil).Incr), key)
 }
 
 // Set mocks base method.
