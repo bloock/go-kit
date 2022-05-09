@@ -12,4 +12,5 @@ type Cache interface {
 	Del(key string) error
 	Incr(key string) error
 	Decr(key string) error
+	GetKeys(pattern string) ([]string, error)
 }

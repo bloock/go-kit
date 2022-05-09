@@ -67,3 +67,7 @@ func (r Redis) Decr(key string) error {
 func (r Redis) Client() *redis.Client {
 	return r.client
 }
+
+func (r Redis) GetKeys(pattern string) ([]string, error)  {
+	return r.client.Keys(pattern).Result()
+}
