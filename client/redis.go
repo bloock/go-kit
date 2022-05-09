@@ -68,6 +68,22 @@ func (r Redis) Client() *redis.Client {
 	return r.client
 }
 
-func (r Redis) GetKeys(pattern string) ([]string, error)  {
-	return r.client.Keys(pattern).Result()
+func (r Redis) ZAdd(key string, score float64, value []byte) error {
+	arg := redis.Z{
+		Score: score,
+		Member: value,
+	}
+	return r.client.ZAdd(key, arg).Err()
+}
+
+func (r Redis) ZRem(key string, value []byte) error {
+	return r.client.ZRem(key, value).Err()
+}
+
+func (r Redis) ZRangeByScore(key string, now string) ([]string, error) {
+	arg := redis.ZRangeBy{
+		Min: now,
+		Max: "+inf",
+	}
+	return r.client.ZRangeByScore(key, arg).Result()
 }
