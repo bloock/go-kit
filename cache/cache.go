@@ -10,8 +10,6 @@ type Cache interface {
 	Set(key string, data []byte, expiration time.Duration) error
 	Get(key string) ([]byte, error)
 	Del(key string) error
-	Incr(key string) error
-	Decr(key string) error
 	ZAdd(key string, score float64, value []byte) error
 	ZRem(key string, value []byte) error
 	ZRangeByScore(key string, now string) ([]string, error)

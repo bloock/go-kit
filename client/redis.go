@@ -56,14 +56,6 @@ func (r Redis) Del(key string) error {
 	return r.client.Del(key).Err()
 }
 
-func (r Redis) Incr(key string) error {
-	return r.client.Incr(key).Err()
-}
-
-func (r Redis) Decr(key string) error {
-	return r.client.Decr(key).Err()
-}
-
 func (r Redis) Client() *redis.Client {
 	return r.client
 }
