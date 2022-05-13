@@ -156,6 +156,7 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 		act, err := handler(ctx, evt)
 		if err != nil {
 			if evt.Type().HasRetry() {
+
 				 if err := a.Publish(evt, evt.Headers(), evt.Type().RetryExpiration()); err != nil {
 					 return NackRequeue, err
 				 }

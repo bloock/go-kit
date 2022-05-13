@@ -71,6 +71,10 @@ func (t Type) Name() string {
 	return t.name
 }
 
+func (t Type) SetName(name string) {
+	t.name = name
+}
+
 func (t Type) HasRetry() bool {
 	return t.retry
 }
