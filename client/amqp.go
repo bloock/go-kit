@@ -163,10 +163,16 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 }
 
 // Publish implements the event.Bus interface.
-func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, expiration int) error {
+func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, expiration int, retry bool) error {
 	exp := ""
+	var name string
 	if expiration != 0 {
 		exp = fmt.Sprintf("%d", expiration)
+	}
+	if retry {
+		name = fmt.Sprintf("%s.retry", event.Type().Name())
+	} else {
+		name = event.Type().Name()
 	}
 
 	err := a.publisher.Publish(
@@ -175,7 +181,7 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 		rabbitmq.WithPublishOptionsContentType("application/json"),
 		rabbitmq.WithPublishOptionsMandatory,
 		rabbitmq.WithPublishOptionsPersistentDelivery,
-		rabbitmq.WithPublishOptionsExchange(event.Type().Name()),
+		rabbitmq.WithPublishOptionsExchange(name),
 		rabbitmq.WithPublishOptionsHeaders(headers),
 		rabbitmq.WithPublishOptionsExpiration(exp),
 		rabbitmq.WithPublishOptionsCorrelationID(event.ID()),
