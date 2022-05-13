@@ -101,7 +101,7 @@ func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vh
 func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQPHandler) error {
 	a.wg.Add(1)
 
-	q, err := a.DeclareQueue(string(t), nil)
+	q, err := a.DeclareQueue(t.Name(), t.HasRetry(), t.Expiration(), nil)
 	if err != nil {
 		return err
 	}
@@ -127,9 +127,9 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 
 				result, err = a.handleMessage(ctx, evt, handlers...)
 				if err != nil {
-					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(t)).Msgf("error while consuming message: %s", err.Error())
+					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("error while consuming message: %s", err.Error())
 				} else {
-					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", string(evt.Type())).Str("id", evt.ID()).Msg("successfully consumed message")
+					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", evt.Type().Name()).Str("id", evt.ID()).Msg("successfully consumed message")
 				}
 				return rabbitmq.Action(result)
 			},
@@ -138,12 +138,12 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 			rabbitmq.WithConsumeOptionsConcurrency(1),
 			rabbitmq.WithConsumeOptionsQueueNoDeclare,
 			rabbitmq.WithConsumeOptionsQOSPrefetch(1),
-			rabbitmq.WithConsumeOptionsConsumerName(a.consumerName(string(t))),
+			rabbitmq.WithConsumeOptionsConsumerName(a.consumerName(t.Name())),
 		)
 		if err != nil {
-			a.logger.Error().Str("type", string(t)).Msgf("error starting consuming queue: %s", err.Error())
+			a.logger.Error().Str("type", t.Name()).Msgf("error starting consuming queue: %s", err.Error())
 		} else {
-			a.consumers = append(a.consumers, a.consumerName(string(t)))
+			a.consumers = append(a.consumers, a.consumerName(t.Name()))
 		}
 	}()
 
@@ -175,13 +175,13 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 		rabbitmq.WithPublishOptionsContentType("application/json"),
 		rabbitmq.WithPublishOptionsMandatory,
 		rabbitmq.WithPublishOptionsPersistentDelivery,
-		rabbitmq.WithPublishOptionsExchange(string(event.Type())),
+		rabbitmq.WithPublishOptionsExchange(event.Type().Name()),
 		rabbitmq.WithPublishOptionsHeaders(headers),
 		rabbitmq.WithPublishOptionsExpiration(exp),
 		rabbitmq.WithPublishOptionsCorrelationID(event.ID()),
 	)
 	if err != nil {
-		a.logger.Warn().Str("type", string(event.Type())).Msgf("error while publishing with error %s", err.Error())
+		a.logger.Warn().Str("type", event.Type().Name()).Msgf("error while publishing with error %s", err.Error())
 		return err
 	}
 
@@ -192,7 +192,7 @@ type DeclareQueueArgs struct {
 	DeadLetterExchange string
 }
 
-func (a *AMQPClient) DeclareQueue(name string, args *DeclareQueueArgs) (*amqp.Queue, error) {
+func (a *AMQPClient) DeclareQueue(name string, hasRetry bool, expiration int, args *DeclareQueueArgs) (*amqp.Queue, error) {
 	if args == nil {
 		args = &DeclareQueueArgs{}
 	}
@@ -237,6 +237,42 @@ func (a *AMQPClient) DeclareQueue(name string, args *DeclareQueueArgs) (*amqp.Qu
 		}
 
 		err = ch.QueueBind(qdlx.Name, fmt.Sprintf("%s.%s", name, a.consumerPrefix), args.DeadLetterExchange, false, nil)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	if hasRetry == true {
+		retryName := fmt.Sprintf("%s.retry", name)
+		err = ch.ExchangeDeclare(
+			retryName,
+			amqp.ExchangeFanout,
+			true,
+			false,
+			false,
+			false,
+			nil,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		qr, err := ch.QueueDeclare(
+			fmt.Sprintf("%s.%s.retry", name, a.consumerPrefix),
+			true,
+			false,
+			false,
+			false,
+			amqp.Table{
+				"x-dead-letter-exchange":    fmt.Sprintf("%s.%s", name, a.consumerPrefix),
+				"x-dead-letter-routing-key": fmt.Sprintf("%s.%s.retry", name, a.consumerPrefix),
+			},
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		err = ch.QueueBind(qr.Name, "", retryName, false, nil)
 		if err != nil {
 			return nil, err
 		}
