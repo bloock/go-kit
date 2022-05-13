@@ -8,5 +8,5 @@ type PublisherArgs struct {
 }
 
 type Publisher interface {
-	Publish(event event.Event, args *PublisherArgs, retry bool) error
+	Publish(event event.Event, args *PublisherArgs) error
 }

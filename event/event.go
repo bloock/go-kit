@@ -75,6 +75,6 @@ func (t Type) HasRetry() bool {
 	return t.retry
 }
 
-func (t Type) Expiration() int {
+func (t Type) RetryExpiration() int {
 	return t.expiration
 }

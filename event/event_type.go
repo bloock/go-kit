@@ -27,87 +27,92 @@ var (
 // User events
 var (
 	user        = "user"
-	UserCreated = newEvent(users, user, create, false, 0)
-	UserUpdated = newEvent(users, user, update, false, 0)
-	UserDeleted = newEvent(users, user, delete, false, 0)
+	UserCreated = newEvent(users, user, create, newEventArgs{})
+	UserUpdated = newEvent(users, user, update, newEventArgs{})
+	UserDeleted = newEvent(users, user, delete, newEventArgs{})
 
 	verification          = "verification"
-	UsersVerificationMail = newEvent(users, verification, mail, false, 0)
+	UsersVerificationMail = newEvent(users, verification, mail, newEventArgs{})
 )
 
 // Subscription events
 var (
 	subscription        = "subscription"
-	SubscriptionCreated = newEvent(subscriptions, subscription, create, false, 0)
-	SubscriptionUpdated = newEvent(subscriptions, subscription, update, false, 0)
-	SubscriptionDeleted = newEvent(subscriptions, subscription, delete, false, 0)
+	SubscriptionCreated = newEvent(subscriptions, subscription, create, newEventArgs{})
+	SubscriptionUpdated = newEvent(subscriptions, subscription, update, newEventArgs{})
+	SubscriptionDeleted = newEvent(subscriptions, subscription, delete, newEventArgs{})
 
 	plan        = "plan"
-	PlanCreated = newEvent(subscriptions, plan, create, false, 0)
-	PlanUpdated = newEvent(subscriptions, plan, update, false, 0)
-	PlanDeleted = newEvent(subscriptions, plan, delete, false, 0)
+	PlanCreated = newEvent(subscriptions, plan, create, newEventArgs{})
+	PlanUpdated = newEvent(subscriptions, plan, update, newEventArgs{})
+	PlanDeleted = newEvent(subscriptions, plan, delete, newEventArgs{})
 )
 
 // Credential events
 var (
 	passwordReset                = "password_reset"
-	CredentialsPasswordResetMail = newEvent(credentials, passwordReset, mail, false, 0)
+	CredentialsPasswordResetMail = newEvent(credentials, passwordReset, mail, newEventArgs{})
 )
 
 // Core events
 var (
 	anchor          = "anchor"
-	AnchorCreated   = newEvent(core, anchor, create, false, 0)
-	AnchorUpdated   = newEvent(core, anchor, update, false, 0)
-	AnchorFinalized = newEvent(core, anchor, "finalized", false, 0)
+	AnchorCreated   = newEvent(core, anchor, create, newEventArgs{})
+	AnchorUpdated   = newEvent(core, anchor, update, newEventArgs{})
+	AnchorFinalized = newEvent(core, anchor, "finalized", newEventArgs{})
 
 	anchorNetwork          = "anchor_network"
-	AnchorNetworkCreated   = newEvent(core, anchorNetwork, create, false, 0)
-	AnchorNetworkUpdated   = newEvent(core, anchorNetwork, update, false, 0)
-	AnchorNetworkConfirmed = newEvent(core, anchorNetwork, "confirmed", false, 0)
+	AnchorNetworkCreated   = newEvent(core, anchorNetwork, create, newEventArgs{})
+	AnchorNetworkUpdated   = newEvent(core, anchorNetwork, update, newEventArgs{})
+	AnchorNetworkConfirmed = newEvent(core, anchorNetwork, "confirmed", newEventArgs{})
 )
 
 // Transaction events
 var (
 	network          = "network"
-	NetworkCreated   = newEvent(transactions, network, create, false, 0)
-	NetworkConfirmed = newEvent(transactions, network, confirm, false, 0)
+	NetworkCreated   = newEvent(transactions, network, create, newEventArgs{})
+	NetworkConfirmed = newEvent(transactions, network, confirm, newEventArgs{})
 
 	anchorConfirm   = "anchor"
-	AnchorConfirmed = newEvent(transactions, anchorConfirm, confirm, false, 0)
+	AnchorConfirmed = newEvent(transactions, anchorConfirm, confirm, newEventArgs{})
 
 	anchorBloockchain           = "bloock_chain"
-	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send, true, 30000)
-	AnchorBloockchainSenderTest = newEvent(transactionsTest, anchorBloockchain, send, true, 30000)
+	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorBloockchainSenderTest = newEvent(transactionsTest, anchorBloockchain, send, newEventArgs{retry: true, expiration: 30000})
 
 	anchorRinkeby           = "ethereum_rinkeby"
-	AnchorRinkebySender     = newEvent(transactions, anchorRinkeby, send, true, 30000)
-	AnchorRinkebySenderTest = newEvent(transactionsTest, anchorRinkeby, send, true, 30000)
+	AnchorRinkebySender     = newEvent(transactions, anchorRinkeby, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorRinkebySenderTest = newEvent(transactionsTest, anchorRinkeby, send, newEventArgs{retry: true, expiration: 30000})
 
 	anchorMainnet           = "ethereum_mainnet"
-	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send, true, 30000)
-	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send, true, 30000)
+	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
 
 	gnosisChain             = "gnosis_chain"
-	AnchorGnosisChainSender = newEvent(transactions, gnosisChain, send, true, 30000)
+	AnchorGnosisChainSender = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
 )
 
 // Notification events
 var (
 	webhook           = "webhook"
-	WebhookScheduler  = newEvent(notifications, webhook, "schedule", false , 0)
-	WebhookInvocation = newEvent(notifications, webhook, "invocation", false, 0)
-	WebhookRetry      = newEvent(notifications, webhook, "retry", false, 0)
-	WebhookConfirmed  = newEvent(notifications, webhook, "confirmed", false, 0)
+	WebhookScheduler  = newEvent(notifications, webhook, "schedule", newEventArgs{})
+	WebhookInvocation = newEvent(notifications, webhook, "invocation", newEventArgs{})
+	WebhookRetry      = newEvent(notifications, webhook, "retry", newEventArgs{})
+	WebhookConfirmed  = newEvent(notifications, webhook, "confirmed", newEventArgs{})
 
 	email     = "email"
-	SendEmail = newEvent(notifications, email, "send", false, 0)
+	SendEmail = newEvent(notifications, email, "send", newEventArgs{})
 )
 
-func newEvent(service, entity, action string, retry bool, expiration int) Type {
+type newEventArgs struct {
+	retry bool
+	expiration int
+}
+
+func newEvent(service, entity, action string, args newEventArgs) Type {
 	return Type{
 		name: fmt.Sprintf("%s.%s.%s", service, entity, action),
-		retry: retry,
-		expiration: expiration,
+		retry: args.retry,
+		expiration: args.expiration,
 	}
 }
