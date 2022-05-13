@@ -2,13 +2,14 @@ package event
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
 )
 
 type Type struct {
-	Name       string
+	name       string
 	retry      bool
 	expiration int
 }
@@ -67,12 +68,12 @@ func (e EntityEvent) Headers() map[string]interface{} {
 	return map[string]interface{}{}
 }
 
-func (t Type) IsName() string {
-	return t.Name
+func (t Type) Name() string {
+	return t.name
 }
 
-func (t Type) SetName(name string) {
-	t.Name = name
+func (t Type) GetRetryName() string {
+	return fmt.Sprintf("%s.retry", t.name)
 }
 
 func (t Type) HasRetry() bool {

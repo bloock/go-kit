@@ -25,9 +25,9 @@ func (p AMQPPublisher) Publish(event event.Event, args *PublisherArgs) error {
 	}
 	err := p.client.Publish(event, args.Headers, args.Expiration)
 	if err != nil {
-		p.logger.Error().Msgf("error publishing event %s with ID %s: %s", event.Type().IsName(), event.ID(), err.Error())
+		p.logger.Error().Msgf("error publishing event %s with ID %s: %s", event.Type().Name(), event.ID(), err.Error())
 		return err
 	}
-	p.logger.Info().Str("type", event.Type().IsName()).Str("id", event.ID()).Msgf("published new message with ID %s", event.ID())
+	p.logger.Info().Str("type", event.Type().Name()).Str("id", event.ID()).Msgf("published new message with ID %s", event.ID())
 	return nil
 }

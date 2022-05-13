@@ -105,14 +105,14 @@ var (
 )
 
 type newEventArgs struct {
-	retry bool
+	retry      bool
 	expiration int
 }
 
 func newEvent(service, entity, action string, args newEventArgs) Type {
 	return Type{
-		name: fmt.Sprintf("%s.%s.%s", service, entity, action),
-		retry: args.retry,
+		name:       fmt.Sprintf("%s.%s.%s", service, entity, action),
+		retry:      args.retry,
 		expiration: args.expiration,
 	}
 }
