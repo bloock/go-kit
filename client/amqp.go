@@ -270,7 +270,7 @@ func (a *AMQPClient) DeclareQueue(name string, hasRetry bool, expiration int, ar
 			false,
 			false,
 			amqp.Table{
-				"x-dead-letter-exchange":    fmt.Sprintf("%s.%s", name, a.consumerPrefix),
+				"x-dead-letter-exchange":    name,
 				"x-dead-letter-routing-key": fmt.Sprintf("%s.%s.retry", name, a.consumerPrefix),
 			},
 		)
