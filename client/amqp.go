@@ -128,9 +128,11 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 
 				result, err = a.handleMessage(ctx, evt, handlers...)
 				if err != nil {
-					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("error while consuming message: %s", err.Error())
-				} else if errors.Is(err, ErrPendingTransactions) {
-					a.logger.Warn().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("wait: %s", err.Error())
+					if errors.Is(err, ErrPendingTransactions) {
+						a.logger.Warn().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("wait: %s", err.Error())
+					} else {
+						a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("error while consuming message: %s", err.Error())
+					}
 				} else {
 					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", evt.Type().Name()).Str("id", evt.ID()).Msg("successfully consumed message")
 				}
