@@ -127,9 +127,9 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 
 				result, err = a.handleMessage(ctx, evt, handlers...)
 				if err != nil {
-					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("error while consuming message: %s", err.Error())
+					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.IsName()).Msgf("error while consuming message: %s", err.Error())
 				} else {
-					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", evt.Type().Name()).Str("id", evt.ID()).Msg("successfully consumed message")
+					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", evt.Type().IsName()).Str("id", evt.ID()).Msg("successfully consumed message")
 				}
 				return rabbitmq.Action(result)
 			},
@@ -138,12 +138,12 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 			rabbitmq.WithConsumeOptionsConcurrency(1),
 			rabbitmq.WithConsumeOptionsQueueNoDeclare,
 			rabbitmq.WithConsumeOptionsQOSPrefetch(1),
-			rabbitmq.WithConsumeOptionsConsumerName(a.consumerName(t.Name())),
+			rabbitmq.WithConsumeOptionsConsumerName(a.consumerName(t.IsName())),
 		)
 		if err != nil {
-			a.logger.Error().Str("type", t.Name()).Msgf("error starting consuming queue: %s", err.Error())
+			a.logger.Error().Str("type", t.IsName()).Msgf("error starting consuming queue: %s", err.Error())
 		} else {
-			a.consumers = append(a.consumers, a.consumerName(t.Name()))
+			a.consumers = append(a.consumers, a.consumerName(t.IsName()))
 		}
 	}()
 
@@ -156,7 +156,7 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 		act, err := handler(ctx, evt)
 		if err != nil {
 			if evt.Type().HasRetry() {
-				evt.Type().SetName(fmt.Sprintf("%s.retry", evt.Type().Name()))
+				evt.Type().SetName(fmt.Sprintf("%s.retry", evt.Type().IsName()))
 				 if err := a.Publish(evt, evt.Headers(), evt.Type().RetryExpiration()); err != nil {
 					 return NackRequeue, err
 				 }
@@ -181,13 +181,13 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 		rabbitmq.WithPublishOptionsContentType("application/json"),
 		rabbitmq.WithPublishOptionsMandatory,
 		rabbitmq.WithPublishOptionsPersistentDelivery,
-		rabbitmq.WithPublishOptionsExchange(event.Type().Name()),
+		rabbitmq.WithPublishOptionsExchange(event.Type().IsName()),
 		rabbitmq.WithPublishOptionsHeaders(headers),
 		rabbitmq.WithPublishOptionsExpiration(exp),
 		rabbitmq.WithPublishOptionsCorrelationID(event.ID()),
 	)
 	if err != nil {
-		a.logger.Warn().Str("type", event.Type().Name()).Msgf("error while publishing with error %s", err.Error())
+		a.logger.Warn().Str("type", event.Type().IsName()).Msgf("error while publishing with error %s", err.Error())
 		return err
 	}
 
@@ -216,7 +216,7 @@ func (a *AMQPClient) DeclareQueue(t event.Type, args *DeclareQueueArgs) (*amqp.Q
 	}
 
 	if args.DeadLetterExchange == "" {
-		args.DeadLetterExchange = fmt.Sprintf("%s.dead", t.Name())
+		args.DeadLetterExchange = fmt.Sprintf("%s.dead", t.IsName())
 		err := ch.ExchangeDeclare(
 			args.DeadLetterExchange,
 			amqp.ExchangeDirect,
@@ -231,7 +231,7 @@ func (a *AMQPClient) DeclareQueue(t event.Type, args *DeclareQueueArgs) (*amqp.Q
 		}
 
 		qdlx, err := ch.QueueDeclare(
-			fmt.Sprintf("%s.%s.dead", t.Name(), a.consumerPrefix),
+			fmt.Sprintf("%s.%s.dead", t.IsName(), a.consumerPrefix),
 			true,
 			false,
 			false,
@@ -242,14 +242,14 @@ func (a *AMQPClient) DeclareQueue(t event.Type, args *DeclareQueueArgs) (*amqp.Q
 			return nil, err
 		}
 
-		err = ch.QueueBind(qdlx.Name, fmt.Sprintf("%s.%s", t.Name(), a.consumerPrefix), args.DeadLetterExchange, false, nil)
+		err = ch.QueueBind(qdlx.Name, fmt.Sprintf("%s.%s", t.IsName(), a.consumerPrefix), args.DeadLetterExchange, false, nil)
 		if err != nil {
 			return nil, err
 		}
 	}
 
 	if t.HasRetry() == true {
-		retryName := fmt.Sprintf("%s.retry", t.Name())
+		retryName := fmt.Sprintf("%s.retry", t.IsName())
 		err = ch.ExchangeDeclare(
 			retryName,
 			amqp.ExchangeFanout,
@@ -264,14 +264,14 @@ func (a *AMQPClient) DeclareQueue(t event.Type, args *DeclareQueueArgs) (*amqp.Q
 		}
 
 		qr, err := ch.QueueDeclare(
-			fmt.Sprintf("%s.%s.retry", t.Name(), a.consumerPrefix),
+			fmt.Sprintf("%s.%s.retry", t.IsName(), a.consumerPrefix),
 			true,
 			false,
 			false,
 			false,
 			amqp.Table{
-				"x-dead-letter-exchange":    t.Name(),
-				"x-dead-letter-routing-key": fmt.Sprintf("%s.%s.retry", t.Name(), a.consumerPrefix),
+				"x-dead-letter-exchange":    t.IsName(),
+				"x-dead-letter-routing-key": fmt.Sprintf("%s.%s.retry", t.IsName(), a.consumerPrefix),
 			},
 		)
 		if err != nil {
@@ -285,7 +285,7 @@ func (a *AMQPClient) DeclareQueue(t event.Type, args *DeclareQueueArgs) (*amqp.Q
 	}
 
 	err = ch.ExchangeDeclare(
-		t.Name(),
+		t.IsName(),
 		amqp.ExchangeFanout,
 		true,
 		false,
@@ -298,21 +298,21 @@ func (a *AMQPClient) DeclareQueue(t event.Type, args *DeclareQueueArgs) (*amqp.Q
 	}
 
 	q, err := ch.QueueDeclare(
-		fmt.Sprintf("%s.%s", t.Name(), a.consumerPrefix),
+		fmt.Sprintf("%s.%s", t.IsName(), a.consumerPrefix),
 		true,
 		false,
 		false,
 		false,
 		amqp.Table{
 			"x-dead-letter-exchange":    args.DeadLetterExchange,
-			"x-dead-letter-routing-key": fmt.Sprintf("%s.%s", t.Name(), a.consumerPrefix),
+			"x-dead-letter-routing-key": fmt.Sprintf("%s.%s", t.IsName(), a.consumerPrefix),
 		},
 	)
 	if err != nil {
 		return nil, err
 	}
 
-	err = ch.QueueBind(q.Name, "", t.Name(), false, nil)
+	err = ch.QueueBind(q.Name, "", t.IsName(), false, nil)
 	if err != nil {
 		return nil, err
 	}

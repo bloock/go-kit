@@ -8,7 +8,7 @@ import (
 )
 
 type Type struct {
-	name       string
+	Name       string
 	retry      bool
 	expiration int
 }
@@ -67,12 +67,12 @@ func (e EntityEvent) Headers() map[string]interface{} {
 	return map[string]interface{}{}
 }
 
-func (t Type) Name() string {
-	return t.name
+func (t Type) IsName() string {
+	return t.Name
 }
 
 func (t Type) SetName(name string) {
-	t.name = name
+	t.Name = name
 }
 
 func (t Type) HasRetry() bool {
