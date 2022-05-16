@@ -129,7 +129,7 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 				result, err = a.handleMessage(ctx, evt, handlers...)
 				if err != nil {
 					if errors.Is(err, ErrPendingTransactions) {
-						a.logger.Warn().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("wait: %s", err.Error())
+						a.logger.Warn().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("%s", err.Error())
 					} else {
 						a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("error while consuming message: %s", err.Error())
 					}
@@ -160,7 +160,8 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 	for _, handler := range handlers {
 		act, err := handler(ctx, evt)
 		if err != nil {
-			if evt.Type().HasRetry() {
+			if evt.Type().HasRetry() && act == NackRequeue {
+				act = Ack
 				if err := a.Publish(evt, evt.Headers(), evt.Type().RetryExpiration()); err != nil {
 					return NackRequeue, err
 				}
