@@ -156,7 +156,7 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 		act, err := handler(ctx, evt)
 		if err != nil {
 			if evt.Type().HasRetry() && act == NackRequeue {
-				if err := a.Publish(evt, evt.Headers(), evt.Type().RetryExpiration()); err != nil {
+				if err := a.PublishRetry(evt, evt.Headers(), evt.Type().RetryExpiration()); err != nil {
 					return NackRequeue, err
 				}
 				return Ack, err
@@ -168,15 +168,20 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 	return action, nil
 }
 
-// Publish implements the event.Bus interface.
+
 func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, expiration int) error {
+	return a.publish(event, event.Type().Name(), headers, expiration)
+}
+
+func (a *AMQPClient) PublishRetry(event event.Event, headers map[string]interface{}, expiration int) error {
+	return a.publish(event, event.Type().GetRetryName(), headers, expiration)
+}
+
+// publish implements the event.Bus interface.
+func (a *AMQPClient) publish(event event.Event, name string, headers map[string]interface{}, expiration int) error {
 	exp := ""
-	name := event.Type().Name()
 	if expiration != 0 {
 		exp = fmt.Sprintf("%d", expiration)
-	}
-	if event.Type().HasRetry() {
-		name = event.Type().GetRetryName()
 	}
 
 	err := a.publisher.Publish(
@@ -191,7 +196,7 @@ func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, 
 		rabbitmq.WithPublishOptionsCorrelationID(event.ID()),
 	)
 	if err != nil {
-		a.logger.Warn().Str("type", event.Type().Name()).Msgf("error while publishing with error %s", err.Error())
+		a.logger.Warn().Str("type", name).Msgf("error while publishing with error %s", err.Error())
 		return err
 	}
 
