@@ -39,6 +39,7 @@ func (c *cronJob) WithContext(ctx context.Context) cronJob {
 }
 
 func (c cronJob) Run() {
+	c.l.Info().Str("name", c.name).Msgf("starting job %s", c.name)
 	err := c.job(c.ctx)
 	if err != nil {
 		c.l.Error().Str("name", c.name).Msgf("error running cron job %s: %s", c.name, err.Error())
