@@ -39,11 +39,11 @@ out:
 		for t, h := range e.handlers {
 			err := e.client.Consume(ctx, t, h...)
 			if err != nil {
-				e.logger.Error().Msgf("error consuming type %s: %s", t, err.Error())
+				e.logger.Error().Msgf("error consuming type %s: %s", t.Name(), err.Error())
 				continue
 			}
 
-			e.logger.Info().Msgf("starting consuming type %s", t)
+			e.logger.Info().Msgf("starting consuming type %s", t.Name())
 		}
 
 		select {

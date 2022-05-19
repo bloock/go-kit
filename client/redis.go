@@ -62,7 +62,7 @@ func (r Redis) Client() *redis.Client {
 
 func (r Redis) ZAdd(key string, score float64, value []byte) error {
 	arg := redis.Z{
-		Score: score,
+		Score:  score,
 		Member: value,
 	}
 	return r.client.ZAdd(key, arg).Err()

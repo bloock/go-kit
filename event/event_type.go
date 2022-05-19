@@ -27,83 +27,92 @@ var (
 // User events
 var (
 	user        = "user"
-	UserCreated = newEvent(users, user, create)
-	UserUpdated = newEvent(users, user, update)
-	UserDeleted = newEvent(users, user, delete)
+	UserCreated = newEvent(users, user, create, newEventArgs{})
+	UserUpdated = newEvent(users, user, update, newEventArgs{})
+	UserDeleted = newEvent(users, user, delete, newEventArgs{})
 
 	verification          = "verification"
-	UsersVerificationMail = newEvent(users, verification, mail)
+	UsersVerificationMail = newEvent(users, verification, mail, newEventArgs{})
 )
 
 // Subscription events
 var (
 	subscription        = "subscription"
-	SubscriptionCreated = newEvent(subscriptions, subscription, create)
-	SubscriptionUpdated = newEvent(subscriptions, subscription, update)
-	SubscriptionDeleted = newEvent(subscriptions, subscription, delete)
+	SubscriptionCreated = newEvent(subscriptions, subscription, create, newEventArgs{})
+	SubscriptionUpdated = newEvent(subscriptions, subscription, update, newEventArgs{})
+	SubscriptionDeleted = newEvent(subscriptions, subscription, delete, newEventArgs{})
 
 	plan        = "plan"
-	PlanCreated = newEvent(subscriptions, plan, create)
-	PlanUpdated = newEvent(subscriptions, plan, update)
-	PlanDeleted = newEvent(subscriptions, plan, delete)
+	PlanCreated = newEvent(subscriptions, plan, create, newEventArgs{})
+	PlanUpdated = newEvent(subscriptions, plan, update, newEventArgs{})
+	PlanDeleted = newEvent(subscriptions, plan, delete, newEventArgs{})
 )
 
 // Credential events
 var (
 	passwordReset                = "password_reset"
-	CredentialsPasswordResetMail = newEvent(credentials, passwordReset, mail)
+	CredentialsPasswordResetMail = newEvent(credentials, passwordReset, mail, newEventArgs{})
 )
 
 // Core events
 var (
 	anchor          = "anchor"
-	AnchorCreated   = newEvent(core, anchor, create)
-	AnchorUpdated   = newEvent(core, anchor, update)
-	AnchorFinalized = newEvent(core, anchor, "finalized")
+	AnchorCreated   = newEvent(core, anchor, create, newEventArgs{})
+	AnchorUpdated   = newEvent(core, anchor, update, newEventArgs{})
+	AnchorFinalized = newEvent(core, anchor, "finalized", newEventArgs{})
 
 	anchorNetwork          = "anchor_network"
-	AnchorNetworkCreated   = newEvent(core, anchorNetwork, create)
-	AnchorNetworkUpdated   = newEvent(core, anchorNetwork, update)
-	AnchorNetworkConfirmed = newEvent(core, anchorNetwork, "confirmed")
+	AnchorNetworkCreated   = newEvent(core, anchorNetwork, create, newEventArgs{})
+	AnchorNetworkUpdated   = newEvent(core, anchorNetwork, update, newEventArgs{})
+	AnchorNetworkConfirmed = newEvent(core, anchorNetwork, "confirmed", newEventArgs{})
 )
 
 // Transaction events
 var (
 	network          = "network"
-	NetworkCreated   = newEvent(transactions, network, create)
-	NetworkConfirmed = newEvent(transactions, network, confirm)
+	NetworkCreated   = newEvent(transactions, network, create, newEventArgs{})
+	NetworkConfirmed = newEvent(transactions, network, confirm, newEventArgs{})
 
 	anchorConfirm   = "anchor"
-	AnchorConfirmed = newEvent(transactions, anchorConfirm, confirm)
+	AnchorConfirmed = newEvent(transactions, anchorConfirm, confirm, newEventArgs{})
 
 	anchorBloockchain           = "bloock_chain"
-	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send)
-	AnchorBloockchainSenderTest = newEvent(transactionsTest, anchorBloockchain, send)
+	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorBloockchainSenderTest = newEvent(transactionsTest, anchorBloockchain, send, newEventArgs{retry: true, expiration: 30000})
 
 	anchorRinkeby           = "ethereum_rinkeby"
-	AnchorRinkebySender     = newEvent(transactions, anchorRinkeby, send)
-	AnchorRinkebySenderTest = newEvent(transactionsTest, anchorRinkeby, send)
+	AnchorRinkebySender     = newEvent(transactions, anchorRinkeby, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorRinkebySenderTest = newEvent(transactionsTest, anchorRinkeby, send, newEventArgs{retry: true, expiration: 30000})
 
 	anchorMainnet           = "ethereum_mainnet"
-	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send)
-	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send)
+	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
 
 	gnosisChain             = "gnosis_chain"
-	AnchorGnosisChainSender = newEvent(transactions, gnosisChain, send)
+	AnchorGnosisChainSender = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
 )
 
 // Notification events
 var (
 	webhook           = "webhook"
-	WebhookScheduler  = newEvent(notifications, webhook, "schedule")
-	WebhookInvocation = newEvent(notifications, webhook, "invocation")
-	WebhookRetry      = newEvent(notifications, webhook, "retry")
-	WebhookConfirmed  = newEvent(notifications, webhook, "confirmed")
+	WebhookScheduler  = newEvent(notifications, webhook, "schedule", newEventArgs{})
+	WebhookInvocation = newEvent(notifications, webhook, "invocation", newEventArgs{})
+	WebhookRetry      = newEvent(notifications, webhook, "retry", newEventArgs{})
+	WebhookConfirmed  = newEvent(notifications, webhook, "confirmed", newEventArgs{})
 
 	email     = "email"
-	SendEmail = newEvent(notifications, email, "send")
+	SendEmail = newEvent(notifications, email, "send", newEventArgs{})
 )
 
-func newEvent(service, entity, action string) Type {
-	return Type(fmt.Sprintf("%s.%s.%s", service, entity, action))
+type newEventArgs struct {
+	retry      bool
+	expiration int
+}
+
+func newEvent(service, entity, action string, args newEventArgs) Type {
+	return Type{
+		name:       fmt.Sprintf("%s.%s.%s", service, entity, action),
+		retry:      args.retry,
+		expiration: args.expiration,
+	}
 }
