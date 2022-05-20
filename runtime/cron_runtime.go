@@ -25,7 +25,7 @@ func NewCronRuntime(c *client.CronClient, shutdownTime time.Duration, l zerolog.
 	return &e, nil
 }
 
-func (e *CronRuntime) AddHandler(name, spec string, h client.CronHandler) {
+func (e *CronRuntime) AddHandler(name string, spec time.Duration, h client.CronHandler) {
 	e.client.AddJob(name, spec, h)
 }
 
@@ -37,11 +37,8 @@ out:
 
 		select {
 		case <-ctx.Done():
-			e.logger.Info().Msg("context done")
 			break out
 		}
-
-		e.logger.Info().Msg("out of select")
 	}
 
 	if err := e.client.Close(e.shutdownTime); err != nil {
