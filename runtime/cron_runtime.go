@@ -32,7 +32,12 @@ func (e *CronRuntime) AddHandler(name string, spec time.Duration, h client.CronH
 func (e *CronRuntime) Run(ctx context.Context) {
 out:
 	for {
-		e.client.Start(ctx)
+		err := e.client.Start(ctx)
+		if err != nil {
+			e.logger.Info().Msgf("error while starting cron worker: %s", err.Error())
+			break out
+		}
+
 		e.logger.Info().Msg("cron runtime started successfully")
 
 		select {

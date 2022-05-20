@@ -39,11 +39,13 @@ func (c *cronJob) WithContext(ctx context.Context) cronJob {
 }
 
 func (c cronJob) Run() {
-	c.l.Info().Str("name", c.name).Msgf("starting job %s", c.name)
+	c.l.Info().Str("job-name", c.name).Msg("starting job")
 	err := c.job(c.ctx)
 	if err != nil {
-		c.l.Error().Str("name", c.name).Msgf("error running cron job %s: %s", c.name, err.Error())
+		c.l.Error().Str("job-name", c.name).Msgf("error running cron: %s", err.Error())
+		return
 	}
+	c.l.Info().Str("job-name", c.name).Msg("job runned successfully")
 }
 
 type CronClient struct {
@@ -79,11 +81,12 @@ func (a *CronClient) AddJob(name string, spec time.Duration, handler CronHandler
 
 func (a *CronClient) Start(ctx context.Context) error {
 	for _, handler := range a.handlers {
-		_, err := a.scheduler.Every(handler.spec).Do(handler.WithContext(ctx))
+		_, err := a.scheduler.Every(handler.spec).Do(handler.WithContext(ctx).Run)
 		if err != nil {
 			return err
 		}
 	}
+
 	a.scheduler.StartAsync()
 
 	return nil
