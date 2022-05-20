@@ -88,8 +88,9 @@ var (
 	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
 	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
 
-	gnosisChain             = "gnosis_chain"
-	AnchorGnosisChainSender = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
+	gnosisChain                 = "gnosis_chain"
+	AnchorGnosisChainSender     = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorGnosisChainSenderTest = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
 )
 
 // Notification events
