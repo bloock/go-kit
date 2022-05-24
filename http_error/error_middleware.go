@@ -16,8 +16,8 @@ func (e appError) Error() string {
 	return fmt.Sprintf("error: %s. code: %d", e.Message, e.Code)
 }
 
-func NewAppError(code int, message string) appError {
-	return appError{
+func NewAppError(code int, message string) *appError {
+	return &appError{
 		Code:    code,
 		Message: message,
 	}
