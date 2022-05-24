@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/bloock/go-kit/client"
+	httperror "github.com/bloock/go-kit/http_error"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	openApiMiddleware "github.com/go-openapi/runtime/middleware"
@@ -46,6 +47,7 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 		)
 		e.client.Engine().Use(l)
 	}
+	e.client.Engine().Use(httperror.ErrorMiddleware())
 	f(e.client.Engine())
 	e.enableSwagger()
 }
