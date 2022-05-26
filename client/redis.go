@@ -79,3 +79,10 @@ func (r Redis) ZRangeByScore(key string, now string) ([]string, error) {
 	}
 	return r.client.ZRangeByScore(key, arg).Result()
 }
+
+func (r Redis) ZCount(key string, now string) (int64, error) {
+	min := now
+	max := "+inf"
+
+	return r.client.ZCount(key, min, max).Result()
+}

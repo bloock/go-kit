@@ -13,4 +13,5 @@ type Cache interface {
 	ZAdd(key string, score float64, value []byte) error
 	ZRem(key string, value []byte) error
 	ZRangeByScore(key string, now string) ([]string, error)
+	ZCount(key string, now string) (int64, error)
 }
