@@ -105,6 +105,21 @@ func (mr *MockCacheMockRecorder) ZAdd(key, score, value interface{}) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ZAdd", reflect.TypeOf((*MockCache)(nil).ZAdd), key, score, value)
 }
 
+// ZCount mocks base method.
+func (m *MockCache) ZCount(key, now string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ZCount", key, now)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ZCount indicates an expected call of ZCount.
+func (mr *MockCacheMockRecorder) ZCount(key, now interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ZCount", reflect.TypeOf((*MockCache)(nil).ZCount), key, now)
+}
+
 // ZRangeByScore mocks base method.
 func (m *MockCache) ZRangeByScore(key, now string) ([]string, error) {
 	m.ctrl.T.Helper()
