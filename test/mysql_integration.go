@@ -1,6 +1,7 @@
 package test
 
 import (
+	"database/sql"
 	"github.com/bloock/go-kit/client"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/ory/dockertest/v3"
@@ -87,4 +88,8 @@ func closeDB(pool *dockertest.Pool, resource *dockertest.Resource) {
 	if err := pool.Purge(resource); err != nil {
 		log.Fatalf("Could not purge resource: %s", err)
 	}
+}
+
+func GetMysqlDB() *sql.DB {
+	return mysqlClient.DB()
 }
