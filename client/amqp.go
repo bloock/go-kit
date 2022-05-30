@@ -168,7 +168,6 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handler
 	return action, nil
 }
 
-
 func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, expiration int) error {
 	return a.publish(event, event.Type().Name(), headers, expiration)
 }
