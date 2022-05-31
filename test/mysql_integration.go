@@ -2,6 +2,7 @@ package test
 
 import (
 	"github.com/bloock/go-kit/client"
+	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/ory/dockertest/v3"
@@ -18,6 +19,13 @@ const (
 	imageTag      = "8.0.22"
 )
 
+type Logger struct {
+}
+
+func (l Logger) Print(v ...interface{}) {
+	log.Println(v)
+}
+
 var mysqlClient *client.MysqlClient
 
 func SetupMysqlIntegrationTest(m *testing.M, migrationPath string, testTimeout uint) {
@@ -29,6 +37,7 @@ func SetupMysqlIntegrationTest(m *testing.M, migrationPath string, testTimeout u
 
 func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockertest.Resource) {
 	var platform string
+	mysql.SetLogger(Logger{})
 
 	pool, err := dockertest.NewPool("")
 	if err != nil {
