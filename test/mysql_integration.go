@@ -23,6 +23,12 @@ type Logger struct {
 }
 
 func (l Logger) Print(v ...interface{}) {
+	for _, e := range v {
+		err := e.(error)
+		if err.Error() == "unexpected EOF" {
+			return
+		}
+	}
 	log.Println(v)
 }
 
