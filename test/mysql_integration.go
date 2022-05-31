@@ -12,6 +12,7 @@ import (
 	"os"
 	"runtime"
 	"testing"
+	"time"
 )
 
 const (
@@ -67,6 +68,7 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 		if err != nil {
 			return err
 		}
+		db.SetConnMaxLifetime(time.Minute * 3)
 
 		return db.Ping()
 	}); err != nil {

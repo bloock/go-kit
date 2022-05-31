@@ -55,7 +55,7 @@ func (c MysqlClient) MigrateUp(path string) error {
 		c.logger.Error().Msgf("migration error: %s", err.Error())
 		return err
 	}
-	if err := m.Up(); err != nil {
+	if err := m	.Up(); err != nil {
 		if err == migrate.ErrNoChange {
 			c.logger.Info().Msgf("no migration changes: %s", err.Error())
 			return nil
