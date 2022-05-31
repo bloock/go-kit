@@ -63,7 +63,7 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 	if err := pool.Retry(func() error {
 		mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
 			"test", "test", "localhost", resource.GetPort("3306/tcp"), "test")
-		db, err := sql.Open("mysql", mysqlURI)
+		db, err = sql.Open("mysql", mysqlURI)
 		if err != nil {
 			return err
 		}
