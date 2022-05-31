@@ -12,7 +12,6 @@ import (
 	"os"
 	"runtime"
 	"testing"
-	"time"
 )
 
 const (
@@ -51,6 +50,7 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 			"MYSQL_USER=test",
 			"MYSQL_PASSWORD=test",
 			"MYSQL_DATABASE=test",
+			"LOGGING_LEVEL=ERROR",
 		},
 		Platform: platform,
 	}
@@ -68,7 +68,6 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 		if err != nil {
 			return err
 		}
-		db.SetConnMaxLifetime(time.Minute * 3)
 
 		return db.Ping()
 	}); err != nil {
