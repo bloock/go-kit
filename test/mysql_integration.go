@@ -1,13 +1,11 @@
 package test
 
 import (
-	"database/sql"
-	"fmt"
+	"github.com/bloock/go-kit/client"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/ory/dockertest/v3"
+	"github.com/rs/zerolog"
 	"log"
 	"os"
 	"runtime"
@@ -20,7 +18,7 @@ const (
 	imageTag      = "8.0.22"
 )
 
-var db *sql.DB
+var mysqlClient *client.MysqlClient
 
 func SetupMysqlIntegrationTest(m *testing.M, migrationPath string, testTimeout uint) {
 	pool, resource := initDB(migrationPath, testTimeout)
@@ -36,6 +34,9 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 	if err != nil {
 		log.Fatalf("Could not connect to docker: %s", err)
 	}
+	if err = pool.RemoveContainerByName(containerName); err != nil {
+		log.Fatalf("%s", err)
+	}
 
 	if runtime.GOARCH == "arm64" {
 		platform = "linux/x86-64"
@@ -50,7 +51,6 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 			"MYSQL_USER=test",
 			"MYSQL_PASSWORD=test",
 			"MYSQL_DATABASE=test",
-			"LOGGING_LEVEL=ERROR",
 		},
 		Platform: platform,
 	}
@@ -62,20 +62,19 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 	resource.Expire(testTimeout)
 
 	if err := pool.Retry(func() error {
-		mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True",
-			"test", "test", "localhost", resource.GetPort("3306/tcp"), "test")
-		db, err = sql.Open("mysql", mysqlURI)
+		mysqlClient, err = client.NewMysqlClient("test", "test", "localhost",
+			resource.GetPort("3306/tcp"), "test", zerolog.Logger{})
 		if err != nil {
 			return err
 		}
 
-		return db.Ping()
+		return mysqlClient.DB().Ping()
 	}); err != nil {
 		log.Fatalf("Could not connect to database: %s", err)
 	}
 
-	if err = migrateUp(migrationPath); err != nil {
-		log.Fatalf("migration error: %s", err.Error())
+	if err = mysqlClient.MigrateUp(migrationPath); err != nil {
+		log.Fatalf("%s", err.Error())
 	}
 
 	return pool, resource
@@ -87,23 +86,6 @@ func closeDB(pool *dockertest.Pool, resource *dockertest.Resource) {
 	}
 }
 
-func migrateUp(migrationPath string) error {
-	driver, err := mysql.WithInstance(db, &mysql.Config{})
-	if err != nil {
-		return err
-	}
-	m, err := migrate.NewWithDatabaseInstance(
-		fmt.Sprintf("file://%s", migrationPath),
-		"mysql",
-		driver,
-	)
-	if err != nil {
-		return err
-	}
-
-	return m.Up()
-}
-
-func GetMysqlDB() *sql.DB {
-	return db
+func GetMysqlClient() *client.MysqlClient {
+	return mysqlClient
 }
