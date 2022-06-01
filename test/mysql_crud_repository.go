@@ -47,9 +47,9 @@ func (r MysqlCrudRepository) List(res interface{}) error {
 	return nil
 }
 
-func (r MysqlCrudRepository) Retrieve(id int, res interface{}) error {
+func (r MysqlCrudRepository) Retrieve(id int, columnName string, res interface{}) error {
 	sb := r.sqlStruct.SelectFrom(r.table)
-	query, args := sb.Where(sb.Equal("id", id)).Build()
+	query, args := sb.Where(sb.Equal(columnName, id)).Build()
 
 	row := r.client.DB().QueryRow(query, args...)
 	if row.Err() != nil {
@@ -64,20 +64,27 @@ func (r MysqlCrudRepository) Retrieve(id int, res interface{}) error {
 	return nil
 }
 
-func (r MysqlCrudRepository) Update(id int, value interface{}) error {
+func (r MysqlCrudRepository) Update(id int, columnName string, value interface{}) error {
 	ub := r.sqlStruct.Update(r.table, value)
-	ub.Where(ub.Equal("id", id))
+	ub.Where(ub.Equal(columnName, id))
 	query, args := ub.Build()
 
 	_, err := r.client.DB().Exec(query, args...)
 	return err
 }
 
-func (r MysqlCrudRepository) Delete(id int) error {
+func (r MysqlCrudRepository) Delete(id int, columnName string) error {
 	db := r.sqlStruct.DeleteFrom(r.table)
-	query, args := db.Where(db.Equal("id", id)).Build()
+	query, args := db.Where(db.Equal(columnName, id)).Build()
 
 	_, err := r.client.DB().Exec(query, args...)
+	return err
+}
+
+func (r MysqlCrudRepository) Truncate() error {
+	query := fmt.Sprintf("TRUNCATE %s", r.table)
+
+	_, err := r.client.DB().Exec(query)
 	return err
 }
 
