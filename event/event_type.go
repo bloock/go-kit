@@ -95,6 +95,10 @@ var (
 	polygonChain                 = "polygon_chain"
 	AnchorPolygonChainSender     = newEvent(transactions, polygonChain, send, newEventArgs{retry: true, expiration: 30000})
 	AnchorPolygonChainSenderTest = newEvent(transactions, polygonChain, send, newEventArgs{retry: true, expiration: 30000})
+
+	anchorGoerli                 = "ethereum_goerli"
+	AnchorGoerliSender     = newEvent(transactions, anchorGoerli, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorGoerliSenderTest = newEvent(transactions, anchorGoerli, send, newEventArgs{retry: true, expiration: 30000})
 )
 
 // Notification events
