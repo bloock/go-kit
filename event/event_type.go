@@ -91,6 +91,10 @@ var (
 	gnosisChain                 = "gnosis_chain"
 	AnchorGnosisChainSender     = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
 	AnchorGnosisChainSenderTest = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
+
+	polygonChain                 = "polygon_chain"
+	AnchorPolygonChainSender     = newEvent(transactions, polygonChain, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorPolygonChainSenderTest = newEvent(transactions, polygonChain, send, newEventArgs{retry: true, expiration: 30000})
 )
 
 // Notification events
