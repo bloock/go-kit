@@ -99,6 +99,10 @@ var (
 	anchorGoerli                 = "ethereum_goerli"
 	AnchorGoerliSender     = newEvent(transactions, anchorGoerli, send, newEventArgs{retry: true, expiration: 30000})
 	AnchorGoerliSenderTest = newEvent(transactions, anchorGoerli, send, newEventArgs{retry: true, expiration: 30000})
+
+	anchorSepolia                 = "ethereum_sepolia"
+	AnchorSepoliaSender     = newEvent(transactions, anchorSepolia, send, newEventArgs{retry: true, expiration: 30000})
+	AnchorSepoliaSenderTest = newEvent(transactions, anchorSepolia, send, newEventArgs{retry: true, expiration: 30000})
 )
 
 // Notification events
