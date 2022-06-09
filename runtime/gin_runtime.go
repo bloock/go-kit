@@ -32,9 +32,11 @@ func NewGinRuntime(c *client.GinEngine, shutdownTime time.Duration, l zerolog.Lo
 
 func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 	if e.client.Debug() {
+		var path string
 		l := logger.SetLogger(
 			logger.WithUTC(true),
-			logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
+			logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) (zerolog.Logger) {
+				path = c.Request.URL.Path
 				return e.logger.With().
 					Int("status", c.Writer.Status()).
 					Str("method", c.Request.Method).
@@ -45,7 +47,9 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 					Logger()
 			}),
 		)
-		e.client.Engine().Use(l)
+		if path != "/health" {
+			e.client.Engine().Use(l)
+		}
 	}
 	e.client.Engine().Use(httperror.ErrorMiddleware())
 	f(e.client.Engine())
