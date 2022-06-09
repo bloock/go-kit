@@ -75,22 +75,6 @@ var (
 
 	anchorConfirm   = "anchor"
 	AnchorConfirmed = newEvent(transactions, anchorConfirm, confirm, newEventArgs{})
-
-	anchorBloockchain           = "bloock_chain"
-	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorBloockchainSenderTest = newEvent(transactionsTest, anchorBloockchain, send, newEventArgs{retry: true, expiration: 30000})
-
-	anchorRinkeby           = "ethereum_rinkeby"
-	AnchorRinkebySender     = newEvent(transactions, anchorRinkeby, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorRinkebySenderTest = newEvent(transactionsTest, anchorRinkeby, send, newEventArgs{retry: true, expiration: 30000})
-
-	anchorMainnet           = "ethereum_mainnet"
-	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
-
-	gnosisChain                 = "gnosis_chain"
-	AnchorGnosisChainSender     = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorGnosisChainSenderTest = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
 )
 
 // Notification events
