@@ -75,34 +75,6 @@ var (
 
 	anchorConfirm   = "anchor"
 	AnchorConfirmed = newEvent(transactions, anchorConfirm, confirm, newEventArgs{})
-
-	anchorBloockchain           = "bloock_chain"
-	AnchorBloockchainSender     = newEvent(transactions, anchorBloockchain, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorBloockchainSenderTest = newEvent(transactionsTest, anchorBloockchain, send, newEventArgs{retry: true, expiration: 30000})
-
-	anchorRinkeby           = "ethereum_rinkeby"
-	AnchorRinkebySender     = newEvent(transactions, anchorRinkeby, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorRinkebySenderTest = newEvent(transactionsTest, anchorRinkeby, send, newEventArgs{retry: true, expiration: 30000})
-
-	anchorMainnet           = "ethereum_mainnet"
-	AnchorMainnetSender     = newEvent(transactions, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorMainnetSenderTest = newEvent(transactionsTest, anchorMainnet, send, newEventArgs{retry: true, expiration: 30000})
-
-	gnosisChain                 = "gnosis_chain"
-	AnchorGnosisChainSender     = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorGnosisChainSenderTest = newEvent(transactions, gnosisChain, send, newEventArgs{retry: true, expiration: 30000})
-
-	polygonChain                 = "polygon_chain"
-	AnchorPolygonChainSender     = newEvent(transactions, polygonChain, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorPolygonChainSenderTest = newEvent(transactions, polygonChain, send, newEventArgs{retry: true, expiration: 30000})
-
-	anchorGoerli                 = "ethereum_goerli"
-	AnchorGoerliSender     = newEvent(transactions, anchorGoerli, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorGoerliSenderTest = newEvent(transactions, anchorGoerli, send, newEventArgs{retry: true, expiration: 30000})
-
-	anchorSepolia                 = "ethereum_sepolia"
-	AnchorSepoliaSender     = newEvent(transactions, anchorSepolia, send, newEventArgs{retry: true, expiration: 30000})
-	AnchorSepoliaSenderTest = newEvent(transactions, anchorSepolia, send, newEventArgs{retry: true, expiration: 30000})
 )
 
 // Notification events
