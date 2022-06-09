@@ -14,21 +14,10 @@ import (
 	"github.com/wagslane/go-rabbitmq"
 )
 
-type AMQPHandler func(context.Context, event.Event) (Action, error)
+type AMQPHandler func(context.Context, event.Event) error
 
 var (
 	ErrDisconnected = errors.New("disconnected from rabbitmq, trying to reconnect")
-)
-
-type Action = int
-
-const (
-	// Ack default ack this msg after you have successfully processed this delivery.
-	Ack Action = iota
-	// NackDiscard the message will be dropped or delivered to a server configured dead-letter queue.
-	NackDiscard
-	// NackRequeue deliver this message to a different consumer.
-	NackRequeue
 )
 
 type AMQPClient struct {
@@ -111,7 +100,7 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 
 		err = a.consumer.StartConsuming(
 			func(d rabbitmq.Delivery) rabbitmq.Action {
-				result := NackDiscard
+				result := rabbitmq.NackDiscard
 
 				startTime := time.Now()
 
@@ -125,13 +114,15 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 					}
 				}(evt)
 
-				result, err = a.handleMessage(ctx, evt, handlers...)
+				err = a.handleMessage(ctx, evt, handlers...)
 				if err != nil {
 					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("error while consuming message: %s", err.Error())
+					result = rabbitmq.NackDiscard
 				} else {
 					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", evt.Type().Name()).Str("id", evt.ID()).Msg("successfully consumed message")
+					result = rabbitmq.Ack
 				}
-				return rabbitmq.Action(result)
+				return result
 			},
 			q.Name,
 			[]string{""},
@@ -150,22 +141,14 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 	return nil
 }
 
-func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handlers ...AMQPHandler) (Action, error) {
-	var action Action
+func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handlers ...AMQPHandler) error {
 	for _, handler := range handlers {
-		act, err := handler(ctx, evt)
+		err := handler(ctx, evt)
 		if err != nil {
-			if evt.Type().HasRetry() && act == NackRequeue {
-				if err := a.PublishRetry(evt, evt.Headers(), evt.Type().RetryExpiration()); err != nil {
-					return NackRequeue, err
-				}
-				return Ack, err
-			}
-			return act, err
+			return err
 		}
-		action = act
 	}
-	return action, nil
+	return nil
 }
 
 func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, expiration int) error {
