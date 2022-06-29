@@ -1,4 +1,4 @@
-package api_events
+package events
 
 import (
 	"fmt"
@@ -11,13 +11,15 @@ import (
 
 func MiddlewareEvents() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		b, err := io.ReadAll(c.Request.Body)
+		log.Println(err)
 		body := map[string]interface{}{
 			"type":          "",
 			"status":        c.Writer.Status(),
 			"method":        c.Request.Method,
 			"path":          c.Request.URL,
 			"request_id":    c.Request.Header.Get("X-Request-ID"),
-			"request_body":  io.ReadAll(c.Request.Body),
+			"request_body":  b,
 			"response_body": "",
 			"ip":            c.ClientIP(),
 			"user_id":       c.Request.Header.Get("x-user-id"),
@@ -27,7 +29,7 @@ func MiddlewareEvents() gin.HandlerFunc {
 		headers := make(map[string]string)
 
 		log.Printf("Info --> %+v", body)
-		err := request.RestClient{}.PostWithHeaders(url, body, nil, headers)
+		err = request.RestClient{}.PostWithHeaders(url, body, nil, headers)
 
 		if err != nil {
 			c.Writer.WriteHeader(http.StatusBadRequest)

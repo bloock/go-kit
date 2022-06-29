@@ -35,7 +35,7 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 		l := logger.SetLogger(
 			logger.WithSkipPath([]string{"/health"}),
 			logger.WithUTC(true),
-			logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) (zerolog.Logger) {
+			logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
 				return e.logger.With().
 					Int("status", c.Writer.Status()).
 					Str("method", c.Request.Method).
