@@ -1,43 +1,55 @@
 package events
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/bloock/go-kit/request"
 	"github.com/gin-gonic/gin"
-	"io"
+	"github.com/rs/zerolog"
 	"log"
-	"net/http"
 )
 
-func MiddlewareEvents() gin.HandlerFunc {
+type MiddlewareEvent struct {
+	logger zerolog.Logger
+}
+
+func NewMiddlewareEvent(l zerolog.Logger) MiddlewareEvent {
+	return MiddlewareEvent{
+		logger: l,
+	}
+}
+
+func (m MiddlewareEvent) MiddlewareEvents(typ string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		b, err := io.ReadAll(c.Request.Body)
-		log.Println(err)
-		body := map[string]interface{}{
-			"type":          "",
-			"status":        c.Writer.Status(),
-			"method":        c.Request.Method,
-			"path":          c.Request.URL,
-			"request_id":    c.Request.Header.Get("X-Request-ID"),
-			"request_body":  b,
-			"response_body": "",
-			"ip":            c.ClientIP(),
-			"user_id":       c.Request.Header.Get("x-user-id"),
-		}
+		writer := c.Writer
+		rw := wrappedWriter{ResponseWriter: c.Writer}
+		c.Writer = &rw
+		c.Next()
+		c.Writer = writer
+
+		body, err := NewResponseContext(c, rw, typ)
 
 		url := fmt.Sprintf("%s://%s/%s", "https", "api.bloock.dev", "events/v1/activities")
-		headers := make(map[string]string)
 
 		log.Printf("Info --> %+v", body)
-		err = request.RestClient{}.PostWithHeaders(url, body, nil, headers)
+		err = request.RestClient{}.Post(url, body, nil)
 
 		if err != nil {
-			c.Writer.WriteHeader(http.StatusBadRequest)
-			c.Writer.Write([]byte(fmt.Sprintf("Events: Could not register event. %s", err.Error())))
-			c.Abort()
+			m.logger.Error().Msgf("Events: Could not register event. %s", err.Error())
 			return
 		}
-
-		return
 	}
+}
+
+type wrappedWriter struct {
+	gin.ResponseWriter
+	body bytes.Buffer
+}
+
+func (rw *wrappedWriter) Write(body []byte) (int, error) {
+	n, err := rw.ResponseWriter.Write(body)
+	if err == nil {
+		rw.body.Write(body)
+	}
+	return n, err
 }
