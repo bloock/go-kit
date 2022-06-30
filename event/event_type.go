@@ -35,6 +35,12 @@ var (
 	UsersVerificationMail = newEvent(users, verification, mail, newEventArgs{})
 )
 
+// Events events
+var (
+	activity              = "activity"
+	EventsActivityCreated = newEvent(events, activity, create, newEventArgs{})
+)
+
 // Subscription events
 var (
 	subscription        = "subscription"

@@ -2,8 +2,9 @@ package events
 
 import (
 	"bytes"
-	"fmt"
-	"github.com/bloock/go-kit/request"
+	"github.com/bloock/go-kit/event"
+	event_entity "github.com/bloock/go-kit/event/entity"
+	"github.com/bloock/go-kit/publisher"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"io"
@@ -11,14 +12,14 @@ import (
 )
 
 type MiddlewareEvent struct {
-	logger zerolog.Logger
-	endpointConfig EndpointConfig
+	logger    zerolog.Logger
+	publisher publisher.Publisher
 }
 
-func NewMiddlewareEvent(l zerolog.Logger, protocol, host string, port int, path string) MiddlewareEvent {
+func NewMiddlewareEvent(l zerolog.Logger, publisher publisher.Publisher) MiddlewareEvent {
 	return MiddlewareEvent{
-		logger: l,
-		endpointConfig: EndpointConfig{protocol, host, port, path},
+		logger:    l,
+		publisher: publisher,
 	}
 }
 
@@ -27,6 +28,7 @@ func (m MiddlewareEvent) MiddlewareEvents(typ string) gin.HandlerFunc {
 		requestBody, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			m.logger.Error().Msg(err.Error())
+			return
 		}
 		c.Request.Body.Close()
 		c.Request.Body = io.NopCloser(bytes.NewBuffer(requestBody))
@@ -39,24 +41,25 @@ func (m MiddlewareEvent) MiddlewareEvents(typ string) gin.HandlerFunc {
 
 		body, err := NewResponseContext(c, rw, typ, string(requestBody))
 
-		url := fmt.Sprintf("%s://%s:%d%s", m.endpointConfig.Protocol, m.endpointConfig.Host,
-			m.endpointConfig.Port, m.endpointConfig.Path)
-
 		log.Printf("Info --> %+v", body)
-		err = request.RestClient{}.Post(url, body, nil)
 
+		eventBody := event_entity.NewEventsActivityCreateEntity(
+			body.Type,
+			body.Status,
+			body.Path,
+			body.RequestID,
+			body.RequestBody,
+			body.ResponseBody,
+			body.IP,
+			body.UserID)
+
+		ev, err := event.NewEntityEvent(event.EventsActivityCreated, eventBody)
 		if err != nil {
 			m.logger.Error().Msgf("Events: Could not register event. %s", err.Error())
 			return
 		}
+		m.publisher.Publish(ev, nil)
 	}
-}
-
-type EndpointConfig struct {
-	Protocol string
-	Host     string
-	Port     int
-	Path     string
 }
 
 type wrappedWriter struct {
