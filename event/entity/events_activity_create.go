@@ -7,11 +7,12 @@ type EventsActivityCreate struct {
 	RequestID    string `json:"request_id"`
 	RequestBody  string `json:"request_body"`
 	ResponseBody string `json:"response_body"`
-	IP           string `json:"ip"`
+	IpAddress    string `json:"ip_address"`
 	UserID       string `json:"user_id"`
+	Method       string `json:"method"`
 }
 
-func NewEventsActivityCreateEntity(typ string, st int, path, reqID, reqBody, respBody, ip, userID string) EventsActivityCreate {
+func NewEventsActivityCreateEntity(typ string, st int, path, reqID, reqBody, respBody, ip, userID, method string) EventsActivityCreate {
 	return EventsActivityCreate{
 		Type:         typ,
 		Status:       st,
@@ -19,7 +20,8 @@ func NewEventsActivityCreateEntity(typ string, st int, path, reqID, reqBody, res
 		RequestID:    reqID,
 		RequestBody:  reqBody,
 		ResponseBody: respBody,
-		IP:           ip,
+		IpAddress:    ip,
 		UserID:       userID,
+		Method:       method,
 	}
 }

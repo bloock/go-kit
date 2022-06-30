@@ -50,8 +50,9 @@ func (m MiddlewareEvent) MiddlewareEvents(typ string) gin.HandlerFunc {
 			body.RequestID,
 			body.RequestBody,
 			body.ResponseBody,
-			body.IP,
-			body.UserID)
+			body.IpAddress,
+			body.UserID,
+			body.Method)
 
 		ev, err := event.NewEntityEvent(event.EventsActivityCreated, eventBody)
 		if err != nil {

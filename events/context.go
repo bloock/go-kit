@@ -11,8 +11,9 @@ type ResponseContext struct {
 	RequestID    string
 	RequestBody  string
 	ResponseBody string
-	IP           string
+	IpAddress    string
 	UserID       string
+	Method       string
 }
 
 func NewResponseContext(c *gin.Context, w wrappedWriter, typ, requestBody string) (*ResponseContext, error) {
@@ -24,8 +25,9 @@ func NewResponseContext(c *gin.Context, w wrappedWriter, typ, requestBody string
 		RequestID:    c.Request.Header.Get("X-Request-ID"),
 		RequestBody:  requestBody,
 		ResponseBody: w.body.String(),
-		IP:           c.ClientIP(),
+		IpAddress:    c.ClientIP(),
 		UserID:       c.Request.Header.Get("x-user-id"),
+		Method:       c.Request.Method,
 	}, nil
 
 }
