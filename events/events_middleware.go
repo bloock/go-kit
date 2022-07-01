@@ -8,7 +8,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	"io"
-	"log"
 )
 
 type MiddlewareEvent struct {
@@ -40,8 +39,6 @@ func (m MiddlewareEvent) MiddlewareEvents(typ string) gin.HandlerFunc {
 		c.Writer = writer
 
 		body, err := NewResponseContext(c, rw, typ, string(requestBody))
-
-		log.Printf("Info --> %+v", body)
 
 		eventBody := event_entity.NewEventsActivityCreateEntity(
 			body.Type,

@@ -24,14 +24,16 @@ func NewResponseContext(c *gin.Context, w wrappedWriter, typ, requestBody string
 	if len(c.Errors) > 0 {
 		detectedErrors := c.Errors.ByType(gin.ErrorTypeAny)
 		err := detectedErrors[0].Err
+		var parsedError *httperror.AppError
 
-		appErr, ok := err.(httperror.AppError)
-		if !ok {
+		switch err.(type) {
+		case *httperror.AppError:
+			parsedError = err.(*httperror.AppError)
+			status = parsedError.Code
+			responseBody = parsedError.Message
+		default:
 			status = http.StatusInternalServerError
-			responseBody = err.Error()
-		} else {
-			status = appErr.Code
-			responseBody = appErr.Message
+			responseBody = "Internal Server Error"
 		}
 	}
 
