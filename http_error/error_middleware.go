@@ -7,17 +7,17 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type appError struct {
+type AppError struct {
 	Code    int    `json:"code"`
 	Message string `json:"message"`
 }
 
-func (e appError) Error() string {
+func (e AppError) Error() string {
 	return fmt.Sprintf("error: %s. code: %d", e.Message, e.Code)
 }
 
-func NewAppError(code int, message string) *appError {
-	return &appError{
+func NewAppError(code int, message string) *AppError {
+	return &AppError{
 		Code:    code,
 		Message: message,
 	}
@@ -34,13 +34,13 @@ func errorMiddleware(errType gin.ErrorType) gin.HandlerFunc {
 
 		if len(detectedErrors) > 0 {
 			err := detectedErrors[0].Err
-			var parsedError *appError
+			var parsedError *AppError
 
 			switch err.(type) {
-			case *appError:
-				parsedError = err.(*appError)
+			case *AppError:
+				parsedError = err.(*AppError)
 			default:
-				parsedError = &appError{
+				parsedError = &AppError{
 					Code:    http.StatusInternalServerError,
 					Message: "Internal Server Error",
 				}
