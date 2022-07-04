@@ -6,6 +6,6 @@ var (
 	ErrNotFound = NewAppError(http.StatusNotFound, "not found")
 )
 
-func ErrInvalidBodyJSON(err error) *appError {
+func ErrInvalidBodyJSON(err error) *AppError {
 	return NewAppError(http.StatusBadRequest, err.Error())
 }
