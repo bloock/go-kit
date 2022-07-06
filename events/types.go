@@ -29,7 +29,7 @@ func (e EventType) Str() string {
 	case GetProof:
 		return fmt.Sprintf("%s.%s", CorePrefix, "get_proof")
 	case NewMessages:
-		return fmt.Sprintf("%s.%s", CorePrefix, "new_messaages")
+		return fmt.Sprintf("%s.%s", CorePrefix, "new_messages")
 	default:
 		return ""
 	}
@@ -42,7 +42,7 @@ func (e EventTypeTest) Str() string {
 	case GetProofTest:
 		return fmt.Sprintf("%s.%s", CoreTestPrefix, "get_proof")
 	case NewMessagesTest:
-		return fmt.Sprintf("%s.%s", CoreTestPrefix, "new_messaages")
+		return fmt.Sprintf("%s.%s", CoreTestPrefix, "new_messages")
 	default:
 		return ""
 	}
