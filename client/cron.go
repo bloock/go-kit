@@ -12,29 +12,32 @@ import (
 
 type CronHandler func(context.Context) error
 type cronJob struct {
-	ctx  context.Context
-	name string
-	spec time.Duration
-	job  CronHandler
-	l    zerolog.Logger
+	ctx     context.Context
+	name    string
+	spec    time.Duration
+	fixTime string
+	job     CronHandler
+	l       zerolog.Logger
 }
 
-func newCronJob(name string, spec time.Duration, job CronHandler, l zerolog.Logger) cronJob {
+func newCronJob(name string, spec time.Duration, fixTime string, job CronHandler, l zerolog.Logger) cronJob {
 	return cronJob{
-		name: name,
-		spec: spec,
-		job:  job,
-		l:    l,
+		name:    name,
+		spec:    spec,
+		fixTime: fixTime,
+		job:     job,
+		l:       l,
 	}
 }
 
 func (c *cronJob) WithContext(ctx context.Context) cronJob {
 	return cronJob{
-		ctx:  ctx,
-		name: c.name,
-		spec: c.spec,
-		job:  c.job,
-		l:    c.l,
+		ctx:     ctx,
+		name:    c.name,
+		fixTime: c.fixTime,
+		spec:    c.spec,
+		job:     c.job,
+		l:       c.l,
 	}
 }
 
@@ -74,13 +77,20 @@ func NewCronClient(ctx context.Context, l zerolog.Logger) (*CronClient, error) {
 
 }
 
-func (a *CronClient) AddJob(name string, spec time.Duration, handler CronHandler) {
-	job := newCronJob(name, spec, handler, a.l)
+func (a *CronClient) AddJob(name string, spec time.Duration, fixTime string, handler CronHandler) {
+	job := newCronJob(name, spec, fixTime, handler, a.l)
 	a.handlers = append(a.handlers, job)
 }
 
 func (a *CronClient) Start(ctx context.Context) error {
 	for _, handler := range a.handlers {
+		if handler.fixTime != "" {
+			_, err := a.scheduler.Cron(handler.fixTime).Do(handler.WithContext(ctx).Run)
+			if err != nil {
+				return err
+			}
+			continue
+		}
 		_, err := a.scheduler.Every(handler.spec).Do(handler.WithContext(ctx).Run)
 		if err != nil {
 			return err

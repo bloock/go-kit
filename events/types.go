@@ -11,13 +11,13 @@ const (
 	NewMessages
 )
 
-const(
+const (
 	GetAnchorTest EventTypeTest = iota
 	GetProofTest
 	NewMessagesTest
 )
 
-const(
+const (
 	CorePrefix     = "core"
 	CoreTestPrefix = "core-test"
 )
