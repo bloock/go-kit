@@ -5,7 +5,7 @@ type RecordsCounter struct {
 	UserID  string `json:"user_id"`
 }
 
-func NewRecordsCounter(counter int, userID string) RecordsCounter {
+func NewRecordsCounterEventEntity(counter int, userID string) RecordsCounter {
 	return RecordsCounter{
 		Counter: counter,
 		UserID:  userID,
