@@ -34,13 +34,13 @@ func (r RestClient) Get(url string, response interface{}) error {
 	return nil
 }
 
-func (r RestClient) Post(url string, body interface{}, response interface{}) error {
+func (r RestClient) Post(url string, body interface{}, response interface{}, contentType string) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 
-	resp, err := http.Post(url, "application/json", bytes.NewBuffer(b))
+	resp, err := http.Post(url, contentType, bytes.NewBuffer(b))
 	if err != nil {
 		return err
 	}
@@ -52,7 +52,7 @@ func (r RestClient) Post(url string, body interface{}, response interface{}) err
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return errors.New("invalid status code")
+		return errors.New(resp.Status)
 	}
 
 	err = json.Unmarshal(respByte, &response)
