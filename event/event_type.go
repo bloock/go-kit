@@ -71,6 +71,9 @@ var (
 	AnchorNetworkCreated   = newEvent(core, anchorNetwork, create, newEventArgs{})
 	AnchorNetworkUpdated   = newEvent(core, anchorNetwork, update, newEventArgs{})
 	AnchorNetworkConfirmed = newEvent(core, anchorNetwork, "confirmed", newEventArgs{})
+
+	recordCounter        = "record_counter"
+	RecordCounterCreated = newEvent(core, recordCounter, create, newEventArgs{})
 )
 
 // Transaction events
