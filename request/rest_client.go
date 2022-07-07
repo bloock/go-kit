@@ -63,7 +63,7 @@ func (r RestClient) Post(url string, body interface{}, response interface{}, con
 	return nil
 }
 
-func (r RestClient) PostWithHeaders(url string, body, response interface{}, headers map[string]string) error {
+func (r RestClient) PostWithHeaders(url string, body, response interface{}, headers map[string]string, contentType string) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -78,7 +78,7 @@ func (r RestClient) PostWithHeaders(url string, body, response interface{}, head
 	for k, v := range headers {
 		req.Header.Set(k, v)
 	}
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", contentType)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -92,7 +92,7 @@ func (r RestClient) PostWithHeaders(url string, body, response interface{}, head
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return errors.New("invalid status code")
+		return errors.New(resp.Status)
 	}
 
 	err = json.Unmarshal(respByte, &response)
