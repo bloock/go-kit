@@ -26,7 +26,11 @@ func NewCronRuntime(c *client.CronClient, shutdownTime time.Duration, l zerolog.
 }
 
 func (e *CronRuntime) AddHandler(name string, spec time.Duration, h client.CronHandler) {
-	e.client.AddJob(name, spec, h)
+	e.client.AddJob(name, spec, "", h)
+}
+
+func (e *CronRuntime) AddHandlerFixTime(name string, fixTime string, h client.CronHandler) {
+	e.client.AddJob(name, time.Duration(0), fixTime, h)
 }
 
 func (e *CronRuntime) Run(ctx context.Context) {
