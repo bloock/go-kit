@@ -92,7 +92,6 @@ var (
 	WebhookScheduler  = newEvent(notifications, webhook, "schedule", newEventArgs{})
 	WebhookInvocation = newEvent(notifications, webhook, "invocation", newEventArgs{})
 	WebhookRetry      = newEvent(notifications, webhook, "retry", newEventArgs{})
-	WebhookConfirmed  = newEvent(notifications, webhook, "confirmed", newEventArgs{})
 
 	email     = "email"
 	SendEmail = newEvent(notifications, email, "send", newEventArgs{})
