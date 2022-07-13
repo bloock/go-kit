@@ -62,14 +62,7 @@ var (
 
 // Core events
 var (
-	anchor          = "anchor"
-	AnchorCreated   = newEvent(core, anchor, create, newEventArgs{})
-	AnchorUpdated   = newEvent(core, anchor, update, newEventArgs{})
-	AnchorFinalized = newEvent(core, anchor, "finalized", newEventArgs{})
-
 	anchorNetwork          = "anchor_network"
-	AnchorNetworkCreated   = newEvent(core, anchorNetwork, create, newEventArgs{})
-	AnchorNetworkUpdated   = newEvent(core, anchorNetwork, update, newEventArgs{})
 	AnchorNetworkConfirmed = newEvent(core, anchorNetwork, "confirmed", newEventArgs{})
 
 	recordCounter        = "record_counter"
