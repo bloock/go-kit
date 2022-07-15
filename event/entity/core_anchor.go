@@ -7,10 +7,10 @@ type CoreAnchor struct {
 	Test         bool              `json:"test"`
 	MessageCount int64             `json:"message_count"`
 	CreatedAt    int64             `json:"created_at"`
-	Networks     CoreAnchorNetwork `json:"networks"`
+	Network     CoreAnchorNetwork `json:"network"`
 }
 
-func NewCoreAnchorEventEntity(id int, root string, finalized, test bool, messageCount, createdAt int64, networks CoreAnchorNetwork) CoreAnchor {
+func NewCoreAnchorEventEntity(id int, root string, finalized, test bool, messageCount, createdAt int64, network CoreAnchorNetwork) CoreAnchor {
 	return CoreAnchor{
 		Id:           id,
 		Root:         root,
@@ -18,6 +18,6 @@ func NewCoreAnchorEventEntity(id int, root string, finalized, test bool, message
 		Test:         test,
 		MessageCount: messageCount,
 		CreatedAt:    createdAt,
-		Networks:     networks,
+		Network:     network,
 	}
 }
