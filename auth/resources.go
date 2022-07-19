@@ -18,6 +18,7 @@ const (
 	ResourceEventsActivity            Resource = "events.activity"
 	ResourceEventsAnchor              Resource = "events.anchor"
 	ResourceEventsWebhook             Resource = "events.webhook"
+	ResourceEventsAnalytics           Resource = "events.analytics"
 	ResourceSubscriptionsSubscription Resource = "subscriptions.subscription"
 	ResourceSubscriptionsPlan         Resource = "subscriptions.plan"
 	ResourceSubscriptionsInvoice      Resource = "subscriptions.invoice"
