@@ -176,6 +176,7 @@ func (a *AMQPClient) publish(event event.Event, name string, headers map[string]
 		rabbitmq.WithPublishOptionsHeaders(headers),
 		rabbitmq.WithPublishOptionsExpiration(exp),
 		rabbitmq.WithPublishOptionsCorrelationID(event.ID()),
+		rabbitmq.WithPublishOptionsTimestamp(event.OccurredOn()),
 	)
 	if err != nil {
 		a.logger.Warn().Str("type", name).Msgf("error while publishing with error %s", err.Error())
