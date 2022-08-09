@@ -86,3 +86,11 @@ func (r Redis) ZCount(key string, now string) (int64, error) {
 
 	return r.client.ZCount(key, min, max).Result()
 }
+
+func (r Redis) MSet(keys []string, values []int32) error {
+	return r.client.MSet(keys, values).Err()
+}
+
+func (r Redis) MGet(keys []string) (interface{}, error) {
+	return r.client.MGet(keys...).Result()
+}
