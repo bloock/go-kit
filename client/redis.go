@@ -88,9 +88,18 @@ func (r Redis) ZCount(key string, now string) (int64, error) {
 }
 
 func (r Redis) MSet(keys []string, values []int32) error {
-	return r.client.MSet(keys, values).Err()
+	if err := r.client.MSet(keys, values).Err(); err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	return nil
 }
 
 func (r Redis) MGet(keys []string) (interface{}, error) {
-	return r.client.MGet(keys...).Result()
+	res, err :=  r.client.MGet(keys...).Result()
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return nil, err
+	}
+	return res, nil
 }
