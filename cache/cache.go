@@ -14,4 +14,6 @@ type Cache interface {
 	ZRem(key string, value []byte) error
 	ZRangeByScore(key string, now string) ([]string, error)
 	ZCount(key string, now string) (int64, error)
+	MSet(keys []string, values []int32) error
+	MGet(keys []string) ([]interface{}, error)
 }

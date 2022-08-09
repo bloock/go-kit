@@ -63,6 +63,35 @@ func (mr *MockCacheMockRecorder) Get(key interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockCache)(nil).Get), key)
 }
 
+// MGet mocks base method.
+func (m *MockCache) MGet(keys []string) ([]interface{}, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MGet", keys)
+	ret0, _ := ret[0].([]interface{})
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// MGet indicates an expected call of MGet.
+func (mr *MockCacheMockRecorder) MGet(keys interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MGet", reflect.TypeOf((*MockCache)(nil).MGet), keys)
+}
+
+// MSet mocks base method.
+func (m *MockCache) MSet(keys []string, values []int32) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "MSet", keys, values)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// MSet indicates an expected call of MSet.
+func (mr *MockCacheMockRecorder) MSet(keys, values interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MSet", reflect.TypeOf((*MockCache)(nil).MSet), keys, values)
+}
+
 // Set mocks base method.
 func (m *MockCache) Set(key string, data []byte, expiration time.Duration) error {
 	m.ctrl.T.Helper()
