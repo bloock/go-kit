@@ -1,6 +1,7 @@
 package client
 
 import (
+	"encoding/json"
 	"fmt"
 	"time"
 
@@ -88,14 +89,24 @@ func (r Redis) ZCount(key string, now string) (int64, error) {
 }
 
 func (r Redis) MSet(keys []string, values []int32) error {
-	if err := r.client.MSet(keys, values).Err(); err != nil {
+	bytesKeys, err := json.Marshal(keys)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	bytesValues, err := json.Marshal(values)
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	if err := r.client.MSet(bytesKeys, bytesValues).Err(); err != nil {
 		r.logger.Error().Err(err).Msg("")
 		return err
 	}
 	return nil
 }
 
-func (r Redis) MGet(keys []string) (interface{}, error) {
+func (r Redis) MGet(keys []string) ([]interface{}, error) {
 	res, err :=  r.client.MGet(keys...).Result()
 	if err != nil {
 		r.logger.Error().Err(err).Msg("")
