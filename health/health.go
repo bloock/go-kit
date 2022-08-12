@@ -107,8 +107,11 @@ func (h Health) CheckHandler() gin.HandlerFunc {
 		}
 
 		var output string
+		fmt.Println()
 		if len(err) > 0 {
 			output = fmt.Sprintf("%s %s", h.output, strings.Join(err[:], ","))
+			ctx.JSON(http.StatusServiceUnavailable, HealthResponse{})
+			return
 		}
 
 		version := os.Getenv("IMAGE")
