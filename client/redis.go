@@ -44,6 +44,22 @@ func (r Redis) Set(key string, data []byte, expiration time.Duration) error {
 	return r.client.Set(key, data, expiration).Err()
 }
 
+func (r Redis) SetInt(key string, data int) error {
+	return r.client.Set(key, data, 0).Err()
+}
+
+func (r Redis) Incr(key string) (int64, error) {
+	return r.client.Incr(key).Result()
+}
+
+func (r Redis) IncrBy(key string, quantity int) (int64, error) {
+	return r.client.IncrBy(key, int64(quantity)).Result()
+}
+
+func (r Redis) Decr(key string) (int64, error) {
+	return r.client.Decr(key).Result()
+}
+
 func (r Redis) Get(key string) ([]byte, error) {
 	result, err := r.client.Get(key).Bytes()
 	if err == redis.Nil {
@@ -52,12 +68,16 @@ func (r Redis) Get(key string) ([]byte, error) {
 	return result, err
 }
 
-func (r Redis) Del(key string) error {
-	return r.client.Del(key).Err()
+func (r Redis) GetInt(key string) (int, error) {
+	result, err := r.client.Get(key).Int()
+	if err == redis.Nil {
+		return 0, nil
+	}
+	return result, err
 }
 
-func (r Redis) Client() *redis.Client {
-	return r.client
+func (r Redis) Del(key string) error {
+	return r.client.Del(key).Err()
 }
 
 func (r Redis) ZAdd(key string, score float64, value []byte) error {
@@ -100,10 +120,14 @@ func (r Redis) MSet(keys []string, values []int32) error {
 }
 
 func (r Redis) MGet(keys []string) ([]interface{}, error) {
-	res, err :=  r.client.MGet(keys...).Result()
+	res, err := r.client.MGet(keys...).Result()
 	if err != nil {
 		r.logger.Error().Err(err).Msg("")
 		return nil, err
 	}
 	return res, nil
+}
+
+func (r Redis) Client() *redis.Client {
+	return r.client
 }
