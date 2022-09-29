@@ -78,13 +78,13 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 
 func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		status := c.Writer.Status()
+		listErrors := c.Errors.Errors()
 		clientID := c.MustGet(CLIENT_ID).(string)
 		_, isDisallow := c.Get(USAGE_DISALLOW)
 		q, isQuantity := c.Get(USAGE_QUANTITY)
 		var quantity = 1
 
-		if isDisallow || status < 200 || status > 299 {
+		if isDisallow || listErrors != nil {
 			return
 		}
 
