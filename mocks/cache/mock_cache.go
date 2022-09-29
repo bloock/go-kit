@@ -34,6 +34,21 @@ func (m *MockCache) EXPECT() *MockCacheMockRecorder {
 	return m.recorder
 }
 
+// Decr mocks base method.
+func (m *MockCache) Decr(key string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Decr", key)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Decr indicates an expected call of Decr.
+func (mr *MockCacheMockRecorder) Decr(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Decr", reflect.TypeOf((*MockCache)(nil).Decr), key)
+}
+
 // Del mocks base method.
 func (m *MockCache) Del(key string) error {
 	m.ctrl.T.Helper()
@@ -61,6 +76,51 @@ func (m *MockCache) Get(key string) ([]byte, error) {
 func (mr *MockCacheMockRecorder) Get(key interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockCache)(nil).Get), key)
+}
+
+// GetInt mocks base method.
+func (m *MockCache) GetInt(key string) (int, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetInt", key)
+	ret0, _ := ret[0].(int)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetInt indicates an expected call of GetInt.
+func (mr *MockCacheMockRecorder) GetInt(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetInt", reflect.TypeOf((*MockCache)(nil).GetInt), key)
+}
+
+// Incr mocks base method.
+func (m *MockCache) Incr(key string) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Incr", key)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Incr indicates an expected call of Incr.
+func (mr *MockCacheMockRecorder) Incr(key interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Incr", reflect.TypeOf((*MockCache)(nil).Incr), key)
+}
+
+// IncrBy mocks base method.
+func (m *MockCache) IncrBy(key string, quantity int) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "IncrBy", key, quantity)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// IncrBy indicates an expected call of IncrBy.
+func (mr *MockCacheMockRecorder) IncrBy(key, quantity interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "IncrBy", reflect.TypeOf((*MockCache)(nil).IncrBy), key, quantity)
 }
 
 // MGet mocks base method.
@@ -104,6 +164,20 @@ func (m *MockCache) Set(key string, data []byte, expiration time.Duration) error
 func (mr *MockCacheMockRecorder) Set(key, data, expiration interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Set", reflect.TypeOf((*MockCache)(nil).Set), key, data, expiration)
+}
+
+// SetInt mocks base method.
+func (m *MockCache) SetInt(key string, data int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "SetInt", key, data)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetInt indicates an expected call of SetInt.
+func (mr *MockCacheMockRecorder) SetInt(key, data interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetInt", reflect.TypeOf((*MockCache)(nil).SetInt), key, data)
 }
 
 // TTL mocks base method.
