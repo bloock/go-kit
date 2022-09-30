@@ -42,7 +42,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 		}
 
 		key := claims.ClientID
-		keyLimit := fmt.Sprintf("%s%s", key, LIMIT_PREFIX)
+		keyLimit := GenerateUsageLimitKey(key)
 		c.Set(CLIENT_ID, key)
 
 		limit, err := u.redis.GetInt(keyLimit)
@@ -98,4 +98,8 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 			return
 		}
 	}
+}
+
+func GenerateUsageLimitKey(key string) string {
+	return fmt.Sprintf("%s%s", key, LIMIT_PREFIX)
 }
