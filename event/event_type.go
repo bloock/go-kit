@@ -48,10 +48,10 @@ var (
 	SubscriptionUpdated = newEvent(subscriptions, subscription, update, newEventArgs{})
 	SubscriptionDeleted = newEvent(subscriptions, subscription, delete, newEventArgs{})
 
-	plan        = "plan"
-	PlanCreated = newEvent(subscriptions, plan, create, newEventArgs{})
-	PlanUpdated = newEvent(subscriptions, plan, update, newEventArgs{})
-	PlanDeleted = newEvent(subscriptions, plan, delete, newEventArgs{})
+	product        = "product"
+	ProductCreated = newEvent(subscriptions, product, create, newEventArgs{})
+	ProductUpdated = newEvent(subscriptions, product, update, newEventArgs{})
+	ProductDeleted = newEvent(subscriptions, product, delete, newEventArgs{})
 )
 
 // Credential events

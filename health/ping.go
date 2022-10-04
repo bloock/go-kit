@@ -9,7 +9,6 @@ import (
 // swagger:route GET /ping infrastructure ping
 //
 //	Schemes: http, https
-//
 func PingHandler() gin.HandlerFunc {
 
 	return func(ctx *gin.Context) {

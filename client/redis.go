@@ -100,7 +100,7 @@ func (r Redis) MSet(keys []string, values []int32) error {
 }
 
 func (r Redis) MGet(keys []string) ([]interface{}, error) {
-	res, err :=  r.client.MGet(keys...).Result()
+	res, err := r.client.MGet(keys...).Result()
 	if err != nil {
 		r.logger.Error().Err(err).Msg("")
 		return nil, err
