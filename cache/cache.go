@@ -8,7 +8,12 @@ import (
 type Cache interface {
 	TTL() time.Duration
 	Set(key string, data []byte, expiration time.Duration) error
+	SetInt(key string, data int) error
+	Incr(key string) (int64, error)
+	IncrBy(key string, quantity int) (int64, error)
+	Decr(key string) (int64, error)
 	Get(key string) ([]byte, error)
+	GetInt(key string) (int, error)
 	Del(key string) error
 	ZAdd(key string, score float64, value []byte) error
 	ZRem(key string, value []byte) error
