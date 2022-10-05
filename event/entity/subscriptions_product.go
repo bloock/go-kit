@@ -1,9 +1,9 @@
 package event_entity
 
 type SubscriptionsProduct struct {
-	ProductID   string                `json:"product_id"`
-	Name        string                `json:"name"`
-	Metadata    SubscriptionsMetadata `json:"metadata"`
+	ProductID string                `json:"product_id"`
+	Name      string                `json:"name"`
+	Metadata  SubscriptionsMetadata `json:"metadata"`
 }
 
 type SubscriptionsMetadata struct {
@@ -28,8 +28,8 @@ func NewSubscriptionsMetadata(lic, op, in, pl, pt, prv string) SubscriptionsMeta
 
 func NewProductEventEntity(productID, name string, metadata SubscriptionsMetadata) SubscriptionsProduct {
 	return SubscriptionsProduct{
-		ProductID:   productID,
-		Name:        name,
-		Metadata:    metadata,
+		ProductID: productID,
+		Name:      name,
+		Metadata:  metadata,
 	}
 }
