@@ -10,10 +10,10 @@ import (
 )
 
 const (
-	LIMIT_PREFIX   = ":limit"
-	CLIENT_ID      = "client_id"
+	LIMIT_SUFFIX = ":limit"
+	CLIENT_ID    = "client_id"
 	USAGE_QUANTITY = "usage_quantity"
-	USAGE_DISALLOW = "usage_disallow"
+	USAGE_DISABLE  = "usage_disable"
 )
 
 type UsageMiddleware struct {
@@ -66,7 +66,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		if (consumed + 1) > limit {
+		if consumed >= limit {
 			u.logger.Error().Err(err).Msg("")
 			c.Writer.WriteHeader(http.StatusUnauthorized)
 			c.Writer.Write([]byte("limit of records consumed"))
@@ -80,7 +80,7 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		listErrors := c.Errors.Errors()
 		clientID := c.MustGet(CLIENT_ID).(string)
-		_, isDisallow := c.Get(USAGE_DISALLOW)
+		_, isDisallow := c.Get(USAGE_DISABLE)
 		q, isQuantity := c.Get(USAGE_QUANTITY)
 		var quantity = 1
 
@@ -101,5 +101,5 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 }
 
 func GenerateUsageLimitKey(key string) string {
-	return fmt.Sprintf("%s%s", key, LIMIT_PREFIX)
+	return fmt.Sprintf("%s%s", key, LIMIT_SUFFIX)
 }
