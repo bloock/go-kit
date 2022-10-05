@@ -67,6 +67,14 @@ var (
 
 	recordCounter        = "record_counter"
 	RecordCounterCreated = newEvent(core, recordCounter, create, newEventArgs{})
+
+	usageRecordLimit        = "usage_record_limit"
+	UsageRecordLimitCreated = newEvent(core, usageRecordLimit, create, newEventArgs{})
+	UsageRecordLimitUpdated = newEvent(core, usageRecordLimit, update, newEventArgs{})
+
+	usageRecord        = "usage_record"
+	UsageRecordUpdated = newEvent(core, usageRecord, update, newEventArgs{})
+	UsageRecordDeleted = newEvent(core, usageRecord, delete, newEventArgs{})
 )
 
 // Transaction events
