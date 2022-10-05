@@ -13,18 +13,17 @@ func TestJwt(t *testing.T) {
 	expire, _ := time.Parse(time.RFC3339, "2099-11-12T11:45:26.371Z")
 	notBefore, _ := time.Parse(time.RFC3339, "2014-11-12T11:45:26.371Z")
 
+	metadata := make(map[string]interface{})
+	metadata["name"] = "basic"
+	productClaims := NewProductClaims("product_id", metadata)
+
 	t.Run("Given a correct claim should not return err", func(t *testing.T) {
 		jc := NewJWTClaim(
 			expire,
 			issued,
 			notBefore,
 			"5fe1ff5d-dd31-496a-9dfa-c95cc7847df8",
-			"930b5f10-f457-4ad8-9977-56c38f2f1aa9",
-			map[string]interface{}{
-				"scope":                    "live,test",
-				"max_subscription_records": 2000,
-				"max_api_keys":             10,
-			},
+			[]ProductClaims{productClaims},
 			"Joe", "Doe", "joe@doe.com", true, false,
 			map[string][]string{
 				"foo.bar": {"create"},
@@ -34,7 +33,7 @@ func TestJwt(t *testing.T) {
 
 		token, err := NewJWT(jc, "secret")
 		assert.NoError(t, err)
-		assert.Equal(t, token, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQwOTgxNjcxMjYsIm5iZiI6MTQxNTc5MjcyNiwiaWF0IjoxNDE1NzkyNzI2LCJjbGllbnRfaWQiOiI1ZmUxZmY1ZC1kZDMxLTQ5NmEtOWRmYS1jOTVjYzc4NDdkZjgiLCJwbGFuIjp7ImlkIjoiOTMwYjVmMTAtZjQ1Ny00YWQ4LTk5NzctNTZjMzhmMmYxYWE5IiwibWV0YWRhdGEiOnsibWF4X2FwaV9rZXlzIjoxMCwibWF4X3N1YnNjcmlwdGlvbl9yZWNvcmRzIjoyMDAwLCJzY29wZSI6ImxpdmUsdGVzdCJ9fSwidXNlciI6eyJuYW1lIjoiSm9lIiwic3VybmFtZSI6IkRvZSIsImVtYWlsIjoiam9lQGRvZS5jb20iLCJhY3RpdmF0ZWQiOnRydWUsInZlcmlmaWVkIjp0cnVlfSwic2NvcGVzIjp7ImZvby5iYXIiOlsiY3JlYXRlIl19fQ.BYr_ac0VB4-5CM4n9rZR9idTUTyn-TnRq4uK9Gh6WfM")
+		assert.Equal(t, token, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQwOTgxNjcxMjYsIm5iZiI6MTQxNTc5MjcyNiwiaWF0IjoxNDE1NzkyNzI2LCJjbGllbnRfaWQiOiI1ZmUxZmY1ZC1kZDMxLTQ5NmEtOWRmYS1jOTVjYzc4NDdkZjgiLCJwcm9kdWN0IjpbeyJpZCI6InByb2R1Y3RfaWQiLCJtZXRhZGF0YSI6eyJuYW1lIjoiYmFzaWMifX1dLCJ1c2VyIjp7Im5hbWUiOiJKb2UiLCJzdXJuYW1lIjoiRG9lIiwiZW1haWwiOiJqb2VAZG9lLmNvbSIsImFjdGl2YXRlZCI6dHJ1ZSwidmVyaWZpZWQiOnRydWV9LCJzY29wZXMiOnsiZm9vLmJhciI6WyJjcmVhdGUiXX19.3VGtw7yzKUkm5vzfY9oFkN8L3K5ERIjsRkodPW8FhyQ")
 	})
 
 	t.Run("Given a valid claim should parse jwt claims successfully", func(t *testing.T) {
@@ -43,12 +42,7 @@ func TestJwt(t *testing.T) {
 			issued,
 			notBefore,
 			"5fe1ff5d-dd31-496a-9dfa-c95cc7847df8",
-			"930b5f10-f457-4ad8-9977-56c38f2f1aa9",
-			map[string]interface{}{
-				"scope":                    "live,test",
-				"max_subscription_records": 2000,
-				"max_api_keys":             10,
-			},
+			[]ProductClaims{productClaims},
 			"Joe", "Doe", "joe@doe.com", true, false,
 			map[string][]string{
 				"foo.bar": {"create"},

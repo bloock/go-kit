@@ -8,9 +8,16 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-type planClaims struct {
+type ProductClaims struct {
 	ID       string                 `json:"id,omitempty"`
 	Metadata map[string]interface{} `json:"metadata,omitempty"`
+}
+
+func NewProductClaims(id string, metadata map[string]interface{}) ProductClaims {
+	return ProductClaims{
+		ID:       id,
+		Metadata: metadata,
+	}
 }
 
 type userClaims struct {
@@ -25,7 +32,7 @@ type userClaims struct {
 type JWTClaims struct {
 	jwt.RegisteredClaims
 	ClientID string              `json:"client_id,omitempty"`
-	Plan     planClaims          `json:"plan,omitempty"`
+	Products []ProductClaims     `json:"product,omitempty"`
 	User     userClaims          `json:"user,omitempty"`
 	Scopes   map[string][]string `json:"scopes,omitempty"`
 }
@@ -34,7 +41,7 @@ func (c JWTClaims) Valid() error {
 	return nil
 }
 
-func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, planID string, planMetadata map[string]interface{}, userName string, userSurname string, userEmail string, userActivated, userDeleted bool, scopes map[string][]string, userVerified bool) JWTClaims {
+func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, products []ProductClaims, userName string, userSurname string, userEmail string, userActivated, userDeleted bool, scopes map[string][]string, userVerified bool) JWTClaims {
 	return JWTClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
@@ -42,10 +49,7 @@ func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, plan
 			NotBefore: jwt.NewNumericDate(notBefore),
 		},
 		ClientID: clientID,
-		Plan: planClaims{
-			ID:       planID,
-			Metadata: planMetadata,
-		},
+		Products: products,
 		User: userClaims{
 			Name:      userName,
 			Surname:   userSurname,
