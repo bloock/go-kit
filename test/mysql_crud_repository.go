@@ -82,15 +82,9 @@ func (r MysqlCrudRepository) Delete(id int, columnName string) error {
 }
 
 func (r MysqlCrudRepository) Truncate() error {
-	if _, err := r.client.DB().Exec("SET FOREIGN_KEY_CHECKS = 0"); err != nil {
-		return err
-	}
-	query := fmt.Sprintf("TRUNCATE %s", r.table)
+	query := fmt.Sprintf("SET FOREIGN_KEY_CHECKS=0; TRUNCATE %s; SET FOREIGN_KEY_CHECKS = 1", r.table)
 
 	if _, err := r.client.DB().Exec(query); err != nil {
-		return err
-	}
-	if _, err := r.client.DB().Exec("SET FOREIGN_KEY_CHECKS = 1"); err != nil {
 		return err
 	}
 
