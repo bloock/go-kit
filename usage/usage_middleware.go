@@ -53,7 +53,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		if limit == 0 {
+		if limit == -1 {
 			return
 		}
 
