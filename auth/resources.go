@@ -7,6 +7,7 @@ const (
 	ResourceUsersUser                 Resource = "users.user"
 	ResourceUsersBusiness             Resource = "users.business"
 	ResourceCredentialsApikey         Resource = "credentials.apikey"
+	ResourceCredentialsTestApiKey     Resource = "credentials-test.apiKey"
 	ResourceCredentialsSession        Resource = "credentials.session"
 	ResourceCredentialsLicense        Resource = "credentials.license"
 	ResourceCoreAnchor                Resource = "core.anchor"
