@@ -69,7 +69,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 		if consumed >= limit {
 			u.logger.Error().Err(err).Msg("")
 			c.Writer.WriteHeader(http.StatusUnauthorized)
-			c.Writer.Write([]byte("limit of records consumed"))
+			c.Writer.Write([]byte("limit consumed"))
 			c.Abort()
 			return
 		}

@@ -12,6 +12,7 @@ var (
 	transactions     = "transactions"
 	transactionsTest = "transactions-test"
 	core             = "core"
+	node             = "node"
 )
 
 // Actions
@@ -75,6 +76,20 @@ var (
 	usageRecord        = "usage_record"
 	UsageRecordUpdated = newEvent(core, usageRecord, update, newEventArgs{})
 	UsageRecordDeleted = newEvent(core, usageRecord, delete, newEventArgs{})
+)
+
+// Node events
+var (
+	requestCounter = "request_counter"
+	RequestCounterCreated = newEvent(node, requestCounter, create, newEventArgs{})
+
+	usageRequestLimit        = "usage_request_limit"
+	UsageRequestLimitCreated = newEvent(node, usageRequestLimit, create, newEventArgs{})
+	UsageRequestLimitUpdated = newEvent(node, usageRequestLimit, update, newEventArgs{})
+
+	usageRequest        = "usage_request"
+	UsageRequestUpdated = newEvent(node, usageRequest, update, newEventArgs{})
+	UsageRequestDeleted = newEvent(node, usageRequest, delete, newEventArgs{})
 )
 
 // Transaction events
