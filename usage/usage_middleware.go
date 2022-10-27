@@ -15,18 +15,23 @@ const (
 	CLIENT_ID      = "client_id"
 	USAGE_QUANTITY = "usage_quantity"
 	USAGE_DISABLE  = "usage_disable"
+
+	CoreService     = "core"
+	NodeService     = "node"
+	StorageService  = "storage"
+	TransferService = "transfer"
 )
 
 type UsageMiddleware struct {
-	logger zerolog.Logger
-	redis  cache.Cache
+	logger  zerolog.Logger
+	redis   cache.Cache
 	service string
 }
 
 func NewUsageMiddleware(l zerolog.Logger, redis cache.Cache, service string) UsageMiddleware {
 	return UsageMiddleware{
-		logger: l,
-		redis:  redis,
+		logger:  l,
+		redis:   redis,
 		service: service,
 	}
 }
