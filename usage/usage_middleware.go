@@ -1,6 +1,7 @@
 package usage
 
 import (
+	"errors"
 	"fmt"
 	"github.com/bloock/go-kit/auth"
 	"github.com/bloock/go-kit/cache"
@@ -10,8 +11,8 @@ import (
 )
 
 const (
-	LIMIT_SUFFIX = ":limit"
-	CLIENT_ID    = "client_id"
+	LIMIT_SUFFIX   = ":limit"
+	CLIENT_ID      = "client_id"
 	USAGE_QUANTITY = "usage_quantity"
 	USAGE_DISABLE  = "usage_disable"
 )
@@ -30,18 +31,15 @@ func NewUsageMiddleware(l zerolog.Logger, redis cache.Cache) UsageMiddleware {
 
 func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		jwtToken := auth.GetBearerToken(c.Request.Header.Get(auth.AUTHORIZATION_HEADER))
-		var claims auth.JWTClaims
-		err := auth.DecodeJWTUnverified(jwtToken, &claims)
-		if err != nil {
+		key := c.Request.Header.Get(auth.CLIENT_ID_HEADER)
+		if key == "" {
+			err := errors.New("no clientID provided")
 			u.logger.Error().Err(err).Msg("")
 			c.Writer.WriteHeader(http.StatusUnauthorized)
-			c.Writer.Write([]byte("invalid token provided"))
+			c.Writer.Write([]byte(err.Error()))
 			c.Abort()
 			return
 		}
-
-		key := claims.ClientID
 		keyLimit := GenerateUsageLimitKey(key)
 		c.Set(CLIENT_ID, key)
 

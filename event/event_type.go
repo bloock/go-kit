@@ -80,7 +80,7 @@ var (
 
 // Node events
 var (
-	requestCounter = "request_counter"
+	requestCounter        = "request_counter"
 	RequestCounterCreated = newEvent(node, requestCounter, create, newEventArgs{})
 
 	usageRequestLimit        = "usage_request_limit"

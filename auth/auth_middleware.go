@@ -9,6 +9,7 @@ import (
 const (
 	AUTHORIZATION_HEADER = "Authorization"
 	BEARER_PREFIX        = "Bearer"
+	CLIENT_ID_HEADER     = "X-User-ID"
 )
 
 func Middleware(ability Ability) gin.HandlerFunc {
