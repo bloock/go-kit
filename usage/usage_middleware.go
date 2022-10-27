@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	LIMIT_SUFFIX   = ":limit"
+	LIMIT_SUFFIX   = "limit"
 	CLIENT_ID      = "client_id"
 	USAGE_QUANTITY = "usage_quantity"
 	USAGE_DISABLE  = "usage_disable"
@@ -20,19 +20,21 @@ const (
 type UsageMiddleware struct {
 	logger zerolog.Logger
 	redis  cache.Cache
+	service string
 }
 
-func NewUsageMiddleware(l zerolog.Logger, redis cache.Cache) UsageMiddleware {
+func NewUsageMiddleware(l zerolog.Logger, redis cache.Cache, service string) UsageMiddleware {
 	return UsageMiddleware{
 		logger: l,
 		redis:  redis,
+		service: service,
 	}
 }
 
 func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		key := c.Request.Header.Get(auth.CLIENT_ID_HEADER)
-		if key == "" {
+		clientID := c.Request.Header.Get(auth.CLIENT_ID_HEADER)
+		if clientID == "" {
 			err := errors.New("no clientID provided")
 			u.logger.Error().Err(err).Msg("")
 			c.Writer.WriteHeader(http.StatusUnauthorized)
@@ -40,8 +42,9 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		keyLimit := GenerateUsageLimitKey(key)
-		c.Set(CLIENT_ID, key)
+		keyLimit := GenerateUsageLimitKey(clientID, u.service)
+		key := GenerateUsageKey(clientID, u.service)
+		c.Set(CLIENT_ID, clientID)
 
 		limit, err := u.redis.GetInt(keyLimit)
 		if err != nil {
@@ -81,6 +84,7 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 		_, isDisallow := c.Get(USAGE_DISABLE)
 		q, isQuantity := c.Get(USAGE_QUANTITY)
 		var quantity = 1
+		key := GenerateUsageKey(clientID, u.service)
 
 		if isDisallow || listErrors != nil {
 			return
@@ -90,7 +94,7 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 			quantity = q.(int)
 		}
 
-		_, err := u.redis.IncrBy(clientID, quantity)
+		_, err := u.redis.IncrBy(key, quantity)
 		if err != nil {
 			u.logger.Error().Err(err).Msg("")
 			return
@@ -98,6 +102,10 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 	}
 }
 
-func GenerateUsageLimitKey(key string) string {
-	return fmt.Sprintf("%s%s", key, LIMIT_SUFFIX)
+func GenerateUsageLimitKey(clientID string, service string) string {
+	return fmt.Sprintf("%s:%s:%s", service, clientID, LIMIT_SUFFIX)
+}
+
+func GenerateUsageKey(clientID string, service string) string {
+	return fmt.Sprintf("%s:%s", service, clientID)
 }
