@@ -71,7 +71,6 @@ var (
 	RecordCounterCreated = newEvent(core, recordCounter, create, newEventArgs{})
 
 	usageRecordLimit        = "usage_record_limit"
-	UsageRecordLimitCreated = newEvent(core, usageRecordLimit, create, newEventArgs{})
 	UsageRecordLimitUpdated = newEvent(core, usageRecordLimit, update, newEventArgs{})
 
 	usageRecord        = "usage_record"
