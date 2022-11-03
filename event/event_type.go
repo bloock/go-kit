@@ -13,6 +13,7 @@ var (
 	transactionsTest = "transactions-test"
 	core             = "core"
 	node             = "node"
+	dataAvailability = "data-availability"
 )
 
 // Actions
@@ -84,12 +85,34 @@ var (
 	RequestCounterCreated = newEvent(node, requestCounter, create, newEventArgs{})
 
 	usageRequestLimit        = "usage_request_limit"
-	UsageRequestLimitCreated = newEvent(node, usageRequestLimit, create, newEventArgs{})
 	UsageRequestLimitUpdated = newEvent(node, usageRequestLimit, update, newEventArgs{})
 
 	usageRequest        = "usage_request"
 	UsageRequestUpdated = newEvent(node, usageRequest, update, newEventArgs{})
 	UsageRequestDeleted = newEvent(node, usageRequest, delete, newEventArgs{})
+)
+
+// Data Availability events
+var (
+	storageWorker        = "storage_worker"
+	StorageWorkerCreated = newEvent(dataAvailability, storageWorker, create, newEventArgs{})
+
+	transferWorker        = "transfer_worker"
+	TransferWorkerCreated = newEvent(dataAvailability, transferWorker, create, newEventArgs{})
+
+	usageStorageLimit        = "usage_storage_limit"
+	UsageStorageLimitUpdated = newEvent(dataAvailability, usageStorageLimit, update, newEventArgs{})
+
+	usageTransferLimit        = "usage_transfer_limit"
+	UsageTransferLimitUpdated = newEvent(dataAvailability, usageTransferLimit, update, newEventArgs{})
+
+	usageStorage        = "usage_storage"
+	UsageStorageUpdated = newEvent(dataAvailability, usageStorage, update, newEventArgs{})
+	UsageStorageDeleted = newEvent(dataAvailability, usageStorage, delete, newEventArgs{})
+
+	usageTransfer        = "usage_transfer"
+	UsageTransferUpdated = newEvent(dataAvailability, usageTransfer, update, newEventArgs{})
+	UsageTransferDeleted = newEvent(dataAvailability, usageTransfer, delete, newEventArgs{})
 )
 
 // Transaction events
