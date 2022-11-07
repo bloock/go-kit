@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"reflect"
+	"strconv"
 
 	"github.com/bloock/go-kit/client"
 	"github.com/huandu/go-sqlbuilder"
@@ -48,6 +49,10 @@ func (r MysqlCrudRepository) List(res interface{}) error {
 }
 
 func (r MysqlCrudRepository) Retrieve(id int, columnName string, res interface{}) error {
+	return r.RetrieveString(strconv.Itoa(id), columnName, res)
+}
+
+func (r MysqlCrudRepository) RetrieveString(id string, columnName string, res interface{}) error {
 	sb := r.sqlStruct.SelectFrom(r.table)
 	query, args := sb.Where(sb.Equal(columnName, id)).Build()
 
