@@ -1,6 +1,7 @@
 package client
 
 import (
+	"crypto/tls"
 	"fmt"
 	"time"
 
@@ -14,13 +15,20 @@ type Redis struct {
 	logger zerolog.Logger
 }
 
-func NewRedis(host, port, password string, db int, duration time.Duration, l zerolog.Logger) (*Redis, error) {
+func NewRedis(host, port, password string, db int, enableTls bool, duration time.Duration, l zerolog.Logger) (*Redis, error) {
 	l = l.With().Str("layer", "infrastructure").Str("component", "redis").Logger()
 
+	var tlsConfig *tls.Config
+	if enableTls {
+		tlsConfig = &tls.Config{
+			MinVersion: tls.VersionTLS12,
+		}
+	}
 	options := &redis.Options{
-		Addr:     fmt.Sprintf("%s:%s", host, port),
-		Password: password,
-		DB:       db,
+		Addr:      fmt.Sprintf("%s:%s", host, port),
+		Password:  password,
+		DB:        db,
+		TLSConfig: tlsConfig,
 	}
 	client := redis.NewClient(options)
 	_, err := client.Ping().Result()
