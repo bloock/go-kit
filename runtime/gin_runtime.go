@@ -10,7 +10,6 @@ import (
 	httperror "github.com/bloock/go-kit/http_error"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
-	openApiMiddleware "github.com/go-openapi/runtime/middleware"
 	"github.com/rs/zerolog"
 )
 
@@ -50,7 +49,6 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 	}
 	e.client.Engine().Use(httperror.ErrorMiddleware())
 	f(e.client.Engine())
-	e.enableSwagger()
 }
 
 func (e *GinRuntime) Run(ctx context.Context) {
@@ -74,13 +72,4 @@ func (e *GinRuntime) Run(ctx context.Context) {
 	} else {
 		e.logger.Info().Msg("gin runtime closed successfully")
 	}
-}
-
-func (e *GinRuntime) enableSwagger() {
-	o := openApiMiddleware.SwaggerUIOpts{SpecURL: "/swagger.yaml"}
-	sw := openApiMiddleware.SwaggerUI(o, nil)
-	e.client.Engine().GET("/docs", gin.WrapH(sw))
-	e.client.Engine().GET("/swagger.yaml", func(c *gin.Context) {
-		c.File("./swagger.yaml")
-	})
 }
