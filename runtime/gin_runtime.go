@@ -30,23 +30,22 @@ func NewGinRuntime(c *client.GinEngine, shutdownTime time.Duration, l zerolog.Lo
 }
 
 func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
-	if e.client.Debug() {
-		l := logger.SetLogger(
-			logger.WithSkipPath([]string{"/health"}),
-			logger.WithUTC(true),
-			logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
-				return e.logger.With().
-					Int("status", c.Writer.Status()).
-					Str("method", c.Request.Method).
-					Str("path", c.Request.URL.Path).
-					Str("ip", c.ClientIP()).
-					Dur("latency", latency).
-					Str("user_agent", c.Request.UserAgent()).
-					Logger()
-			}),
-		)
-		e.client.Engine().Use(l)
-	}
+	l := logger.SetLogger(
+		logger.WithSkipPath([]string{"/health"}),
+		logger.WithUTC(true),
+		logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
+			return e.logger.With().
+				Int("status", c.Writer.Status()).
+				Str("method", c.Request.Method).
+				Str("path", c.Request.URL.Path).
+				Str("ip", c.ClientIP()).
+				Dur("latency", latency).
+				Str("user_agent", c.Request.UserAgent()).
+				Logger()
+		}),
+	)
+	e.client.Engine().Use(l)
+
 	e.client.Engine().Use(httperror.ErrorMiddleware())
 	f(e.client.Engine())
 }

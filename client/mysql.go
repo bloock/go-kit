@@ -17,10 +17,10 @@ type MysqlClient struct {
 	logger zerolog.Logger
 }
 
-func NewMysqlClient(user, pass, host, port, dbName string, l zerolog.Logger) (*MysqlClient, error) {
+func NewMysqlClient(user, pass, host, port, dbName string, tls bool, l zerolog.Logger) (*MysqlClient, error) {
 	l = l.With().Str("layer", "infrastructure").Str("component", "mysql").Logger()
 
-	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True", user, pass, host, port, dbName)
+	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?tls=%t&charset=utf8&parseTime=True", user, pass, host, port, dbName, tls)
 	db, err := sql.Open("mysql", mysqlURI)
 	if err != nil {
 		l.Error().Msgf("error opening mysql on uri %s: %s", mysqlURI, err.Error())

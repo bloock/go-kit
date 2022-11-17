@@ -1,16 +1,17 @@
 package test
 
 import (
+	"log"
+	"os"
+	"runtime"
+	"testing"
+
 	"github.com/bloock/go-kit/client"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/ory/dockertest/v3"
 	"github.com/rs/zerolog"
-	"log"
-	"os"
-	"runtime"
-	"testing"
 )
 
 const (
@@ -78,7 +79,7 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 
 	if err := pool.Retry(func() error {
 		mysqlClient, err = client.NewMysqlClient("test", "test", "localhost",
-			resource.GetPort("3306/tcp"), "test", zerolog.Logger{})
+			resource.GetPort("3306/tcp"), "test", false, zerolog.Logger{})
 		if err != nil {
 			return err
 		}
