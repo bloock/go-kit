@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func getClientIDFromToken(token string) (string, error) {
+func GetClientIDFromToken(token string) (string, error) {
 	jwtToken := GetBearerToken(token)
 	var claims JWTClaims
 	err := DecodeJWTUnverified(jwtToken, &claims)
