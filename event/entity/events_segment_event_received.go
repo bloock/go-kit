@@ -3,7 +3,6 @@ package event_entity
 import "time"
 
 type SegmentEvenReceived struct {
-	Id         string     `json:"id"`
 	EventType  string     `json:"type"`
 	UserId     string     `json:"userId"`
 	Event      string     `json:"event"`
@@ -15,7 +14,6 @@ type SegmentEvenReceived struct {
 func NewSegmentEvenReceived(id string, eventType string, userId string, event string, context Context,
 	properties Properties, timestamp time.Time) *SegmentEvenReceived {
 	return &SegmentEvenReceived{
-		Id:         id,
 		EventType:  eventType,
 		UserId:     userId,
 		Event:      event,
