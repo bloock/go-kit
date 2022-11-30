@@ -11,7 +11,7 @@ type SegmentEvenReceived struct {
 	Timestamp  time.Time  `json:"timestamp"`
 }
 
-func NewSegmentEvenReceived(id string, eventType string, userId string, event string, context Context,
+func NewSegmentEvenReceived(eventType string, userId string, event string, context Context,
 	properties Properties, timestamp time.Time) *SegmentEvenReceived {
 	return &SegmentEvenReceived{
 		EventType:  eventType,
