@@ -39,9 +39,10 @@ var (
 
 // Events events
 var (
-	activity                = "activity"
-	EventsActivityCreated   = newEvent(events, activity, create, newEventArgs{})
-	EventsUserEventReceived = newEvent(events, activity, create, newEventArgs{})
+	activity                   = "activity"
+	segment                    = "segment"
+	EventsActivityCreated      = newEvent(events, activity, create, newEventArgs{})
+	EventsSegmentEventReceived = newEvent(events, segment, create, newEventArgs{})
 )
 
 // Subscription events
