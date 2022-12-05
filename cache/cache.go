@@ -15,6 +15,7 @@ type Cache interface {
 	Get(key string) ([]byte, error)
 	GetInt(key string) (int, error)
 	Del(key string) error
+	DeleteKeys(keys []string) error
 	ZAdd(key string, score float64, value []byte) error
 	ZRem(key string, value []byte) error
 	ZRangeByScore(key string, now string) ([]string, error)
