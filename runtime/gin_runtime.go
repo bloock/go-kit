@@ -1,6 +1,7 @@
 package runtime
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"net/http"
@@ -34,13 +35,23 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 		logger.WithSkipPath([]string{"/health"}),
 		logger.WithUTC(true),
 		logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
+			bodyReader := c.Request.Body
+			var body []byte
+			_, _ = bodyReader.Read(body)
+			str := bytes.NewBuffer(body).String()
+			xClientID := c.Request.Header.Get("X-Client-ID")
+			xRequestID := c.Request.Header.Get("X-Request-ID")
+			c.Set("X-Request-ID", xRequestID)
 			return e.logger.With().
 				Int("status", c.Writer.Status()).
 				Str("method", c.Request.Method).
 				Str("path", c.Request.URL.Path).
+				Str("body", str).
 				Str("ip", c.ClientIP()).
 				Dur("latency", latency).
 				Str("user_agent", c.Request.UserAgent()).
+				Str("x-client-id", xClientID).
+				Str("x-request-id", xRequestID).
 				Logger()
 		}),
 	)
