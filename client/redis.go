@@ -49,23 +49,46 @@ func (r Redis) TTL() time.Duration {
 }
 
 func (r Redis) Set(key string, data []byte, expiration time.Duration) error {
-	return r.client.Set(key, data, expiration).Err()
+	if err := r.client.Set(key, data, expiration).Err(); err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	return nil
 }
 
 func (r Redis) SetInt(key string, data int) error {
-	return r.client.Set(key, data, 0).Err()
+	if err := r.client.Set(key, data, 0).Err(); err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	return nil
 }
 
 func (r Redis) Incr(key string) (int64, error) {
-	return r.client.Incr(key).Result()
+	res, err := r.client.Incr(key).Result()
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return res, err
+	}
+	return res, nil
 }
 
 func (r Redis) IncrBy(key string, quantity int) (int64, error) {
-	return r.client.IncrBy(key, int64(quantity)).Result()
+	res, err := r.client.IncrBy(key, int64(quantity)).Result()
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return res, err
+	}
+	return res, nil
 }
 
 func (r Redis) Decr(key string) (int64, error) {
-	return r.client.Decr(key).Result()
+	res, err := r.client.Decr(key).Result()
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return res, err
+	}
+	return res, nil
 }
 
 func (r Redis) Get(key string) ([]byte, error) {
@@ -73,7 +96,11 @@ func (r Redis) Get(key string) ([]byte, error) {
 	if err == redis.Nil {
 		return nil, nil
 	}
-	return result, err
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return result, err
+	}
+	return result, nil
 }
 
 func (r Redis) GetInt(key string) (int, error) {
@@ -81,11 +108,27 @@ func (r Redis) GetInt(key string) (int, error) {
 	if err == redis.Nil {
 		return 0, nil
 	}
-	return result, err
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return result, err
+	}
+	return result, nil
 }
 
 func (r Redis) Del(key string) error {
-	return r.client.Del(key).Err()
+	if err := r.client.Del(key).Err(); err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	return nil
+}
+
+func (r Redis) DeleteKeys(keys []string) error {
+	if err := r.client.Del(keys...).Err(); err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	return nil
 }
 
 func (r Redis) ZAdd(key string, score float64, value []byte) error {
@@ -93,11 +136,19 @@ func (r Redis) ZAdd(key string, score float64, value []byte) error {
 		Score:  score,
 		Member: value,
 	}
-	return r.client.ZAdd(key, arg).Err()
+	if err := r.client.ZAdd(key, arg).Err(); err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	return nil
 }
 
 func (r Redis) ZRem(key string, value []byte) error {
-	return r.client.ZRem(key, value).Err()
+	if err := r.client.ZRem(key, value).Err(); err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return err
+	}
+	return nil
 }
 
 func (r Redis) ZRangeByScore(key string, now string) ([]string, error) {
@@ -105,14 +156,24 @@ func (r Redis) ZRangeByScore(key string, now string) ([]string, error) {
 		Min: now,
 		Max: "+inf",
 	}
-	return r.client.ZRangeByScore(key, arg).Result()
+	res, err := r.client.ZRangeByScore(key, arg).Result()
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return res, err
+	}
+	return res, nil
 }
 
 func (r Redis) ZCount(key string, now string) (int64, error) {
 	min := now
 	max := "+inf"
 
-	return r.client.ZCount(key, min, max).Result()
+	res, err := r.client.ZCount(key, min, max).Result()
+	if err != nil {
+		r.logger.Error().Err(err).Msg("")
+		return res, err
+	}
+	return res, nil
 }
 
 func (r Redis) MSet(keys []string, values []int32) error {
