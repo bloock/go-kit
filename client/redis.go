@@ -98,7 +98,7 @@ func (r Redis) Get(key string) ([]byte, error) {
 	}
 	if err != nil {
 		r.logger.Error().Err(err).Msg("")
-		return result, err
+		return nil, err
 	}
 	return result, nil
 }
@@ -110,7 +110,7 @@ func (r Redis) GetInt(key string) (int, error) {
 	}
 	if err != nil {
 		r.logger.Error().Err(err).Msg("")
-		return result, err
+		return 0, err
 	}
 	return result, nil
 }
