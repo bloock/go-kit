@@ -2,7 +2,7 @@ package auth
 
 import (
 	"fmt"
-	httperror "github.com/bloock/go-kit/http_error"
+	http2 "github.com/bloock/go-kit/errors/http"
 	"net/http"
 )
 
@@ -15,7 +15,7 @@ func GetClientIDFromToken(token string) (string, error) {
 	}
 	userId := claims.ClientID
 	if userId == "" {
-		appError := httperror.NewAppError(http.StatusUnauthorized, fmt.Errorf("couldn't get client ID from authentication token").Error())
+		appError := http2.NewHttpAppError(http.StatusUnauthorized, fmt.Errorf("couldn't get client ID from authentication token").Error())
 		return "", appError
 	}
 

@@ -3,12 +3,12 @@ package runtime
 import (
 	"bytes"
 	"context"
+	httperror "github.com/bloock/go-kit/errors/http"
 	"io"
 	"net/http"
 	"time"
 
 	"github.com/bloock/go-kit/client"
-	httperror "github.com/bloock/go-kit/http_error"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"

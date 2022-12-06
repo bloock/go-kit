@@ -1,7 +1,7 @@
 package events
 
 import (
-	httperror "github.com/bloock/go-kit/http_error"
+	http2 "github.com/bloock/go-kit/errors/http"
 	"github.com/gin-gonic/gin"
 	"net/http"
 )
@@ -24,11 +24,11 @@ func NewResponseContext(c *gin.Context, w wrappedWriter, typ, requestBody string
 	if len(c.Errors) > 0 {
 		detectedErrors := c.Errors.ByType(gin.ErrorTypeAny)
 		err := detectedErrors[0].Err
-		var parsedError *httperror.AppError
+		var parsedError *http2.HttpAppError
 
 		switch err.(type) {
-		case *httperror.AppError:
-			parsedError = err.(*httperror.AppError)
+		case *http2.HttpAppError:
+			parsedError = err.(*http2.HttpAppError)
 			status = parsedError.Code
 			responseBody = parsedError.Message
 		default:
@@ -45,7 +45,7 @@ func NewResponseContext(c *gin.Context, w wrappedWriter, typ, requestBody string
 		RequestBody:  requestBody,
 		ResponseBody: responseBody,
 		IpAddress:    c.ClientIP(),
-		UserID:       c.Request.Header.Get("x-user-id"),
+		UserID:       c.Request.Header.Get("X-User-ID"),
 		Method:       c.Request.Method,
 	}, nil
 }

@@ -34,7 +34,7 @@ func TestInmemoryCommand(t *testing.T) {
 	})
 
 	t.Run("Given a correct command bus with a custom error", func(t *testing.T) {
-		var CustomError = errors.New("Cstom error")
+		var CustomError = errors.New("custom error")
 
 		ht := HandlerTest{err: CustomError}
 
