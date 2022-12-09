@@ -4,6 +4,7 @@ import (
 	"context"
 	httperror "github.com/bloock/go-kit/errors/http"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
@@ -53,6 +54,16 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 
 	e.client.Engine().Use(httperror.ErrorMiddleware())
 	f(e.client.Engine())
+}
+
+func SaveLogTraces() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		xClientID := c.Request.Header.Get("X-Client-ID")
+		xRequestID := c.Request.Header.Get("X-Request-ID")
+		c.Set("X-Request-ID", xRequestID)
+		c.Set("X-User-ID", xClientID)
+		log.Print(c.Keys)
+	}
 }
 
 func (e *GinRuntime) Run(ctx context.Context) {

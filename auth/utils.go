@@ -7,9 +7,9 @@ import (
 )
 
 func GetClientIDFromToken(token string) (string, error) {
-	jwtToken := GetBearerToken(token)
+
 	var claims JWTClaims
-	err := DecodeJWTUnverified(jwtToken, &claims)
+	err := DecodeJWTUnverified(token, &claims)
 	if err != nil {
 		return "", err
 	}
