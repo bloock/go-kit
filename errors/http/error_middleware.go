@@ -20,7 +20,7 @@ func errorMiddleware(errType gin.ErrorType) gin.HandlerFunc {
 			var parsedError *HttpAppError
 
 			switch err.(type) {
-			case HttpAppError:
+			case *HttpAppError:
 				parsedError = err.(*HttpAppError)
 			default:
 
