@@ -1,4 +1,4 @@
-package http
+package middleware
 
 import (
 	"net/http"
@@ -21,7 +21,7 @@ func errorMiddleware(errType gin.ErrorType) gin.HandlerFunc {
 			var parsedError *errors.HttpAppError
 
 			switch err.(type) {
-			case *errors.HttpAppError:
+			case errors.HttpAppError:
 				parsedError = err.(*errors.HttpAppError)
 			default:
 

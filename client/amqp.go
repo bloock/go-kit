@@ -8,13 +8,14 @@ import (
 	"sync"
 	"time"
 
-	"github.com/bloock/go-kit/event"
+	bloockContext "github.com/bloock/go-kit/context"
+	"github.com/bloock/go-kit/domain"
+	"github.com/bloock/go-kit/observability"
 	amqp "github.com/rabbitmq/amqp091-go"
-	"github.com/rs/zerolog"
 	"github.com/wagslane/go-rabbitmq"
 )
 
-type AMQPHandler func(context.Context, event.Event) error
+type AMQPHandler func(context.Context, domain.Event) error
 
 var (
 	ErrDisconnected = errors.New("disconnected from rabbitmq, trying to reconnect")
@@ -31,12 +32,12 @@ type AMQPClient struct {
 	publisher      *rabbitmq.Publisher
 	reconnectDelay time.Duration
 
-	logger zerolog.Logger
+	logger observability.Logger
 	wg     *sync.WaitGroup
 }
 
-func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vhost string, l zerolog.Logger) (*AMQPClient, error) {
-	l = l.With().Str("layer", "infrastructure").Str("component", "rabbitmq").Logger()
+func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vhost string, l observability.Logger) (*AMQPClient, error) {
+	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "rabbitmq").Logger())
 
 	addr := fmt.Sprintf("amqp://%s:%s@%s:%s/%s", user, password, host, port, vhost)
 
@@ -56,7 +57,7 @@ func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vh
 				rabbitmq.WithPublisherOptionsLogger(&l),
 			)
 			if err != nil {
-				l.Warn().Msgf("error while creating publisher with error %s", err.Error())
+				l.Warn(connectionCtx).Msgf("error while creating publisher with error %s", err.Error())
 				continue
 			}
 
@@ -66,7 +67,7 @@ func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vh
 				rabbitmq.WithConsumerOptionsLogger(&l),
 			)
 			if err != nil {
-				l.Warn().Msgf("couldn't create consumer: %s", err.Error())
+				l.Warn(connectionCtx).Msgf("couldn't create consumer: %s", err.Error())
 				continue
 			}
 
@@ -87,10 +88,10 @@ func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vh
 }
 
 // Consume implements the event.Bus interface.
-func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQPHandler) error {
+func (a *AMQPClient) Consume(ctx context.Context, t domain.EventType, handlers ...AMQPHandler) error {
 	a.wg.Add(1)
 
-	q, err := a.DeclareQueue(t, nil)
+	q, err := a.DeclareQueue(ctx, t, nil)
 	if err != nil {
 		return err
 	}
@@ -100,27 +101,13 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 
 		err = a.consumer.StartConsuming(
 			func(d rabbitmq.Delivery) rabbitmq.Action {
-				result := rabbitmq.NackDiscard
+				result := rabbitmq.Ack
 
-				startTime := time.Now()
-
-				evt := event.NewAMQPEvent(d, t)
-
-				defer func(e event.Event) {
-					if err := recover(); err != nil {
-						stack := make([]byte, 8096)
-						stack = stack[:runtime.Stack(stack, false)]
-						a.logger.Fatal().Timestamp().Bytes("stack", stack).Interface("error", err).Msg("panic recovery for rabbitMQ message")
-					}
-				}(evt)
+				evt := domain.NewAMQPEvent(d, t)
 
 				err = a.handleMessage(ctx, evt, handlers...)
 				if err != nil {
-					a.logger.Error().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", t.Name()).Msgf("error while consuming message: %s", err.Error())
 					result = rabbitmq.NackDiscard
-				} else {
-					a.logger.Info().Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", evt.Type().Name()).Str("id", evt.ID()).Msg("successfully consumed message")
-					result = rabbitmq.Ack
 				}
 				return result
 			},
@@ -132,7 +119,7 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 			rabbitmq.WithConsumeOptionsConsumerName(a.consumerName(t.Name())),
 		)
 		if err != nil {
-			a.logger.Error().Str("type", t.Name()).Msgf("error starting consuming queue: %s", err.Error())
+			a.logger.Error(ctx).Str("type", t.Name()).Msgf("error starting consuming queue: %s", err.Error())
 		} else {
 			a.consumers = append(a.consumers, a.consumerName(t.Name()))
 		}
@@ -141,26 +128,42 @@ func (a *AMQPClient) Consume(ctx context.Context, t event.Type, handlers ...AMQP
 	return nil
 }
 
-func (a *AMQPClient) handleMessage(ctx context.Context, evt event.Event, handlers ...AMQPHandler) error {
+func (a *AMQPClient) handleMessage(ctx context.Context, evt domain.Event, handlers ...AMQPHandler) error {
+	startTime := time.Now()
+
+	ctx = context.WithValue(ctx, bloockContext.UserIDKey, "")
+	ctx = context.WithValue(ctx, bloockContext.RequestIDKey, evt.ID())
+
+	defer func(ctx context.Context, e domain.Event) {
+		if err := recover(); err != nil {
+			stack := make([]byte, 8096)
+			stack = stack[:runtime.Stack(stack, false)]
+			a.logger.Fatal(ctx).Timestamp().Bytes("stack", stack).Interface("error", err).Msg("panic recovery for rabbitMQ message")
+		}
+	}(ctx, evt)
+
 	for _, handler := range handlers {
 		err := handler(ctx, evt)
 		if err != nil {
+			a.logger.Error(ctx).Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", evt.Type().Name()).Msgf("error while consuming message: %s", err.Error())
 			return err
 		}
 	}
+
+	a.logger.Info(ctx).Int64("took-ms", time.Since(startTime).Milliseconds()).Str("type", evt.Type().Name()).Str("id", evt.ID()).Msg("successfully consumed message")
 	return nil
 }
 
-func (a *AMQPClient) Publish(event event.Event, headers map[string]interface{}, expiration int) error {
-	return a.publish(event, event.Type().Name(), headers, expiration)
+func (a *AMQPClient) Publish(ctx context.Context, event domain.Event, headers map[string]interface{}, expiration int) error {
+	return a.publish(ctx, event, event.Type().Name(), headers, expiration)
 }
 
-func (a *AMQPClient) PublishRetry(event event.Event, headers map[string]interface{}, expiration int) error {
-	return a.publish(event, event.Type().GetRetryName(), headers, expiration)
+func (a *AMQPClient) PublishRetry(ctx context.Context, event domain.Event, headers map[string]interface{}, expiration int) error {
+	return a.publish(ctx, event, event.Type().GetRetryName(), headers, expiration)
 }
 
 // publish implements the event.Bus interface.
-func (a *AMQPClient) publish(event event.Event, name string, headers map[string]interface{}, expiration int) error {
+func (a *AMQPClient) publish(ctx context.Context, event domain.Event, name string, headers map[string]interface{}, expiration int) error {
 	exp := ""
 	if expiration != 0 {
 		exp = fmt.Sprintf("%d", expiration)
@@ -179,7 +182,7 @@ func (a *AMQPClient) publish(event event.Event, name string, headers map[string]
 		rabbitmq.WithPublishOptionsTimestamp(event.OccurredOn()),
 	)
 	if err != nil {
-		a.logger.Warn().Str("type", name).Msgf("error while publishing with error %s", err.Error())
+		a.logger.Warn(ctx).Str("type", name).Msgf("error while publishing with error %s", err.Error())
 		return err
 	}
 
@@ -190,20 +193,20 @@ type DeclareQueueArgs struct {
 	DeadLetterExchange string
 }
 
-func (a *AMQPClient) DeclareQueue(t event.Type, args *DeclareQueueArgs) (*amqp.Queue, error) {
+func (a *AMQPClient) DeclareQueue(ctx context.Context, t domain.EventType, args *DeclareQueueArgs) (*amqp.Queue, error) {
 	if args == nil {
 		args = &DeclareQueueArgs{}
 	}
 
 	conn, err := amqp.Dial(a.addr)
 	if err != nil {
-		a.logger.Error().Msgf("cannot dial: %v: %q", err, a.addr)
+		a.logger.Error(ctx).Msgf("cannot dial: %v: %q", err, a.addr)
 		return &amqp.Queue{}, err
 	}
 
 	ch, err := conn.Channel()
 	if err != nil {
-		a.logger.Error().Msgf("cannot create channel: %v", err)
+		a.logger.Error(ctx).Msgf("cannot create channel: %v", err)
 		return &amqp.Queue{}, err
 	}
 
@@ -240,7 +243,7 @@ func (a *AMQPClient) DeclareQueue(t event.Type, args *DeclareQueueArgs) (*amqp.Q
 		}
 	}
 
-	if t.HasRetry() == true {
+	if t.HasRetry() {
 		retryName := t.GetRetryName()
 		err = ch.ExchangeDeclare(
 			retryName,
@@ -316,7 +319,7 @@ func (c *AMQPClient) Ping() error {
 	return nil
 }
 
-func (a *AMQPClient) Close() error {
+func (a *AMQPClient) Close(ctx context.Context) error {
 	a.consumer.Disconnect()
 
 	for _, c := range a.consumers {
@@ -325,7 +328,7 @@ func (a *AMQPClient) Close() error {
 
 	a.publisher.StopPublishing()
 
-	a.logger.Info().Msg("gracefully stopped rabbitMQ connection")
+	a.logger.Info(ctx).Msg("gracefully stopped rabbitMQ connection")
 	return nil
 }
 

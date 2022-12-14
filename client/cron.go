@@ -6,8 +6,10 @@ import (
 	"sync"
 	"time"
 
+	bloockContext "github.com/bloock/go-kit/context"
+	"github.com/bloock/go-kit/observability"
 	"github.com/go-co-op/gocron"
-	"github.com/rs/zerolog"
+	"github.com/google/uuid"
 )
 
 type CronHandler func(context.Context) error
@@ -17,10 +19,10 @@ type cronJob struct {
 	spec    time.Duration
 	fixTime string
 	job     CronHandler
-	l       zerolog.Logger
+	l       observability.Logger
 }
 
-func newCronJob(name string, spec time.Duration, fixTime string, job CronHandler, l zerolog.Logger) cronJob {
+func newCronJob(name string, spec time.Duration, fixTime string, job CronHandler, l observability.Logger) cronJob {
 	return cronJob{
 		name:    name,
 		spec:    spec,
@@ -42,13 +44,18 @@ func (c *cronJob) WithContext(ctx context.Context) cronJob {
 }
 
 func (c cronJob) Run() {
-	c.l.Info().Str("job-name", c.name).Msg("starting job")
-	err := c.job(c.ctx)
+
+	ctx := context.WithValue(c.ctx, bloockContext.UserIDKey, "")
+	ctx = context.WithValue(ctx, bloockContext.RequestIDKey, uuid.New().String())
+
+	c.l.Info(ctx).Str("job-name", c.name).Msg("starting job")
+
+	err := c.job(ctx)
 	if err != nil {
-		c.l.Error().Str("job-name", c.name).Msgf("error running cron: %s", err.Error())
+		c.l.Error(ctx).Str("job-name", c.name).Msgf("error running cron: %s", err.Error())
 		return
 	}
-	c.l.Info().Str("job-name", c.name).Msg("job runned successfully")
+	c.l.Info(ctx).Str("job-name", c.name).Msg("job runned successfully")
 }
 
 type CronClient struct {
@@ -57,16 +64,17 @@ type CronClient struct {
 
 	handlers []cronJob
 
-	l  zerolog.Logger
+	l  observability.Logger
 	wg *sync.WaitGroup
 }
 
-func NewCronClient(ctx context.Context, l zerolog.Logger) (*CronClient, error) {
-	l = l.With().Str("layer", "infrastructure").Str("component", "cron").Logger()
+func NewCronClient(ctx context.Context, l observability.Logger) (*CronClient, error) {
+	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "cron").Logger())
 
 	c := gocron.NewScheduler(time.UTC)
 
 	client := CronClient{
+		ctx:       ctx,
 		scheduler: c,
 		handlers:  make([]cronJob, 0),
 		l:         l,

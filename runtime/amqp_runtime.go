@@ -5,23 +5,23 @@ import (
 	"time"
 
 	"github.com/bloock/go-kit/client"
-	"github.com/bloock/go-kit/event"
-	"github.com/rs/zerolog"
+	"github.com/bloock/go-kit/domain"
+	"github.com/bloock/go-kit/observability"
 )
 
 type AMQPRuntime struct {
 	client   *client.AMQPClient
-	handlers map[event.Type][]client.AMQPHandler
+	handlers map[domain.EventType][]client.AMQPHandler
 
 	shutdownTime time.Duration
 
-	logger zerolog.Logger
+	logger observability.Logger
 }
 
-func NewAMQPRuntime(c *client.AMQPClient, shutdownTime time.Duration, l zerolog.Logger) (*AMQPRuntime, error) {
+func NewAMQPRuntime(c *client.AMQPClient, shutdownTime time.Duration, l observability.Logger) (*AMQPRuntime, error) {
 	e := AMQPRuntime{
 		client:       c,
-		handlers:     make(map[event.Type][]client.AMQPHandler),
+		handlers:     make(map[domain.EventType][]client.AMQPHandler),
 		shutdownTime: shutdownTime,
 		logger:       l,
 	}
@@ -29,7 +29,7 @@ func NewAMQPRuntime(c *client.AMQPClient, shutdownTime time.Duration, l zerolog.
 	return &e, nil
 }
 
-func (e *AMQPRuntime) SetHandlers(h map[event.Type][]client.AMQPHandler) {
+func (e *AMQPRuntime) SetHandlers(h map[domain.EventType][]client.AMQPHandler) {
 	e.handlers = h
 }
 
@@ -39,11 +39,11 @@ out:
 		for t, h := range e.handlers {
 			err := e.client.Consume(ctx, t, h...)
 			if err != nil {
-				e.logger.Error().Msgf("error consuming type %s: %s", t.Name(), err.Error())
+				e.logger.Error(ctx).Msgf("error consuming type %s: %s", t.Name(), err.Error())
 				continue
 			}
 
-			e.logger.Info().Msgf("starting consuming type %s", t.Name())
+			e.logger.Info(ctx).Msgf("starting consuming type %s", t.Name())
 		}
 
 		select {
@@ -52,9 +52,9 @@ out:
 		}
 	}
 
-	if err := e.client.Close(); err != nil {
-		e.logger.Info().Msgf("error while closing amqp runtime: %s", err.Error())
+	if err := e.client.Close(ctx); err != nil {
+		e.logger.Info(ctx).Msgf("error while closing amqp runtime: %s", err.Error())
 	} else {
-		e.logger.Info().Msg("amqp runtime closed successfully")
+		e.logger.Info(ctx).Msg("amqp runtime closed successfully")
 	}
 }

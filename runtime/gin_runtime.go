@@ -2,13 +2,14 @@ package runtime
 
 import (
 	"context"
-	httperror "github.com/bloock/go-kit/errors/http"
 	"io"
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/bloock/go-kit/client"
+	bloockContext "github.com/bloock/go-kit/context"
+	"github.com/bloock/go-kit/http/middleware"
+	"github.com/bloock/go-kit/observability"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
@@ -17,10 +18,10 @@ import (
 type GinRuntime struct {
 	client       *client.GinEngine
 	shutdownTime time.Duration
-	logger       zerolog.Logger
+	logger       observability.Logger
 }
 
-func NewGinRuntime(c *client.GinEngine, shutdownTime time.Duration, l zerolog.Logger) (*GinRuntime, error) {
+func NewGinRuntime(c *client.GinEngine, shutdownTime time.Duration, l observability.Logger) (*GinRuntime, error) {
 	e := GinRuntime{
 		client:       c,
 		shutdownTime: shutdownTime,
@@ -35,35 +36,22 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 		logger.WithSkipPath([]string{"/health"}),
 		logger.WithUTC(true),
 		logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
-			xClientID := c.Request.Header.Get("X-Client-ID")
-			xRequestID := c.Request.Header.Get("X-Request-ID")
-			c.Set("X-Request-ID", xRequestID)
-			return e.logger.With().
+			return e.logger.Logger().With().
 				Int("status", c.Writer.Status()).
 				Str("method", c.Request.Method).
 				Str("path", c.Request.URL.Path).
 				Str("ip", c.ClientIP()).
 				Dur("latency", latency).
-				Str("user_agent", c.Request.UserAgent()).
-				Str("x-client-id", xClientID).
-				Str("x-request-id", xRequestID).
+				Str("user-agent", c.Request.UserAgent()).
+				Str("user-id", bloockContext.GetUserID(c)).
+				Str("request-id", bloockContext.GetRequestID(c)).
 				Logger()
 		}),
 	)
 	e.client.Engine().Use(l)
-
-	e.client.Engine().Use(httperror.ErrorMiddleware())
+	e.client.Engine().Use(middleware.ErrorMiddleware())
+	e.client.Engine().Use(middleware.ContextMiddleware())
 	f(e.client.Engine())
-}
-
-func SaveLogTraces() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		xClientID := c.Request.Header.Get("X-Client-ID")
-		xRequestID := c.Request.Header.Get("X-Request-ID")
-		c.Set("X-Request-ID", xRequestID)
-		c.Set("X-User-ID", xClientID)
-		log.Print(c.Keys)
-	}
 }
 
 func (e *GinRuntime) Run(ctx context.Context) {
@@ -74,7 +62,7 @@ func (e *GinRuntime) Run(ctx context.Context) {
 
 	go func() {
 		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
-			e.logger.Info().Msgf("server running on %s", e.client.Addr())
+			e.logger.Info(ctx).Msgf("server running on %s", e.client.Addr())
 		}
 	}()
 
@@ -83,8 +71,8 @@ func (e *GinRuntime) Run(ctx context.Context) {
 	ctx, cancel := context.WithTimeout(context.Background(), e.shutdownTime)
 	defer cancel()
 	if err := srv.Shutdown(ctx); err != nil {
-		e.logger.Info().Msgf("error while closing gin runtime: %s", err.Error())
+		e.logger.Info(ctx).Msgf("error while closing gin runtime: %s", err.Error())
 	} else {
-		e.logger.Info().Msg("gin runtime closed successfully")
+		e.logger.Info(ctx).Msg("gin runtime closed successfully")
 	}
 }

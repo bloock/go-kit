@@ -3,19 +3,19 @@ package client
 import (
 	"fmt"
 
+	"github.com/bloock/go-kit/observability"
 	"github.com/gin-gonic/gin"
-	"github.com/rs/zerolog"
 )
 
 type GinEngine struct {
 	addr   string
 	debug  bool
 	engine *gin.Engine
-	logger zerolog.Logger
+	logger observability.Logger
 }
 
-func NewGinEngine(addr string, port uint, debug bool, l zerolog.Logger) *GinEngine {
-	l = l.With().Str("layer", "infrastructure").Str("component", "gin").Logger()
+func NewGinEngine(addr string, port uint, debug bool, l observability.Logger) *GinEngine {
+	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "gin").Logger())
 
 	if !debug {
 		gin.SetMode(gin.ReleaseMode)

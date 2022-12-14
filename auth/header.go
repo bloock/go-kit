@@ -1,8 +1,15 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
 	"strings"
+
+	"github.com/gin-gonic/gin"
+)
+
+const (
+	AUTHORIZATION_HEADER = "Authorization"
+	BEARER_PREFIX        = "Bearer"
+	CLIENT_ID_HEADER     = "X-User-ID"
 )
 
 func GetBearerTokenHeader(ctx *gin.Context) string {

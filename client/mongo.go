@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/bloock/go-kit/observability"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
 	"github.com/golang-migrate/migrate/v4/database/mongodb"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
-	"github.com/rs/zerolog"
 	mongoDriver "go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.mongodb.org/mongo-driver/mongo/readpref"
@@ -17,11 +17,11 @@ import (
 
 type MongoClient struct {
 	client *mongoDriver.Client
-	logger zerolog.Logger
+	logger observability.Logger
 }
 
-func NewMongoClient(user, pass, host, port string, isCosmos bool, timeout time.Duration, l zerolog.Logger) (*MongoClient, error) {
-	l = l.With().Str("layer", "infrastructure").Str("component", "mongo").Logger()
+func NewMongoClient(user, pass, host, port string, isCosmos bool, timeout time.Duration, l observability.Logger) (*MongoClient, error) {
+	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "mongo").Logger())
 
 	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?retrywrites=false&maxIdleTimeMS=120000", user, pass, host, port)
 	if isCosmos {

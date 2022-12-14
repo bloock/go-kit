@@ -5,17 +5,17 @@ import (
 	"time"
 
 	"github.com/bloock/go-kit/client"
-	"github.com/rs/zerolog"
+	"github.com/bloock/go-kit/observability"
 )
 
 type CronRuntime struct {
 	client *client.CronClient
 
 	shutdownTime time.Duration
-	logger       zerolog.Logger
+	logger       observability.Logger
 }
 
-func NewCronRuntime(c *client.CronClient, shutdownTime time.Duration, l zerolog.Logger) (*CronRuntime, error) {
+func NewCronRuntime(c *client.CronClient, shutdownTime time.Duration, l observability.Logger) (*CronRuntime, error) {
 	e := CronRuntime{
 		client:       c,
 		shutdownTime: shutdownTime,
@@ -38,11 +38,11 @@ out:
 	for {
 		err := e.client.Start(ctx)
 		if err != nil {
-			e.logger.Info().Msgf("error while starting cron worker: %s", err.Error())
+			e.logger.Info(ctx).Msgf("error while starting cron worker: %s", err.Error())
 			break out
 		}
 
-		e.logger.Info().Msg("cron runtime started successfully")
+		e.logger.Info(ctx).Msg("cron runtime started successfully")
 
 		select {
 		case <-ctx.Done():
@@ -51,8 +51,8 @@ out:
 	}
 
 	if err := e.client.Close(e.shutdownTime); err != nil {
-		e.logger.Info().Msgf("error while closing cron runtime: %s", err.Error())
+		e.logger.Info(ctx).Msgf("error while closing cron runtime: %s", err.Error())
 	} else {
-		e.logger.Info().Msg("cron runtime closed successfully")
+		e.logger.Info(ctx).Msg("cron runtime closed successfully")
 	}
 }
