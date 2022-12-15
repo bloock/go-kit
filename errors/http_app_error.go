@@ -9,8 +9,8 @@ type HttpAppError struct {
 	Message string `json:"message"`
 }
 
-func NewHttpAppError(code int, message string) *HttpAppError {
-	return &HttpAppError{Code: code, Message: message}
+func NewHttpAppError(code int, message string) HttpAppError {
+	return HttpAppError{Code: code, Message: message}
 }
 
 func (e HttpAppError) Error() string {
