@@ -57,7 +57,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 		key := GenerateUsageKey(clientID, u.service)
 		c.Set(CLIENT_ID, clientID)
 
-		limit, err := u.redis.GetInt(keyLimit)
+		limit, err := u.redis.GetInt(c, keyLimit)
 		if err != nil {
 			u.logger.Error(c).Err(err).Msg("")
 			c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -69,7 +69,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		consumed, err := u.redis.GetInt(key)
+		consumed, err := u.redis.GetInt(c, key)
 		if err != nil {
 			u.logger.Error(c).Err(err).Msg("")
 			c.Writer.WriteHeader(http.StatusInternalServerError)
@@ -105,7 +105,7 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 			quantity = q.(int)
 		}
 
-		_, err := u.redis.IncrBy(key, quantity)
+		_, err := u.redis.IncrBy(c, key, quantity)
 		if err != nil {
 			u.logger.Error(c).Err(err).Msg("")
 			return
