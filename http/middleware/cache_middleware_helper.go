@@ -19,7 +19,7 @@ type Cached struct {
 }
 
 func CacheInvalidate(c *gin.Context, key string, cache cache.Cache) {
-	err := cache.Del(key)
+	err := cache.Del(c, key)
 	if err != nil {
 		log.Printf("Conection err with redis %s", err.Error())
 		c.Next()
@@ -31,7 +31,7 @@ func CacheInvalidate(c *gin.Context, key string, cache cache.Cache) {
 
 func CacheRequest(c *gin.Context, key string, cache cache.Cache, duration time.Duration) {
 
-	ca, err := cache.Get(key)
+	ca, err := cache.Get(c, key)
 	if err != nil {
 		c.Next()
 		return
@@ -46,6 +46,7 @@ func CacheRequest(c *gin.Context, key string, cache cache.Cache, duration time.D
 		c.Writer = writer
 
 		cache.Set(
+			c,
 			key,
 			encodeCache(&Cached{
 				Status: rw.Status(),
