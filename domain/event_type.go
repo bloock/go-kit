@@ -101,6 +101,12 @@ var (
 	transferWorker        = "transfer_worker"
 	TransferWorkerCreated = newEvent(dataAvailability, transferWorker, create, newEventArgs{})
 
+	ipfsStorageWorker        = "ipfs_storage_worker"
+	IpfsStorageWorkerCreated = newEvent(dataAvailability, ipfsStorageWorker, create, newEventArgs{})
+
+	ipfsTransferWorker        = "ipfs_transfer_worker"
+	IpfsTransferWorkerCreated = newEvent(dataAvailability, ipfsTransferWorker, create, newEventArgs{})
+
 	usageStorageLimit        = "usage_storage_limit"
 	UsageStorageLimitUpdated = newEvent(dataAvailability, usageStorageLimit, update, newEventArgs{})
 
@@ -119,15 +125,15 @@ var (
 	IpfsUsageTransferUpdated = newEvent(dataAvailability, ipfsUsageTransfer, update, newEventArgs{})
 	IpfsUsageTransferDeleted = newEvent(dataAvailability, ipfsUsageTransfer, delete, newEventArgs{})
 
+	ipfsUsageStorage        = "ipfs_usage_storage"
+	ipfsUsageStorageUpdated = newEvent(dataAvailability, ipfsUsageStorage, update, newEventArgs{})
+	ipfsUsageStorageDeleted = newEvent(dataAvailability, ipfsUsageStorage, delete, newEventArgs{})
+
 	ipfsUsageTransferLimit        = "ipfs_usage_transfer_limit"
 	IpfsUsageTransferLimitUpdated = newEvent(dataAvailability, ipfsUsageTransferLimit, update, newEventArgs{})
 
 	ipfsUsageStorageLimit        = "ipfs_usage_storage_limit"
 	IpfsUsageStorageLimitUpdated = newEvent(dataAvailability, ipfsUsageStorageLimit, update, newEventArgs{})
-
-	ipfsUsageStorage        = "ipfs_usage_storage"
-	ipfsUsageStorageUpdated = newEvent(dataAvailability, ipfsUsageStorage, update, newEventArgs{})
-	ipfsUsageStorageDeleted = newEvent(dataAvailability, ipfsUsageStorage, delete, newEventArgs{})
 )
 
 // Transaction events
