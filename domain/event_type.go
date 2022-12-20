@@ -120,20 +120,6 @@ var (
 	usageTransfer        = "usage_transfer"
 	UsageTransferUpdated = newEvent(dataAvailability, usageTransfer, update, newEventArgs{})
 	UsageTransferDeleted = newEvent(dataAvailability, usageTransfer, delete, newEventArgs{})
-
-	ipfsUsageTransfer        = "ipfs_usage_transfer"
-	IpfsUsageTransferUpdated = newEvent(dataAvailability, ipfsUsageTransfer, update, newEventArgs{})
-	IpfsUsageTransferDeleted = newEvent(dataAvailability, ipfsUsageTransfer, delete, newEventArgs{})
-
-	ipfsUsageStorage        = "ipfs_usage_storage"
-	ipfsUsageStorageUpdated = newEvent(dataAvailability, ipfsUsageStorage, update, newEventArgs{})
-	ipfsUsageStorageDeleted = newEvent(dataAvailability, ipfsUsageStorage, delete, newEventArgs{})
-
-	ipfsUsageTransferLimit        = "ipfs_usage_transfer_limit"
-	IpfsUsageTransferLimitUpdated = newEvent(dataAvailability, ipfsUsageTransferLimit, update, newEventArgs{})
-
-	ipfsUsageStorageLimit        = "ipfs_usage_storage_limit"
-	IpfsUsageStorageLimitUpdated = newEvent(dataAvailability, ipfsUsageStorageLimit, update, newEventArgs{})
 )
 
 // Transaction events
