@@ -2,22 +2,32 @@ package request
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
-	"io/ioutil"
+	"io"
 	"net/http"
+
+	bloockContext "github.com/bloock/go-kit/context"
 )
 
 type RestClient struct{}
 
-func (r RestClient) Get(url string, response interface{}) error {
-	resp, err := http.Get(url)
+func (r RestClient) Get(ctx context.Context, url string, response interface{}) error {
+	client := http.Client{}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return err
+	}
+	req = r.setRequestID(ctx, req)
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	respByte, err := ioutil.ReadAll(resp.Body)
+	respByte, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -34,19 +44,26 @@ func (r RestClient) Get(url string, response interface{}) error {
 	return nil
 }
 
-func (r RestClient) Post(url string, body interface{}, response interface{}, contentType string) error {
+func (r RestClient) Post(ctx context.Context, url string, body interface{}, response interface{}, contentType string) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
 	}
 
-	resp, err := http.Post(url, contentType, bytes.NewBuffer(b))
+	client := http.Client{}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, url, bytes.NewBuffer(b))
+	if err != nil {
+		return err
+	}
+	req = r.setRequestID(ctx, req)
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
 
-	respByte, err := ioutil.ReadAll(resp.Body)
+	respByte, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -63,7 +80,7 @@ func (r RestClient) Post(url string, body interface{}, response interface{}, con
 	return nil
 }
 
-func (r RestClient) PostWithHeaders(url string, body, response interface{}, headers map[string]string, contentType string) error {
+func (r RestClient) PostWithHeaders(ctx context.Context, url string, body, response interface{}, headers map[string]string, contentType string) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -79,6 +96,7 @@ func (r RestClient) PostWithHeaders(url string, body, response interface{}, head
 		req.Header.Set(k, v)
 	}
 	req.Header.Set("Content-Type", contentType)
+	req = r.setRequestID(ctx, req)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -86,7 +104,7 @@ func (r RestClient) PostWithHeaders(url string, body, response interface{}, head
 	}
 	defer resp.Body.Close()
 
-	respByte, err := ioutil.ReadAll(resp.Body)
+	respByte, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -103,7 +121,7 @@ func (r RestClient) PostWithHeaders(url string, body, response interface{}, head
 	return nil
 }
 
-func (r RestClient) Delete(url string, body interface{}, response interface{}, headers map[string]string) error {
+func (r RestClient) Delete(ctx context.Context, url string, body interface{}, response interface{}, headers map[string]string) error {
 	b, err := json.Marshal(body)
 	if err != nil {
 		return err
@@ -119,6 +137,7 @@ func (r RestClient) Delete(url string, body interface{}, response interface{}, h
 		req.Header.Set(k, v)
 	}
 	req.Header.Set("Content-Type", "application/json")
+	req = r.setRequestID(ctx, req)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -126,7 +145,7 @@ func (r RestClient) Delete(url string, body interface{}, response interface{}, h
 	}
 	defer resp.Body.Close()
 
-	respByte, err := ioutil.ReadAll(resp.Body)
+	respByte, err := io.ReadAll(resp.Body)
 	if err != nil {
 		return err
 	}
@@ -141,4 +160,9 @@ func (r RestClient) Delete(url string, body interface{}, response interface{}, h
 	}
 
 	return nil
+}
+
+func (r RestClient) setRequestID(ctx context.Context, req *http.Request) *http.Request {
+	req.Header.Set("X-Request-ID", bloockContext.GetRequestID(ctx))
+	return req
 }

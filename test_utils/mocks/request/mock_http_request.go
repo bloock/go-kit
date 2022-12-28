@@ -5,6 +5,7 @@
 package mock_request
 
 import (
+	context "context"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -34,57 +35,57 @@ func (m *MockHttpRequest) EXPECT() *MockHttpRequestMockRecorder {
 }
 
 // Delete mocks base method.
-func (m *MockHttpRequest) Delete(url string, body, response interface{}, headers map[string]string) error {
+func (m *MockHttpRequest) Delete(ctx context.Context, url string, body, response interface{}, headers map[string]string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Delete", url, body, response, headers)
+	ret := m.ctrl.Call(m, "Delete", ctx, url, body, response, headers)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Delete indicates an expected call of Delete.
-func (mr *MockHttpRequestMockRecorder) Delete(url, body, response, headers interface{}) *gomock.Call {
+func (mr *MockHttpRequestMockRecorder) Delete(ctx, url, body, response, headers interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockHttpRequest)(nil).Delete), url, body, response, headers)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockHttpRequest)(nil).Delete), ctx, url, body, response, headers)
 }
 
 // Get mocks base method.
-func (m *MockHttpRequest) Get(url string, response interface{}) error {
+func (m *MockHttpRequest) Get(ctx context.Context, url string, response interface{}) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Get", url, response)
+	ret := m.ctrl.Call(m, "Get", ctx, url, response)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Get indicates an expected call of Get.
-func (mr *MockHttpRequestMockRecorder) Get(url, response interface{}) *gomock.Call {
+func (mr *MockHttpRequestMockRecorder) Get(ctx, url, response interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpRequest)(nil).Get), url, response)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpRequest)(nil).Get), ctx, url, response)
 }
 
 // Post mocks base method.
-func (m *MockHttpRequest) Post(url string, body, response interface{}, contentType string) error {
+func (m *MockHttpRequest) Post(ctx context.Context, url string, body, response interface{}, contentType string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Post", url, body, response, contentType)
+	ret := m.ctrl.Call(m, "Post", ctx, url, body, response, contentType)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Post indicates an expected call of Post.
-func (mr *MockHttpRequestMockRecorder) Post(url, body, response, contentType interface{}) *gomock.Call {
+func (mr *MockHttpRequestMockRecorder) Post(ctx, url, body, response, contentType interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockHttpRequest)(nil).Post), url, body, response, contentType)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Post", reflect.TypeOf((*MockHttpRequest)(nil).Post), ctx, url, body, response, contentType)
 }
 
 // PostWithHeaders mocks base method.
-func (m *MockHttpRequest) PostWithHeaders(url string, body, response interface{}, headers map[string]string, contentType string) error {
+func (m *MockHttpRequest) PostWithHeaders(ctx context.Context, url string, body, response interface{}, headers map[string]string, contentType string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "PostWithHeaders", url, body, response, headers, contentType)
+	ret := m.ctrl.Call(m, "PostWithHeaders", ctx, url, body, response, headers, contentType)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // PostWithHeaders indicates an expected call of PostWithHeaders.
-func (mr *MockHttpRequestMockRecorder) PostWithHeaders(url, body, response, headers, contentType interface{}) *gomock.Call {
+func (mr *MockHttpRequestMockRecorder) PostWithHeaders(ctx, url, body, response, headers, contentType interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PostWithHeaders", reflect.TypeOf((*MockHttpRequest)(nil).PostWithHeaders), url, body, response, headers, contentType)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PostWithHeaders", reflect.TypeOf((*MockHttpRequest)(nil).PostWithHeaders), ctx, url, body, response, headers, contentType)
 }

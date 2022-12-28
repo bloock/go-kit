@@ -178,7 +178,7 @@ func (a *AMQPClient) publish(ctx context.Context, event domain.Event, name strin
 		rabbitmq.WithPublishOptionsExchange(name),
 		rabbitmq.WithPublishOptionsHeaders(headers),
 		rabbitmq.WithPublishOptionsExpiration(exp),
-		rabbitmq.WithPublishOptionsCorrelationID(event.ID()),
+		rabbitmq.WithPublishOptionsCorrelationID(bloockContext.GetRequestID(ctx)),
 		rabbitmq.WithPublishOptionsTimestamp(event.OccurredOn()),
 	)
 	if err != nil {
