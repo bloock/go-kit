@@ -3,6 +3,8 @@ package command
 import (
 	"context"
 	"errors"
+
+	"github.com/bloock/go-kit/observability"
 )
 
 var ErrorCommandBus = errors.New("CommandBus: Command bus handler not found")
@@ -24,6 +26,9 @@ func (b *CommandBus) Dispatch(ctx context.Context, cmd Command) error {
 	}
 	errChannel := make(chan error, 1)
 	go func() {
+		s, ctx := observability.NewSpan(ctx, string(cmd.Type()))
+		defer s.Finish()
+
 		err := handler.Handle(ctx, cmd)
 		if err != nil {
 			errChannel <- err

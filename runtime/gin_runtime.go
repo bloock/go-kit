@@ -13,6 +13,7 @@ import (
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
+	gintrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gin-gonic/gin"
 )
 
 type GinRuntime struct {
@@ -51,6 +52,7 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 	e.client.Engine().Use(l)
 	e.client.Engine().Use(middleware.ErrorMiddleware())
 	e.client.Engine().Use(middleware.ContextMiddleware())
+	e.client.Engine().Use(gintrace.Middleware("gin"))
 	f(e.client.Engine())
 }
 

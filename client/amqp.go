@@ -134,6 +134,9 @@ func (a *AMQPClient) handleMessage(ctx context.Context, evt domain.Event, handle
 	ctx = context.WithValue(ctx, bloockContext.UserIDKey, "")
 	ctx = context.WithValue(ctx, bloockContext.RequestIDKey, evt.ID())
 
+	s, ctx := observability.NewSpan(ctx, evt.Type().Name())
+	defer s.Finish()
+
 	defer func(ctx context.Context, e domain.Event) {
 		if err := recover(); err != nil {
 			stack := make([]byte, 8096)
