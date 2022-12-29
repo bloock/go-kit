@@ -14,7 +14,7 @@ type AMQPPublisher struct {
 }
 
 func NewAMQPPublisher(client *client.AMQPClient, l observability.Logger) Publisher {
-	l.UpdateLogger(l.With().Str("layer", "repository").Str("service", "publisher").Logger())
+	l.UpdateLogger(l.With().Str("layer", "repository").Str("component", "publisher").Logger())
 	return &AMQPPublisher{
 		client: client,
 		logger: l,
