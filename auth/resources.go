@@ -25,6 +25,7 @@ const (
 	ResourceSubscriptionsInvoice      Resource = "subscriptions.invoice"
 	ResourceNotificationsWebhook      Resource = "notifications.webhook"
 	ResourceNotificationsFeedback     Resource = "notifications.feedback"
+	ResourceDataAvailabilityUpload    Resource = "data-availability.upload"
 )
 
 type Action string
