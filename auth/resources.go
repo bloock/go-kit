@@ -26,6 +26,7 @@ const (
 	ResourceNotificationsWebhook      Resource = "notifications.webhook"
 	ResourceNotificationsFeedback     Resource = "notifications.feedback"
 	ResourceDataAvailabilityUpload    Resource = "data-availability.upload"
+	ResourceNodeProxyRedirect         Resource = "node-proxy.redirect"
 )
 
 type Action string
