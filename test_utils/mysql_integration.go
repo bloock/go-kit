@@ -36,14 +36,14 @@ func (l Logger) Print(v ...interface{}) {
 
 var mysqlClient *client.MysqlClient
 
-func SetupMysqlIntegrationTest(m *testing.M, migrationPath string, testTimeout uint) {
-	pool, resource := initDB(migrationPath, testTimeout)
+func SetupMysqlIntegrationTest(m *testing.M, testTimeout uint, migrationPath ...string) {
+	pool, resource := initDB(testTimeout, migrationPath...)
 	code := m.Run()
 	closeDB(pool, resource)
 	os.Exit(code)
 }
 
-func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockertest.Resource) {
+func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *dockertest.Resource) {
 	ctx := context.Background()
 
 	var platform string
@@ -67,8 +67,6 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 		Tag:        imageTag,
 		Env: []string{
 			"MYSQL_ROOT_PASSWORD=test",
-			"MYSQL_USER=test",
-			"MYSQL_PASSWORD=test",
 			"MYSQL_DATABASE=test",
 		},
 		Platform: platform,
@@ -92,8 +90,10 @@ func initDB(migrationPath string, testTimeout uint) (*dockertest.Pool, *dockerte
 		log.Fatalf("Could not connect to database: %s", err)
 	}
 
-	if err = mysqlClient.MigrateUp(ctx, migrationPath); err != nil {
-		log.Fatalf("%s", err.Error())
+	for _, mp := range migrationPath {
+		if err = mysqlClient.MigrateUp(ctx, mp); err != nil {
+			log.Fatalf("%s", err.Error())
+		}
 	}
 
 	return pool, resource
