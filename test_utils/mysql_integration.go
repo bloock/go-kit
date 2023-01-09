@@ -79,7 +79,7 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 	resource.Expire(testTimeout)
 
 	if err := pool.Retry(func() error {
-		mysqlClient, err = client.NewMysqlClient(ctx, "test", "test", "localhost",
+		mysqlClient, err = client.NewMysqlClient(ctx, "root", "test", "localhost",
 			resource.GetPort("3306/tcp"), "test", false, observability.Logger{})
 		if err != nil {
 			return err
