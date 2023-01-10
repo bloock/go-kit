@@ -36,9 +36,6 @@ func validateID(id string) error {
 	if id == "" {
 		return ErrIDEmpty
 	}
-	if id == "00000000-0000-0000-0000-000000000000" {
-		return ErrIDNull
-	}
 	if _, err := uuid.Parse(id); err != nil {
 		return ErrIDInvalid
 	}

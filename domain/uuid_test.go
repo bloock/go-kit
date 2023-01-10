@@ -1,8 +1,9 @@
 package domain
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestUUID_validate(t *testing.T) {
@@ -28,12 +29,6 @@ func TestUUID_validate(t *testing.T) {
 		id := ""
 		err := validateID(id)
 		assert.Equal(t, ErrIDEmpty, err)
-	})
-
-	t.Run("Given a null ID, should return ErrIdNull", func(t *testing.T) {
-		id := "00000000-0000-0000-0000-000000000000"
-		err := validateID(id)
-		assert.Equal(t, ErrIDNull, err)
 	})
 }
 
