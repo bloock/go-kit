@@ -55,6 +55,7 @@ func (r RestClient) Post(ctx context.Context, url string, body interface{}, resp
 	if err != nil {
 		return err
 	}
+	req.Header.Set("Content-Type", contentType)
 	req = r.setRequestID(ctx, req)
 
 	resp, err := client.Do(req)
