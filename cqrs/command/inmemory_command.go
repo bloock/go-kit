@@ -26,7 +26,7 @@ func (b *CommandBus) Dispatch(ctx context.Context, cmd Command) error {
 	}
 	errChannel := make(chan error, 1)
 	go func() {
-		s, ctx := observability.NewSpan(ctx, string(cmd.Type()))
+		s, _ := observability.NewSpan(ctx, string(cmd.Type()))
 		defer s.Finish()
 
 		err := handler.Handle(ctx, cmd)
