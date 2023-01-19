@@ -12,8 +12,8 @@ import (
 )
 
 func main() {
-	l := observability.InitLogger("test", true)
-	tracer := observability.InitTracer("test", true)
+	l := observability.InitLogger("local", "test_service", "1.0.0", true)
+	tracer := observability.InitTracer("local", "test_service", "1.0.0", true)
 	defer tracer.Stop()
 
 	wg := sync.WaitGroup{}
@@ -35,7 +35,7 @@ func main() {
 	}()
 
 	ginClient := client.NewGinEngine("0.0.0.0", 8080, true, l)
-	ginRuntime, err := runtime.NewGinRuntime(ginClient, 5*time.Second, l)
+	ginRuntime, err := runtime.NewGinRuntime("service-gin", ginClient, 5*time.Second, l)
 	if err != nil {
 		panic(err.Error())
 	}
@@ -59,7 +59,7 @@ func CronHandler() client.CronHandler {
 		s, ctx := observability.NewSpan(c, "an_span")
 		defer s.Finish()
 
-		l := observability.InitLogger("test", true)
+		l := observability.InitLogger("local", "test_service", "1.0.0", true)
 		l.Error(ctx).Str("t", "user").Msg("a cron message")
 		return nil
 	}
@@ -70,7 +70,7 @@ func GinHandler() gin.HandlerFunc {
 		s, ctx := observability.NewSpan(c, "service.repository.action")
 		defer s.Finish()
 
-		l := observability.InitLogger("test", true)
+		l := observability.InitLogger("local", "test_service", "1.0.0", true)
 		l.Debug(ctx).Msg("a gin message")
 	}
 }

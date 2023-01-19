@@ -6,21 +6,24 @@ import (
 
 	bloockContext "github.com/bloock/go-kit/context"
 	"github.com/rs/zerolog"
+	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
 )
 
 type Logger struct {
 	underlying zerolog.Logger
 }
 
-func InitLogger(app string, debug bool) Logger {
+func InitLogger(env, service, version string, debug bool) Logger {
 	var l zerolog.Logger
 
 	if debug {
-		l = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr}).With().Timestamp().Str("service", app).Logger()
+		l = zerolog.New(zerolog.ConsoleWriter{Out: os.Stderr})
 	} else {
 		zerolog.TimeFieldFormat = zerolog.TimeFormatUnix
-		l = zerolog.New(os.Stderr).With().Timestamp().Str("service", app).Logger()
+		l = zerolog.New(os.Stderr)
 	}
+
+	l = l.With().Timestamp().Str("dd.env", env).Str("dd.service", service).Str("dd.version", version).Logger()
 
 	return Logger{
 		underlying: l,
@@ -82,11 +85,16 @@ func populateLogEvent(l *zerolog.Event, ctx context.Context) *zerolog.Event {
 	event := l
 	userID := bloockContext.GetUserID(ctx)
 	if userID != "" {
-		event = event.Str("user-id", userID)
+		event = event.Str("user_id", userID)
 	}
 	requestID := bloockContext.GetRequestID(ctx)
 	if requestID != "" {
-		event = event.Str("request-id", requestID)
+		event = event.Str("request_id", requestID)
+	}
+	trace, ok := tracer.SpanFromContext(ctx)
+	if ok {
+		event = event.Uint64("dd.trace_id", trace.Context().TraceID())
+		event = event.Uint64("dd.span_id", trace.Context().SpanID())
 	}
 	return event
 }

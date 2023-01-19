@@ -9,9 +9,11 @@ import (
 
 type Tracer struct{}
 
-func InitTracer(app string, debug bool) Tracer {
+func InitTracer(env, service, version string, debug bool) Tracer {
 	tracer.Start(
-		tracer.WithService(app),
+		tracer.WithEnv(env),
+		tracer.WithService(service),
+		tracer.WithServiceVersion(version),
 		tracer.WithDebugMode(debug),
 	)
 

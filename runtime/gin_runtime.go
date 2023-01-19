@@ -17,13 +17,15 @@ import (
 )
 
 type GinRuntime struct {
+	name         string
 	client       *client.GinEngine
 	shutdownTime time.Duration
 	logger       observability.Logger
 }
 
-func NewGinRuntime(c *client.GinEngine, shutdownTime time.Duration, l observability.Logger) (*GinRuntime, error) {
+func NewGinRuntime(name string, c *client.GinEngine, shutdownTime time.Duration, l observability.Logger) (*GinRuntime, error) {
 	e := GinRuntime{
+		name:         name,
 		client:       c,
 		shutdownTime: shutdownTime,
 		logger:       l,
@@ -52,7 +54,12 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 	e.client.Engine().Use(l)
 	e.client.Engine().Use(middleware.ErrorMiddleware())
 	e.client.Engine().Use(middleware.ContextMiddleware())
-	e.client.Engine().Use(gintrace.Middleware("gin"))
+	e.client.Engine().Use(gintrace.Middleware(
+		e.name,
+		gintrace.WithIgnoreRequest(func(c *gin.Context) bool {
+			return c.Request.URL.Path == "/health"
+		}),
+	))
 	f(e.client.Engine())
 }
 
