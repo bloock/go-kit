@@ -90,6 +90,7 @@ var (
 
 	usageRequest        = "usage_request"
 	UsageRequestUpdated = newEvent(node, usageRequest, update, newEventArgs{})
+	UsageRequestCreated = newEvent(node, usageRequest, create, newEventArgs{})
 	UsageRequestDeleted = newEvent(node, usageRequest, delete, newEventArgs{})
 )
 
@@ -119,6 +120,7 @@ var (
 
 	usageTransfer        = "usage_transfer"
 	UsageTransferUpdated = newEvent(dataAvailability, usageTransfer, update, newEventArgs{})
+	UsageTransferCreated = newEvent(dataAvailability, usageTransfer, create, newEventArgs{})
 	UsageTransferDeleted = newEvent(dataAvailability, usageTransfer, delete, newEventArgs{})
 )
 
