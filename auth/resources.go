@@ -27,6 +27,11 @@ const (
 	ResourceNotificationsFeedback     Resource = "notifications.feedback"
 	ResourceDataAvailabilityUpload    Resource = "data-availability.upload"
 	ResourceNodeProxyRedirect         Resource = "node-proxy.redirect"
+	ResourceKeysKey                   Resource = "keys.key"
+	ResourceKeysSign             	  Resource = "keys.sign"
+	ResourceKeysVerify            	  Resource = "keys.verify"
+	ResourceKeysEncrypt               Resource = "keys.encrypt"
+	ResourceKeysDecrypt               Resource = "keys.decrypt"
 )
 
 type Action string
