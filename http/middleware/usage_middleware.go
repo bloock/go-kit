@@ -16,10 +16,11 @@ const (
 	USAGE_QUANTITY = "usage_quantity"
 	USAGE_DISABLE  = "usage_disable"
 
-	CoreService     = "core"
-	NodeService     = "node"
-	StorageService  = "storage"
-	TransferService = "transfer"
+	CoreService            = "core"
+	NodeService            = "node"
+	StorageService         = "storage"
+	TransferService        = "transfer"
+	KeysTransactionService = "keys_transaction"
 )
 
 type UsageMiddleware struct {

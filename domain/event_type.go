@@ -14,6 +14,7 @@ var (
 	core             = "core"
 	node             = "node"
 	dataAvailability = "data-availability"
+	keys             = "keys"
 )
 
 // Actions
@@ -122,6 +123,40 @@ var (
 	UsageTransferUpdated = newEvent(dataAvailability, usageTransfer, update, newEventArgs{})
 	UsageTransferCreated = newEvent(dataAvailability, usageTransfer, create, newEventArgs{})
 	UsageTransferDeleted = newEvent(dataAvailability, usageTransfer, delete, newEventArgs{})
+)
+
+// Keys events
+var (
+	keysHSMWorker        = "keys_hsm_worker"
+	KeysHSMWorkerCreated = newEvent(keys, keysHSMWorker, create, newEventArgs{})
+
+	keysSoftwareWorker        = "keys_software_worker"
+	KeysSoftwareWorkerCreated = newEvent(keys, keysSoftwareWorker, create, newEventArgs{})
+
+	keysTransactionWorker        = "keys_transaction_worker"
+	KeysTransactionWorkerCreated = newEvent(keys, keysTransactionWorker, create, newEventArgs{})
+
+	usageKeysHSMLimit        = "usage_keys_hsm_limit"
+	UsageKeysHSMLimitUpdated = newEvent(keys, usageKeysHSMLimit, update, newEventArgs{})
+
+	usageKeysSoftwareLimit        = "usage_keys_software_limit"
+	UsageKeysSoftwareLimitUpdated = newEvent(keys, usageKeysSoftwareLimit, update, newEventArgs{})
+
+	usageKeysTransactionLimit        = "usage_keys_transaction_limit"
+	UsageKeysTransactionLimitUpdated = newEvent(keys, usageKeysTransactionLimit, update, newEventArgs{})
+
+	usageKeysHSM        = "usage_keys_hsm"
+	UsageKeysHSMUpdated = newEvent(keys, usageKeysHSM, update, newEventArgs{})
+	UsageKeysHSMDeleted = newEvent(keys, usageKeysHSM, delete, newEventArgs{})
+
+	usageKeysSoftware        = "usage_keys_software"
+	UsageKeysSoftwareUpdated = newEvent(keys, usageKeysSoftware, update, newEventArgs{})
+	UsageKeysSoftwareDeleted = newEvent(keys, usageKeysSoftware, delete, newEventArgs{})
+
+	usageKeysTransaction        = "usage_keys_transaction"
+	UsageKeysTransactionUpdated = newEvent(keys, usageKeysTransaction, update, newEventArgs{})
+	UsageKeysTransactionDeleted = newEvent(keys, usageKeysTransaction, delete, newEventArgs{})
+	UsageKeysTransactionCreated = newEvent(keys, usageKeysTransaction, create, newEventArgs{})
 )
 
 // Transaction events
