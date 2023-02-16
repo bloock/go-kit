@@ -18,10 +18,10 @@ require (
 	github.com/icza/bitio v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/ory/dockertest/v3 v3.9.1
-	github.com/rabbitmq/amqp091-go v1.3.0
+	github.com/rabbitmq/amqp091-go v1.7.0
 	github.com/rs/zerolog v1.26.1
 	github.com/stretchr/testify v1.8.1
-	github.com/wagslane/go-rabbitmq v0.7.2
+	github.com/wagslane/go-rabbitmq v0.12.1
 	go.mongodb.org/mongo-driver v1.8.3
 	gopkg.in/DataDog/dd-trace-go.v1 v1.44.1
 )
