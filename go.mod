@@ -21,7 +21,7 @@ require (
 	github.com/rabbitmq/amqp091-go v1.7.0
 	github.com/rs/zerolog v1.26.1
 	github.com/stretchr/testify v1.8.1
-	github.com/wagslane/go-rabbitmq v0.12.1
+	github.com/wagslane/go-rabbitmq v0.7.2
 	go.mongodb.org/mongo-driver v1.8.3
 	gopkg.in/DataDog/dd-trace-go.v1 v1.44.1
 )
