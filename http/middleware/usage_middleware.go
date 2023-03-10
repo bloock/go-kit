@@ -86,6 +86,15 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
+
+		length := c.Request.ContentLength
+		if consumed+int(length) >= limit {
+			u.logger.Error(c).Err(err).Msg("")
+			c.Writer.WriteHeader(http.StatusUnauthorized)
+			c.Writer.Write([]byte("limit consumed"))
+			c.Abort()
+			return
+		}
 	}
 }
 
