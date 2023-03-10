@@ -32,6 +32,10 @@ const (
 	ResourceKeysVerify                Resource = "keys.verify"
 	ResourceKeysEncrypt               Resource = "keys.encrypt"
 	ResourceKeysDecrypt               Resource = "keys.decrypt"
+	ResourceIdentityIssuer            Resource = "identity.issuer"
+	ResourceIdentitySchema            Resource = "identity.schema"
+	ResourceIdentityCredential        Resource = "identity.credential"
+	ResourceIdentityRevocation        Resource = "identity.revocation"
 )
 
 type Action string
