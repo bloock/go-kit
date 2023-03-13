@@ -1,16 +1,17 @@
 package domain
 
 import (
-	"errors"
+	"github.com/bloock/go-kit/errors"
+	"net/http"
+)
+
+var (
+	ErrInvalidUserID = errors.NewHttpAppError(http.StatusBadRequest, "the user ID should have UUID format")
 )
 
 type UserID struct {
 	id UUID
 }
-
-var (
-	ErrInvalidUserID = errors.New("the user ID should have UUID format")
-)
 
 func NewUserIDStr(id string) (UserID, error) {
 	uid, err := NewUUID(id)
@@ -29,8 +30,4 @@ func NewUserID() UserID {
 
 func (i UserID) ID() string {
 	return i.id.ID()
-}
-
-type UUID struct {
-	id string
 }

@@ -1,17 +1,22 @@
 package domain
 
 import (
-	"errors"
 	"fmt"
+	httpError "github.com/bloock/go-kit/errors"
+	"net/http"
 
 	"github.com/google/uuid"
 )
 
 var (
-	ErrIDEmpty   = errors.New("the provided ID is empty")
-	ErrIDInvalid = errors.New("the provided ID should have UUID format")
-	ErrIDNull    = errors.New("the provided ID is null UUID")
+	ErrIDEmpty   = httpError.NewHttpAppError(http.StatusBadRequest, "the provided ID is empty")
+	ErrIDInvalid = httpError.NewHttpAppError(http.StatusBadRequest, "the provided ID should have UUID format")
+	ErrIDNull    = httpError.NewHttpAppError(http.StatusBadRequest, "the provided ID is null UUID")
 )
+
+type UUID struct {
+	id string
+}
 
 func NewUUID(id string) (UUID, error) {
 	if err := validateID(id); err != nil {
@@ -21,11 +26,11 @@ func NewUUID(id string) (UUID, error) {
 }
 
 func GenUUID() string {
-	uuid, err := uuid.NewRandom()
+	id, err := uuid.NewRandom()
 	if err != nil {
 		return ""
 	}
-	return uuid.String()
+	return id.String()
 }
 
 func (u UUID) ID() string {

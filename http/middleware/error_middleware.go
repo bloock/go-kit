@@ -24,7 +24,6 @@ func errorMiddleware(errType gin.ErrorType) gin.HandlerFunc {
 			case errors.HttpAppError:
 				parsedError = err.(errors.HttpAppError)
 			default:
-
 				parsedError = errors.NewHttpAppError(http.StatusInternalServerError, "Internal Server Error")
 			}
 
