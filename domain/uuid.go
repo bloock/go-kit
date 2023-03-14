@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"fmt"
 	httpError "github.com/bloock/go-kit/errors"
 	"net/http"
 
@@ -20,7 +19,7 @@ type UUID struct {
 
 func NewUUID(id string) (UUID, error) {
 	if err := validateID(id); err != nil {
-		return UUID{}, fmt.Errorf("NewUUID: %w", err)
+		return UUID{}, err
 	}
 	return UUID{id: id}, nil
 }

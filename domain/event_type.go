@@ -15,6 +15,7 @@ var (
 	node             = "node"
 	dataAvailability = "data-availability"
 	keys             = "keys"
+	identity         = "identity"
 )
 
 // Actions
@@ -178,6 +179,12 @@ var (
 
 	email     = "email"
 	SendEmail = newEvent(notifications, email, "send", newEventArgs{})
+)
+
+// Identity events
+var (
+	credential          = "credential"
+	CredentialConfirmed = newEvent(identity, credential, "confirmed", newEventArgs{})
 )
 
 type newEventArgs struct {
