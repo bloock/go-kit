@@ -1,11 +1,37 @@
 package event_entity
 
 type CredentialConfirmed struct {
-	Payload interface{}
+	ThreadID string                 `json:"thid"`
+	Body     ClaimOfferBodyResponse `json:"body"`
+	From     string                 `json:"from"`
+	To       string                 `json:"to"`
 }
 
-func NewCredentialConfirmedEventEntity(payload interface{}) CredentialConfirmed {
+type ClaimOfferBodyResponse struct {
+	URL         string            `json:"url"`
+	Credentials []CredentialOffer `json:"credentials"`
+}
+
+type CredentialOffer struct {
+	ID          string `json:"id"`
+	Description string `json:"description"`
+}
+
+func NewCredentialConfirmedEventEntity(threadID, from, to string, url string, id string, description string) CredentialConfirmed {
+	credOffer := CredentialOffer{
+		ID: id,
+		Description: description,
+	}
+
+	body := ClaimOfferBodyResponse{
+		URL: url,
+		Credentials: []CredentialOffer{credOffer},
+	}
+
 	return CredentialConfirmed{
-		Payload: payload,
+		ThreadID: threadID,
+		Body: body,
+		From: from,
+		To: to,
 	}
 }
