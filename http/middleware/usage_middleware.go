@@ -1,11 +1,11 @@
 package middleware
 
 import (
+	"errors"
 	"fmt"
-	"net/http"
-
 	"github.com/bloock/go-kit/auth"
 	"github.com/bloock/go-kit/cache"
+	httpError "github.com/bloock/go-kit/errors"
 	"github.com/bloock/go-kit/observability"
 	"github.com/gin-gonic/gin"
 )
@@ -45,9 +45,8 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			var claims auth.JWTClaims
 			err := auth.DecodeJWTUnverified(jwtToken, &claims)
 			if err != nil {
+				_ = c.Error(httpError.ErrUnauthorized(errors.New("invalid token provided")))
 				u.logger.Error(c).Err(err).Msg("")
-				c.Writer.WriteHeader(http.StatusUnauthorized)
-				c.Writer.Write([]byte("invalid token provided"))
 				c.Abort()
 				return
 			}
@@ -60,9 +59,8 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 
 		limit, err := u.redis.GetInt(c, keyLimit)
 		if err != nil {
+			_ = c.Error(httpError.ErrUnexpected(fmt.Errorf("redis error: %s", err.Error())))
 			u.logger.Error(c).Err(err).Msg("")
-			c.Writer.WriteHeader(http.StatusInternalServerError)
-			c.Writer.Write([]byte(fmt.Sprintf("redis error: %s", err.Error())))
 			c.Abort()
 			return
 		}
@@ -72,17 +70,15 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 
 		consumed, err := u.redis.GetInt(c, key)
 		if err != nil {
+			_ = c.Error(httpError.ErrUnexpected(fmt.Errorf("redis error: %s", err.Error())))
 			u.logger.Error(c).Err(err).Msg("")
-			c.Writer.WriteHeader(http.StatusInternalServerError)
-			c.Writer.Write([]byte(fmt.Sprintf("redis error: %s", err.Error())))
 			c.Abort()
 			return
 		}
 
 		if consumed >= limit {
+			_ = c.Error(httpError.ErrUnauthorized(errors.New("limit consumed")))
 			u.logger.Error(c).Err(err).Msg("")
-			c.Writer.WriteHeader(http.StatusUnauthorized)
-			c.Writer.Write([]byte("limit consumed"))
 			c.Abort()
 			return
 		}

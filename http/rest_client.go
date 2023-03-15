@@ -4,7 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
+	httpError "github.com/bloock/go-kit/errors"
 	"io"
 	"net/http"
 
@@ -33,7 +33,7 @@ func (r RestClient) Get(ctx context.Context, url string, response interface{}) e
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return errors.New("invalid status code")
+		return httpError.NewHttpAppError(resp.StatusCode, resp.Status)
 	}
 
 	err = json.Unmarshal(respByte, &response)
@@ -70,7 +70,7 @@ func (r RestClient) Post(ctx context.Context, url string, body interface{}, resp
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return errors.New(resp.Status)
+		return httpError.NewHttpAppError(resp.StatusCode, resp.Status)
 	}
 
 	err = json.Unmarshal(respByte, &response)
@@ -111,7 +111,7 @@ func (r RestClient) PostWithHeaders(ctx context.Context, url string, body, respo
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return errors.New(resp.Status)
+		return httpError.NewHttpAppError(resp.StatusCode, resp.Status)
 	}
 
 	err = json.Unmarshal(respByte, &response)
@@ -152,7 +152,7 @@ func (r RestClient) Delete(ctx context.Context, url string, body interface{}, re
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return errors.New("invalid status code")
+		return httpError.NewHttpAppError(resp.StatusCode, resp.Status)
 	}
 
 	err = json.Unmarshal(respByte, &response)

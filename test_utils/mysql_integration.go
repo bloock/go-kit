@@ -31,7 +31,7 @@ func (l Logger) Print(v ...interface{}) {
 			return
 		}
 	}
-	log.Println(v)
+	log.Println(v...)
 }
 
 var mysqlClient *client.MysqlClient

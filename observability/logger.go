@@ -66,7 +66,7 @@ func (l *Logger) Warn(ctx context.Context) *zerolog.Event {
 }
 
 func (l *Logger) Printf(format string, args ...interface{}) {
-	l.underlying.Printf(format, args)
+	l.underlying.Printf(format, args...)
 }
 
 func (l *Logger) With() zerolog.Context {

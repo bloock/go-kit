@@ -3,6 +3,7 @@ package errors
 import (
 	"database/sql"
 	"errors"
+	"fmt"
 	"net/http"
 )
 
@@ -26,7 +27,11 @@ func ErrForbidden(err error) HttpAppError {
 	return NewHttpAppError(http.StatusForbidden, err.Error())
 }
 
-func WrapRepositoryError(err error) HttpAppError {
+func ErrComponentNotFound(component string) HttpAppError {
+	return NewHttpAppError(http.StatusNotFound, fmt.Sprintf("%s not found", component))
+}
+
+func WrapSqlRepositoryError(err error) HttpAppError {
 	switch {
 	case errors.Is(err, sql.ErrNoRows):
 		return ErrNotFound

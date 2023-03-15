@@ -2,6 +2,7 @@ package pagination
 
 import (
 	"fmt"
+	httpError "github.com/bloock/go-kit/errors"
 
 	"github.com/gin-gonic/gin"
 )
@@ -17,15 +18,18 @@ func NewPaginationQuery(ctx *gin.Context) (PaginationQuery, error) {
 	var pq PaginationQuery
 	err := ctx.BindQuery(&pq)
 	if err != nil {
+		err = httpError.ErrInvalidBodyJSON(err)
 		return PaginationQuery{}, err
 	}
 
 	if pq.Page < FirstPage {
-		return PaginationQuery{}, fmt.Errorf("page number should be bigger than %d", FirstPage)
+		err = httpError.ErrInvalidBodyJSON(fmt.Errorf("page number should be bigger than %d", FirstPage))
+		return PaginationQuery{}, err
 	}
 
 	if pq.PerPage < 1 {
-		return PaginationQuery{}, fmt.Errorf("per page value should be bigger than 1")
+		err = httpError.ErrInvalidBodyJSON(fmt.Errorf("per page value should be bigger than 1"))
+		return PaginationQuery{}, err
 	}
 
 	return pq, nil
