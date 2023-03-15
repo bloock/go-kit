@@ -1,9 +1,9 @@
 package middleware
 
 import (
-	"net/http"
-
+	"errors"
 	"github.com/bloock/go-kit/auth"
+	httpError "github.com/bloock/go-kit/errors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -11,16 +11,14 @@ func AuthMiddleware(ability auth.Ability) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorizationHeader := c.Request.Header.Get(auth.AUTHORIZATION_HEADER)
 		if authorizationHeader == "" {
-			c.Writer.WriteHeader(http.StatusUnauthorized)
-			c.Writer.Write([]byte("no authorization header found"))
+			_ = c.Error(httpError.ErrUnauthorized(errors.New("no authorization header found")))
 			c.Abort()
 			return
 		}
 
 		jwtToken := auth.GetBearerToken(authorizationHeader)
 		if jwtToken == "" {
-			c.Writer.WriteHeader(http.StatusUnauthorized)
-			c.Writer.Write([]byte("invalid token provided"))
+			_ = c.Error(httpError.ErrUnauthorized(errors.New("invalid token provided")))
 			c.Abort()
 			return
 		}
@@ -28,8 +26,7 @@ func AuthMiddleware(ability auth.Ability) gin.HandlerFunc {
 		var claims auth.JWTClaims
 		err := auth.DecodeJWTUnverified(jwtToken, &claims)
 		if err != nil {
-			c.Writer.WriteHeader(http.StatusUnauthorized)
-			c.Writer.Write([]byte("invalid token content provided"))
+			_ = c.Error(httpError.ErrUnauthorized(errors.New("invalid token content provided")))
 			c.Abort()
 			return
 		}
@@ -43,8 +40,7 @@ func AuthMiddleware(ability auth.Ability) gin.HandlerFunc {
 			}
 		}
 
-		c.Writer.WriteHeader(http.StatusForbidden)
-		c.Writer.Write([]byte("action forbbiden"))
+		_ = c.Error(httpError.ErrForbidden(errors.New("action forbidden")))
 		c.Abort()
 	}
 }
