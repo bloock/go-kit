@@ -92,6 +92,16 @@ func (r Redis) Decr(ctx context.Context, key string) (int64, error) {
 	return res, nil
 }
 
+func (r Redis) DecrBy(ctx context.Context, key string, quantity int64) (int64, error) {
+	res, err := r.client.DecrBy(key, quantity).Result()
+	if err != nil {
+		r.logger.Error(ctx).Err(err).Msg("")
+		return res, err
+	}
+	return res, nil
+}
+
+
 func (r Redis) Get(ctx context.Context, key string) ([]byte, error) {
 	result, err := r.client.Get(key).Bytes()
 	if err == redis.Nil {

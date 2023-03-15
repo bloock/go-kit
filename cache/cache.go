@@ -13,6 +13,7 @@ type Cache interface {
 	Incr(ctx context.Context, key string) (int64, error)
 	IncrBy(ctx context.Context, key string, quantity int) (int64, error)
 	Decr(ctx context.Context, key string) (int64, error)
+	DecrBy(ctx context.Context, key string, quantity int64) (int64, error)
 	Get(ctx context.Context, key string) ([]byte, error)
 	GetInt(ctx context.Context, key string) (int, error)
 	Del(ctx context.Context, key string) error

@@ -50,6 +50,21 @@ func (mr *MockCacheMockRecorder) Decr(ctx, key interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Decr", reflect.TypeOf((*MockCache)(nil).Decr), ctx, key)
 }
 
+// DecrBy mocks base method.
+func (m *MockCache) DecrBy(ctx context.Context, key string, quantity int64) (int64, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DecrBy", ctx, key, quantity)
+	ret0, _ := ret[0].(int64)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DecrBy indicates an expected call of DecrBy.
+func (mr *MockCacheMockRecorder) DecrBy(ctx, key, quantity interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DecrBy", reflect.TypeOf((*MockCache)(nil).DecrBy), ctx, key, quantity)
+}
+
 // Del mocks base method.
 func (m *MockCache) Del(ctx context.Context, key string) error {
 	m.ctrl.T.Helper()
