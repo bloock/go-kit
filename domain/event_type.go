@@ -128,14 +128,11 @@ var (
 
 // Keys events
 var (
-	keysHSMWorker        = "keys_hsm_worker"
-	KeysHSMWorkerCreated = newEvent(keys, keysHSMWorker, create, newEventArgs{})
+	key        = "key"
+	KeyCreated = newEvent(keys, key, create, newEventArgs{})
 
-	keysSoftwareWorker        = "keys_software_worker"
-	KeysSoftwareWorkerCreated = newEvent(keys, keysSoftwareWorker, create, newEventArgs{})
-
-	keysTransactionWorker        = "keys_transaction_worker"
-	KeysTransactionWorkerCreated = newEvent(keys, keysTransactionWorker, create, newEventArgs{})
+	keyTransactions        = "key_transactions"
+	KeyTransactionsCreated = newEvent(keys, keyTransactions, create, newEventArgs{})
 
 	usageKeysHSMLimit        = "usage_keys_hsm_limit"
 	UsageKeysHSMLimitUpdated = newEvent(keys, usageKeysHSMLimit, update, newEventArgs{})

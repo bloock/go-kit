@@ -19,19 +19,19 @@ type CredentialOffer struct {
 
 func NewCredentialConfirmedEventEntity(threadID, from, to string, url string, id string, description string) CredentialConfirmed {
 	credOffer := CredentialOffer{
-		ID: id,
+		ID:          id,
 		Description: description,
 	}
 
 	body := ClaimOfferBodyResponse{
-		URL: url,
+		URL:         url,
 		Credentials: []CredentialOffer{credOffer},
 	}
 
 	return CredentialConfirmed{
 		ThreadID: threadID,
-		Body: body,
-		From: from,
-		To: to,
+		Body:     body,
+		From:     from,
+		To:       to,
 	}
 }
