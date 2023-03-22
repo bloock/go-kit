@@ -38,6 +38,8 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 	l := logger.SetLogger(
 		logger.WithSkipPath([]string{"/health"}),
 		logger.WithUTC(true),
+		logger.WithClientErrorLevel(zerolog.WarnLevel),
+		logger.WithServerErrorLevel(zerolog.ErrorLevel),
 		logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
 			return e.logger.Logger().With().
 				Int("status", c.Writer.Status()).
