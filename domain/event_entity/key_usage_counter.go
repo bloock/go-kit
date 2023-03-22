@@ -1,12 +1,12 @@
 package event_entity
 
-type KeyCreated struct {
+type KeyUsageCounter struct {
 	IssuerID      string `json:"issuer_id"`
 	KeyProtection int    `json:"key_protection"`
 }
 
-func NewKeyCreated(issuerID string, keyProtection int) KeyCreated {
-	return KeyCreated{
+func NewKeyUsageCounter(issuerID string, keyProtection int) KeyUsageCounter {
+	return KeyUsageCounter{
 		IssuerID:      issuerID,
 		KeyProtection: keyProtection,
 	}

@@ -1,12 +1,12 @@
 package event_entity
 
-type KeysTransactions struct {
+type KeyUsageTransaction struct {
 	Transacted int    `json:"transacted"`
 	IssuerID   string `json:"issuer_id"`
 }
 
-func NewKeysTransactions(transacted int, issuerID string) KeysTransactions {
-	return KeysTransactions{
+func NewKeyUsageTransaction(transacted int, issuerID string) KeyUsageTransaction {
+	return KeyUsageTransaction{
 		Transacted: transacted,
 		IssuerID:   issuerID,
 	}
