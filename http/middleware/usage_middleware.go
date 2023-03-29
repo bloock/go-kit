@@ -145,11 +145,12 @@ func (u UsageMiddleware) cacheMiss(ctx context.Context, key string) (int, error)
 	return cacheUsage.Value(), nil
 }
 
-func (u UsageMiddleware) incrementByKey(ctx context.Context, key string, newQuantity int) error {
+func (u UsageMiddleware) incrementByKey(ctx context.Context, key string, quantity int) error {
 	cacheUsage, err := u.usageRepository.FindValueByKey(ctx, key)
 	if err != nil {
 		return err
 	}
+	newQuantity := cacheUsage.Value() + quantity
 
 	if cacheUsage.Key() != "" {
 		updateCacheUsage := domain.NewCacheUsage(cacheUsage.Key(), newQuantity)
@@ -162,7 +163,7 @@ func (u UsageMiddleware) incrementByKey(ctx context.Context, key string, newQuan
 			return err
 		}
 	}
-	
+
 	return u.redis.Del(ctx, key)
 }
 
