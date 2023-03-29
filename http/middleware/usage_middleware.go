@@ -156,14 +156,14 @@ func (u UsageMiddleware) incrementByKey(ctx context.Context, key string, newQuan
 		if err = u.usageRepository.Update(ctx, updateCacheUsage); err != nil {
 			return err
 		}
+	} else {
+		newCacheUsage := domain.NewCacheUsage(key, newQuantity)
+		if err = u.usageRepository.Save(ctx, newCacheUsage); err != nil {
+			return err
+		}
 	}
-
-	newCacheUsage := domain.NewCacheUsage(key, newQuantity)
-	if err = u.usageRepository.Save(ctx, newCacheUsage); err != nil {
-		return err
-	}
-
-	return u.redis.Del(ctx, newCacheUsage.Key())
+	
+	return u.redis.Del(ctx, key)
 }
 
 func GenerateUsageLimitKey(clientID string, service string) string {
