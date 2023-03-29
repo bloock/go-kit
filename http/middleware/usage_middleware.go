@@ -70,9 +70,6 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			c.Abort()
 			return
 		}
-		if limit == -1 {
-			return
-		}
 		if limit == -2 {
 			limit, err = u.cacheMiss(c, keyLimit)
 			if err != nil {
@@ -80,6 +77,9 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 				c.Abort()
 				return
 			}
+		}
+		if limit == -1 {
+			return
 		}
 
 		consumed, err := u.redis.GetInt(c, key)
