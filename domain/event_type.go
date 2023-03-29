@@ -132,7 +132,7 @@ var (
 	KeyCounterCreated = newEvent(keys, keyCounter, create, newEventArgs{})
 	KeyCounterDeleted = newEvent(keys, keyCounter, delete, newEventArgs{})
 
-	keyTransaction       = "key_transaction"
+	keyTransaction        = "key_transaction"
 	KeyTransactionCreated = newEvent(keys, keyTransaction, create, newEventArgs{})
 
 	usageKeysHSMLimit        = "usage_keys_hsm_limit"
