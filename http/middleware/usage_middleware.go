@@ -52,7 +52,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			err := auth.DecodeJWTUnverified(jwtToken, &claims)
 			if err != nil {
 				_ = c.Error(httpError.ErrUnauthorized(errors.New("invalid token provided")))
-				u.logger.Error(c).Err(err).Msg("")
+				u.logger.Info(c).Err(err).Msg("")
 				c.Abort()
 				return
 			}
@@ -66,7 +66,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 		limit, err := u.redis.GetInt(c, keyLimit)
 		if err != nil {
 			_ = c.Error(err)
-			u.logger.Error(c).Err(err).Msg("")
+			u.logger.Info(c).Err(err).Msg("")
 			c.Abort()
 			return
 		}
@@ -85,7 +85,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 		consumed, err := u.redis.GetInt(c, key)
 		if err != nil {
 			_ = c.Error(err)
-			u.logger.Error(c).Err(err).Msg("")
+			u.logger.Info(c).Err(err).Msg("")
 			c.Abort()
 			return
 		}
@@ -100,7 +100,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 
 		if consumed >= limit {
 			_ = c.Error(httpError.ErrUnauthorized(errors.New("limit consumed")))
-			u.logger.Error(c).Err(err).Msg("")
+			u.logger.Info(c).Err(err).Msg("")
 			c.Abort()
 			return
 		}
@@ -126,7 +126,7 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 
 		err := u.incrementByKey(c, key, quantity)
 		if err != nil {
-			u.logger.Error(c).Err(err).Msg("")
+			u.logger.Info(c).Err(err).Msg("")
 			return
 		}
 	}
