@@ -14,7 +14,7 @@ type UsersUser struct {
 	Deleted     bool   `json:"deleted"`
 }
 
-func NewUserEventEntity(id, name, surname, email, password, verifyToken, business string, activated, deleted bool) UsersUser {
+func NewUserEventEntity(id, name, surname, email, password, verifyToken, business string, activated, deleted bool, country string, vatID string) UsersUser {
 	return UsersUser{
 		ID:          id,
 		Name:        name,
@@ -23,6 +23,8 @@ func NewUserEventEntity(id, name, surname, email, password, verifyToken, busines
 		Password:    password,
 		VerifyToken: verifyToken,
 		Business:    business,
+		Country:     country,
+		VatID:       vatID,
 		Activated:   activated,
 		Deleted:     deleted,
 	}
