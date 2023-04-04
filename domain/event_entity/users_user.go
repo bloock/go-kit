@@ -9,6 +9,8 @@ type UsersUser struct {
 	VerifyToken string `json:"verify_token"`
 	Business    string `json:"business"`
 	Activated   bool   `json:"activated"`
+	Country     string `json:"country"`
+	VatID       string `json:"vat_id"`
 	Deleted     bool   `json:"deleted"`
 }
 
