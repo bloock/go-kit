@@ -2,17 +2,14 @@ package test_utils
 
 import (
 	"context"
-	"log"
-	"os"
-	"runtime"
-	"testing"
-
 	"github.com/bloock/go-kit/client"
 	"github.com/bloock/go-kit/observability"
 	"github.com/go-sql-driver/mysql"
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/ory/dockertest/v3"
+	"log"
+	"runtime"
 )
 
 const (
@@ -36,11 +33,9 @@ func (l Logger) Print(v ...interface{}) {
 
 var mysqlClient *client.MysqlClient
 
-func SetupMysqlIntegrationTest(m *testing.M, testTimeout uint, migrationPath ...string) {
+func SetupMysqlIntegrationTest(testTimeout uint, migrationPath ...string) {
 	pool, resource := initDB(testTimeout, migrationPath...)
-	code := m.Run()
 	closeDB(pool, resource)
-	os.Exit(code)
 }
 
 func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *dockertest.Resource) {
