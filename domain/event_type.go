@@ -183,6 +183,9 @@ var (
 var (
 	credential          = "credential"
 	CredentialConfirmed = newEvent(identity, credential, "confirmed", newEventArgs{})
+
+	schemaDelete = "schema_delete"
+	SchemaDelete = newEvent(identity, schemaDelete, delete, newEventArgs{})
 )
 
 type newEventArgs struct {
