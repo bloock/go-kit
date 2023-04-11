@@ -9,7 +9,9 @@ import (
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/ory/dockertest/v3"
 	"log"
+	"os"
 	"runtime"
+	"testing"
 )
 
 const (
@@ -33,9 +35,11 @@ func (l Logger) Print(v ...interface{}) {
 
 var mysqlClient *client.MysqlClient
 
-func SetupMysqlIntegrationTest(testTimeout uint, migrationPath ...string) {
+func SetupMysqlIntegrationTest(m *testing.M, testTimeout uint, migrationPath ...string) {
 	pool, resource := initDB(testTimeout, migrationPath...)
+	code := m.Run()
 	closeDB(pool, resource)
+	os.Exit(code)
 }
 
 func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *dockertest.Resource) {
