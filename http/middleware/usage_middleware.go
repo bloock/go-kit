@@ -1,10 +1,12 @@
 package middleware
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"github.com/bloock/go-kit/auth"
 	"github.com/bloock/go-kit/cache"
+	"github.com/bloock/go-kit/domain"
 	httpError "github.com/bloock/go-kit/errors"
 	"github.com/bloock/go-kit/observability"
 	"github.com/gin-gonic/gin"
@@ -24,16 +26,20 @@ const (
 )
 
 type UsageMiddleware struct {
-	logger  observability.Logger
-	redis   cache.Cache
-	service string
+	logger          observability.Logger
+	redis           cache.Cache
+	usageRepository cache.CacheUsageRepository
+	service         string
 }
 
-func NewUsageMiddleware(l observability.Logger, redis cache.Cache, service string) UsageMiddleware {
+func NewUsageMiddleware(l observability.Logger, redis cache.Cache, cu cache.CacheUsageRepository, service string) UsageMiddleware {
+	l.UpdateLogger(l.With().Caller().Str("component", "usage-middleware").Logger())
+
 	return UsageMiddleware{
-		logger:  l,
-		redis:   redis,
-		service: service,
+		logger:          l,
+		redis:           redis,
+		usageRepository: cu,
+		service:         service,
 	}
 }
 
@@ -46,7 +52,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 			err := auth.DecodeJWTUnverified(jwtToken, &claims)
 			if err != nil {
 				_ = c.Error(httpError.ErrUnauthorized(errors.New("invalid token provided")))
-				u.logger.Error(c).Err(err).Msg("")
+				u.logger.Info(c).Err(err).Msg("")
 				c.Abort()
 				return
 			}
@@ -59,10 +65,18 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 
 		limit, err := u.redis.GetInt(c, keyLimit)
 		if err != nil {
-			_ = c.Error(httpError.ErrUnexpected(fmt.Errorf("redis error: %s", err.Error())))
-			u.logger.Error(c).Err(err).Msg("")
+			_ = c.Error(err)
+			u.logger.Info(c).Err(err).Msg("")
 			c.Abort()
 			return
+		}
+		if limit == -2 {
+			limit, err = u.cacheMiss(c, keyLimit)
+			if err != nil {
+				_ = c.Error(err)
+				c.Abort()
+				return
+			}
 		}
 		if limit == -1 {
 			return
@@ -70,15 +84,23 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 
 		consumed, err := u.redis.GetInt(c, key)
 		if err != nil {
-			_ = c.Error(httpError.ErrUnexpected(fmt.Errorf("redis error: %s", err.Error())))
-			u.logger.Error(c).Err(err).Msg("")
+			_ = c.Error(err)
+			u.logger.Info(c).Err(err).Msg("")
 			c.Abort()
 			return
+		}
+		if consumed == -2 {
+			consumed, err = u.cacheMiss(c, key)
+			if err != nil {
+				_ = c.Error(err)
+				c.Abort()
+				return
+			}
 		}
 
 		if consumed >= limit {
 			_ = c.Error(httpError.ErrUnauthorized(errors.New("limit consumed")))
-			u.logger.Error(c).Err(err).Msg("")
+			u.logger.Info(c).Err(err).Msg("")
 			c.Abort()
 			return
 		}
@@ -102,12 +124,47 @@ func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 			quantity = q.(int)
 		}
 
-		_, err := u.redis.IncrBy(c, key, quantity)
+		err := u.incrementByKey(c, key, quantity)
 		if err != nil {
-			u.logger.Error(c).Err(err).Msg("")
+			u.logger.Info(c).Err(err).Msg("")
 			return
 		}
 	}
+}
+
+func (u UsageMiddleware) cacheMiss(ctx context.Context, key string) (int, error) {
+	cacheUsage, err := u.usageRepository.GetValueByKey(ctx, key)
+	if err != nil {
+		return 0, err
+	}
+
+	if err = u.redis.SetInt(ctx, cacheUsage.Key(), cacheUsage.Value()); err != nil {
+		return 0, err
+	}
+
+	return cacheUsage.Value(), nil
+}
+
+func (u UsageMiddleware) incrementByKey(ctx context.Context, key string, quantity int) error {
+	cacheUsage, err := u.usageRepository.FindValueByKey(ctx, key)
+	if err != nil {
+		return err
+	}
+	newQuantity := cacheUsage.Value() + quantity
+
+	if cacheUsage.Key() != "" {
+		updateCacheUsage := domain.NewCacheUsage(cacheUsage.Key(), newQuantity)
+		if err = u.usageRepository.Update(ctx, updateCacheUsage); err != nil {
+			return err
+		}
+	} else {
+		newCacheUsage := domain.NewCacheUsage(key, newQuantity)
+		if err = u.usageRepository.Save(ctx, newCacheUsage); err != nil {
+			return err
+		}
+	}
+
+	return u.redis.Del(ctx, key)
 }
 
 func GenerateUsageLimitKey(clientID string, service string) string {
