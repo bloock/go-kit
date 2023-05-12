@@ -12,15 +12,15 @@ var ErrInvalidKeyProtection = errors.NewHttpAppError(http.StatusBadRequest, "key
 
 const (
 	SoftwareProtected KeyProtection = iota
-	HSMProtected
+	//HSMProtected
 )
 
 func NewKeyProtection(_type int) (KeyProtection, error) {
 	switch _type {
 	case 1:
 		return SoftwareProtected, nil
-	case 2:
-		return HSMProtected, nil
+	/*case 2:
+		return HSMProtected, nil*/
 	default:
 		return -1, ErrInvalidKeyProtection
 	}
@@ -30,8 +30,8 @@ func (k KeyProtection) Int() int {
 	switch k {
 	case SoftwareProtected:
 		return 1
-	case HSMProtected:
-		return 2
+		/*case HSMProtected:
+		return 2*/
 	default:
 		return 0
 	}
