@@ -99,7 +99,7 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 		}
 
 		if consumed >= limit {
-			_ = c.Error(httpError.ErrUnauthorized(errors.New("limit consumed")))
+			_ = c.Error(httpError.ErrForbidden(errors.New("limit consumed")))
 			u.logger.Info(c).Err(err).Msg("")
 			c.Abort()
 			return
