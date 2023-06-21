@@ -27,17 +27,25 @@ type GinRuntime struct {
 	logger         observability.Logger
 }
 
-func NewGinRuntime(name string, c *client.GinEngine, shutdownTime time.Duration, vm *pinned.VersionManager, l observability.Logger) (*GinRuntime, error) {
-	vm = &pinned.VersionManager{
+func NewVersionedGinRuntime(name string, c *client.GinEngine, shutdownTime time.Duration, vm *pinned.VersionManager, l observability.Logger) (*GinRuntime, error) {
+
+	runtime, err := NewGinRuntime(name, c, shutdownTime, l)
+	if err != nil {
+		return nil, err
+	}
+	runtime.versionManager = &pinned.VersionManager{
 		Layout: vm.Layout,
 		Header: api_version_header,
 	}
+
+	return runtime, nil
+}
+func NewGinRuntime(name string, c *client.GinEngine, shutdownTime time.Duration, l observability.Logger) (*GinRuntime, error) {
 	e := GinRuntime{
-		name:           name,
-		client:         c,
-		shutdownTime:   shutdownTime,
-		versionManager: vm,
-		logger:         l,
+		name:         name,
+		client:       c,
+		shutdownTime: shutdownTime,
+		logger:       l,
 	}
 
 	return &e, nil

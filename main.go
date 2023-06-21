@@ -42,7 +42,7 @@ func main() {
 		Layout: "2006-01-02",
 	}
 
-	ginRuntime, err := runtime.NewGinRuntime("service-gin", ginClient, 5*time.Second, vm, l)
+	ginRuntime, err := runtime.NewVersionedGinRuntime("service-gin", ginClient, 5*time.Second, vm, l)
 	if err != nil {
 		panic(err.Error())
 	}
