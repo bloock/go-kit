@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"context"
+	pinned "github.com/bloock/go-kit/http/versioning"
 	"io"
 	"net/http"
 	"time"
@@ -16,25 +17,34 @@ import (
 	gintrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gin-gonic/gin"
 )
 
+var api_version_header = "api_version"
+
 type GinRuntime struct {
-	name         string
-	client       *client.GinEngine
-	shutdownTime time.Duration
-	logger       observability.Logger
+	name           string
+	client         *client.GinEngine
+	shutdownTime   time.Duration
+	versionManager *pinned.VersionManager
+	logger         observability.Logger
 }
 
-func NewGinRuntime(name string, c *client.GinEngine, shutdownTime time.Duration, l observability.Logger) (*GinRuntime, error) {
+func NewGinRuntime(name string, c *client.GinEngine, shutdownTime time.Duration, vm *pinned.VersionManager, l observability.Logger) (*GinRuntime, error) {
+	vm = &pinned.VersionManager{
+		Layout: vm.Layout,
+		Header: api_version_header,
+	}
 	e := GinRuntime{
-		name:         name,
-		client:       c,
-		shutdownTime: shutdownTime,
-		logger:       l,
+		name:           name,
+		client:         c,
+		shutdownTime:   shutdownTime,
+		versionManager: vm,
+		logger:         l,
 	}
 
 	return &e, nil
 }
 
 func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
+
 	l := logger.SetLogger(
 		logger.WithSkipPath([]string{"/health"}),
 		logger.WithUTC(true),
@@ -64,6 +74,7 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 }
 
 func (e *GinRuntime) Run(ctx context.Context) {
+
 	srv := &http.Server{
 		Addr:    e.client.Addr(),
 		Handler: e.client.Engine(),
