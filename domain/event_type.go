@@ -80,6 +80,9 @@ var (
 	usageRecord        = "usage_record"
 	UsageRecordUpdated = newEvent(core, usageRecord, update, newEventArgs{})
 	UsageRecordDeleted = newEvent(core, usageRecord, delete, newEventArgs{})
+
+	sendRecord = "send_record"
+	RecordSent = newEvent(core, sendRecord, create, newEventArgs{})
 )
 
 // Node events
