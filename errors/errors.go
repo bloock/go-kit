@@ -1,10 +1,9 @@
 package errors
 
 import (
-	"database/sql"
-	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 var (
@@ -33,7 +32,7 @@ func ErrComponentNotFound(component string) HttpAppError {
 
 func WrapSqlRepositoryError(err error) HttpAppError {
 	switch {
-	case errors.Is(err, sql.ErrNoRows):
+	case strings.Contains(err.Error(), "no rows in result set") :
 		return ErrNotFound
 	default:
 		return ErrUnexpected(err)
