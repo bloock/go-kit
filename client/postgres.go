@@ -20,7 +20,7 @@ type PostgresSQLClient struct {
 func NewPostgresClient(ctx context.Context, user, pass, host, port, dbName string, ssl bool, connOpts *SQLConnOpts, l observability.Logger) (*PostgresSQLClient, error) {
 	sqlbuilder.DefaultFlavor = sqlbuilder.PostgreSQL
 	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "postgres").Logger())
-	sslMode := "disabled"
+	sslMode := "disable"
 	if ssl {
 		sslMode = "enabled"
 	}
