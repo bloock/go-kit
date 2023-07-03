@@ -16,6 +16,7 @@ require (
 	github.com/huandu/go-sqlbuilder v1.13.0
 	github.com/icza/bitio v1.0.0
 	github.com/kelseyhightower/envconfig v1.4.0
+	github.com/lib/pq v1.10.2
 	github.com/ory/dockertest/v3 v3.9.1
 	github.com/rabbitmq/amqp091-go v1.7.0
 	github.com/rs/zerolog v1.26.1

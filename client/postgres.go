@@ -5,26 +5,30 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/bloock/go-kit/observability"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/golang-migrate/migrate/v4"
-	"github.com/golang-migrate/migrate/v4/database/mysql"
+	"github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
 	"github.com/huandu/go-sqlbuilder"
+	_ "github.com/lib/pq"
 )
 
-type MysqlClient struct {
+type PostgresSQLClient struct {
 	db     *sql.DB
 	logger observability.Logger
 }
 
-func NewMysqlClient(ctx context.Context, user, pass, host, port, dbName string, tls bool, connOpts *SQLConnOpts, l observability.Logger) (*MysqlClient, error) {
-	sqlbuilder.DefaultFlavor = sqlbuilder.MySQL
-	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "mysql").Logger())
+func NewPostgresClient(ctx context.Context, user, pass, host, port, dbName string, ssl bool, connOpts *SQLConnOpts, l observability.Logger) (*PostgresSQLClient, error) {
+	sqlbuilder.DefaultFlavor = sqlbuilder.PostgreSQL
+	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "postgres").Logger())
+	sslMode := "disabled"
+	if ssl {
+		sslMode = "enabled"
+	}
 
-	mysqlURI := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?tls=%t&charset=utf8&parseTime=True", user, pass, host, port, dbName, tls)
-	db, err := sql.Open("mysql", mysqlURI)
+	postgresURI := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", user, pass, host, port, dbName, sslMode)
+	db, err := sql.Open("postgres", postgresURI)
 	if err != nil {
-		l.Error(ctx).Msgf("error opening mysql on uri %s: %s", mysqlURI, err.Error())
+		l.Error(ctx).Msgf("error opening postgres on uri %s: %s", postgresURI, err.Error())
 		return nil, err
 	}
 
@@ -32,24 +36,24 @@ func NewMysqlClient(ctx context.Context, user, pass, host, port, dbName string, 
 	db.SetMaxOpenConns(connOpts.MaxOpenConns)
 	db.SetMaxIdleConns(connOpts.MaxIdleConns)
 
-	return &MysqlClient{
+	return &PostgresSQLClient{
 		db:     db,
 		logger: l,
 	}, nil
 }
 
-func (c MysqlClient) DB() *sql.DB {
+func (c PostgresSQLClient) DB() *sql.DB {
 	return c.db
 }
 
-func (c MysqlClient) MigrateUp(ctx context.Context, path string) error {
-	driver, err := mysql.WithInstance(c.db, &mysql.Config{})
+func (c PostgresSQLClient) MigrateUp(ctx context.Context, path string) error {
+	driver, err := postgres.WithInstance(c.db, &postgres.Config{})
 	if err != nil {
 		return err
 	}
 	m, err := migrate.NewWithDatabaseInstance(
 		fmt.Sprintf("file://%s", path),
-		"mysql",
+		"postgres",
 		driver,
 	)
 	if err != nil {
