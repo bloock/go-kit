@@ -10,28 +10,28 @@ import (
 	"github.com/huandu/go-sqlbuilder"
 )
 
-type MysqlCrudRepository struct {
-	client    *client.MysqlClient
+type PostgresCrudRepository struct {
+	client    *client.PostgresSQLClient
 	table     string
 	sqlStruct *sqlbuilder.Struct
 }
 
-func NewMysqlCrudRepository(client *client.MysqlClient, table string, sqlStruct *sqlbuilder.Struct) MysqlCrudRepository {
-	return MysqlCrudRepository{
+func NewPostgresCrudRepository(client *client.PostgresSQLClient, table string, sqlStruct *sqlbuilder.Struct) PostgresCrudRepository {
+	return PostgresCrudRepository{
 		client:    client,
 		table:     table,
 		sqlStruct: sqlStruct,
 	}
 }
 
-func (r MysqlCrudRepository) Create(value interface{}) error {
+func (r PostgresCrudRepository) Create(value interface{}) error {
 	query, args := r.sqlStruct.InsertInto(r.table, value).Build()
 
 	_, err := r.client.DB().Exec(query, args...)
 	return err
 }
 
-func (r MysqlCrudRepository) List(res interface{}) error {
+func (r PostgresCrudRepository) List(res interface{}) error {
 	sb := r.sqlStruct.SelectFrom(r.table)
 	query, args := sb.Build()
 
@@ -48,11 +48,11 @@ func (r MysqlCrudRepository) List(res interface{}) error {
 	return nil
 }
 
-func (r MysqlCrudRepository) Retrieve(id int, columnName string, res interface{}) error {
+func (r PostgresCrudRepository) Retrieve(id int, columnName string, res interface{}) error {
 	return r.RetrieveString(strconv.Itoa(id), columnName, res)
 }
 
-func (r MysqlCrudRepository) RetrieveString(id string, columnName string, res interface{}) error {
+func (r PostgresCrudRepository) RetrieveString(id string, columnName string, res interface{}) error {
 	sb := r.sqlStruct.SelectFrom(r.table)
 	query, args := sb.Where(sb.Equal(columnName, id)).Build()
 
@@ -69,7 +69,7 @@ func (r MysqlCrudRepository) RetrieveString(id string, columnName string, res in
 	return nil
 }
 
-func (r MysqlCrudRepository) Update(id int, columnName string, value interface{}) error {
+func (r PostgresCrudRepository) Update(id int, columnName string, value interface{}) error {
 	ub := r.sqlStruct.Update(r.table, value)
 	ub.Where(ub.Equal(columnName, id))
 	query, args := ub.Build()
@@ -78,7 +78,7 @@ func (r MysqlCrudRepository) Update(id int, columnName string, value interface{}
 	return err
 }
 
-func (r MysqlCrudRepository) Delete(id int, columnName string) error {
+func (r PostgresCrudRepository) Delete(id int, columnName string) error {
 	db := r.sqlStruct.DeleteFrom(r.table)
 	query, args := db.Where(db.Equal(columnName, id)).Build()
 
@@ -86,7 +86,7 @@ func (r MysqlCrudRepository) Delete(id int, columnName string) error {
 	return err
 }
 
-func (r MysqlCrudRepository) Truncate() error {
+func (r PostgresCrudRepository) Truncate() error {
 	if _, err := r.client.DB().Exec("SET FOREIGN_KEY_CHECKS = 0"); err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (r MysqlCrudRepository) Truncate() error {
 	return nil
 }
 
-func (r MysqlCrudRepository) decodeSlice(rows *sql.Rows, res interface{}) error {
+func (r PostgresCrudRepository) decodeSlice(rows *sql.Rows, res interface{}) error {
 	resultsVal := reflect.ValueOf(res)
 	if resultsVal.Kind() != reflect.Ptr {
 		return fmt.Errorf("results argument must be a pointer to a slice, but was a %s", resultsVal.Kind())
@@ -142,7 +142,7 @@ func (r MysqlCrudRepository) decodeSlice(rows *sql.Rows, res interface{}) error 
 	return nil
 }
 
-func (r MysqlCrudRepository) decodeObject(row *sql.Row, res interface{}) error {
+func (r PostgresCrudRepository) decodeObject(row *sql.Row, res interface{}) error {
 	resultVal := reflect.ValueOf(res)
 	if resultVal.Kind() != reflect.Ptr {
 		return fmt.Errorf("results argument must be a pointer to a slice, but was a %s", resultVal.Kind())

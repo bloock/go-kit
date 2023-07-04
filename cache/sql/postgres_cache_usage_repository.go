@@ -1,4 +1,4 @@
-package mysql
+package sql
 
 import (
 	"context"
@@ -11,17 +11,17 @@ import (
 	"time"
 )
 
-type MysqlCacheUsageRepository struct {
+type PostgresCacheUsageRepository struct {
 	db        *sql.DB
 	dbTimeout time.Duration
 	logger    observability.Logger
 	service   string
 }
 
-func NewMysqlCacheUsageRepository(db *sql.DB, dbTimeout time.Duration, l observability.Logger, service string) *MysqlCacheUsageRepository {
-	l.UpdateLogger(l.With().Caller().Str("component", "cache-usage-mysql").Logger())
+func NewPostgresCacheUsageRepository(db *sql.DB, dbTimeout time.Duration, l observability.Logger, service string) *PostgresCacheUsageRepository {
+	l.UpdateLogger(l.With().Caller().Str("component", "cache-usage-postgres").Logger())
 
-	return &MysqlCacheUsageRepository{
+	return &PostgresCacheUsageRepository{
 		db:        db,
 		dbTimeout: dbTimeout,
 		logger:    l,
@@ -51,12 +51,12 @@ func MapToCacheUsage(u SqlCacheUsage) domain.CacheUsage {
 	return domain.NewCacheUsage(u.Key, u.Value)
 }
 
-func (c MysqlCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage) error {
+func (c PostgresCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage, schema string) error {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.save", c.service))
 	defer span.Finish()
 
 	cacheSqlStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
-	query, args := cacheSqlStruct.InsertInto(SqlCacheUsageTable, MapToSqlCacheUsage(usage)).Build()
+	query, args := cacheSqlStruct.InsertInto(fmt.Sprintf("%s.%s", schema, SqlCacheUsageTable), MapToSqlCacheUsage(usage)).Build()
 
 	ctxTimeout, cancel := context.WithTimeout(ctx, c.dbTimeout)
 	defer cancel()
@@ -69,12 +69,12 @@ func (c MysqlCacheUsageRepository) Save(ctx context.Context, usage domain.CacheU
 	return err
 }
 
-func (c MysqlCacheUsageRepository) GetValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
+func (c PostgresCacheUsageRepository) GetValueByKey(ctx context.Context, key string, schema string) (domain.CacheUsage, error) {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.get-value-by-key", c.service))
 	defer span.Finish()
 
 	cacheSQLStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
-	sb := cacheSQLStruct.SelectFrom(SqlCacheUsageTable)
+	sb := cacheSQLStruct.SelectFrom(fmt.Sprintf("%s.%s", schema, SqlCacheUsageTable))
 	sb = sb.Where(sb.Equal("_key", key))
 	query, args := sb.Build()
 
@@ -93,12 +93,12 @@ func (c MysqlCacheUsageRepository) GetValueByKey(ctx context.Context, key string
 	return MapToCacheUsage(cc), nil
 }
 
-func (c MysqlCacheUsageRepository) FindValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
+func (c PostgresCacheUsageRepository) FindValueByKey(ctx context.Context, key string, schema string) (domain.CacheUsage, error) {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.find-value-by-key", c.service))
 	defer span.Finish()
 
 	cacheSQLStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
-	sb := cacheSQLStruct.SelectFrom(SqlCacheUsageTable)
+	sb := cacheSQLStruct.SelectFrom(fmt.Sprintf("%s.%s", schema, SqlCacheUsageTable))
 	sb = sb.Where(sb.Equal("_key", key))
 	query, args := sb.Build()
 
@@ -126,12 +126,12 @@ func (c MysqlCacheUsageRepository) FindValueByKey(ctx context.Context, key strin
 	return domain.CacheUsage{}, nil
 }
 
-func (c MysqlCacheUsageRepository) Update(ctx context.Context, usage domain.CacheUsage) error {
+func (c PostgresCacheUsageRepository) Update(ctx context.Context, usage domain.CacheUsage, schema string) error {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.update", c.service))
 	defer span.Finish()
 
 	ub := sqlbuilder.NewUpdateBuilder()
-	ub.Update(SqlCacheUsageTable).Set(ub.Assign("value", usage.Value()),
+	ub.Update(fmt.Sprintf("%s.%s", schema, SqlCacheUsageTable)).Set(ub.Assign("value", usage.Value()),
 		ub.Assign("updated_at", time.Now())).
 		Where(ub.In("_key", usage.Key()))
 	query, args := ub.Build()

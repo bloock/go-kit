@@ -11,6 +11,7 @@ import (
 	"github.com/ory/dockertest/v3/docker"
 	"log"
 	"strings"
+	"time"
 )
 
 var StartDefaultMysqlContainer = func(ctx context.Context) error {
@@ -105,7 +106,11 @@ func (mc MysqlDockerContainer) StartContainer(ctx context.Context) error {
 	}
 	if err := pool.Retry(func() error {
 		mysqlClient, err := client.NewMysqlClient(ctx, mc.User, mc.Password, mc.Host,
-			mc.ExposedPorts[0], mc.DBName, false, observability.Logger{})
+			mc.ExposedPorts[0], mc.DBName, false, &client.SQLConnOpts{
+				MaxConnLifeTime: 5 * time.Minute,
+				MaxOpenConns:    10,
+				MaxIdleConns:    10,
+			}, observability.Logger{})
 		if err != nil {
 			return err
 		}

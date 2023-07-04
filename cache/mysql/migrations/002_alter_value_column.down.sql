@@ -1,1 +1,0 @@
-ALTER TABLE cache_usage Modify column value INT NOT NULL;

@@ -5,19 +5,20 @@ import (
 	"github.com/bloock/go-kit/client"
 	"github.com/bloock/go-kit/observability"
 	"github.com/go-sql-driver/mysql"
-	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+	_ "github.com/lib/pq"
 	"github.com/ory/dockertest/v3"
 	"log"
 	"os"
 	"runtime"
 	"testing"
+	"time"
 )
 
 const (
-	containerName = "mysql_integration_test"
-	imageName     = "mysql"
-	imageTag      = "8.0.22"
+	containerName = "postgres_integration_test"
+	imageName     = "postgres"
+	imageTag      = "11"
 )
 
 type Logger struct {
@@ -33,9 +34,9 @@ func (l Logger) Print(v ...interface{}) {
 	log.Println(v...)
 }
 
-var mysqlClient *client.MysqlClient
+var postgresSQLClient *client.PostgresSQLClient
 
-func SetupMysqlIntegrationTest(m *testing.M, testTimeout uint, migrationPath ...string) {
+func SetupPostgresIntegrationTest(m *testing.M, testTimeout uint, migrationPath ...string) {
 	pool, resource := initDB(testTimeout, migrationPath...)
 	code := m.Run()
 	closeDB(pool, resource)
@@ -65,8 +66,8 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 		Repository: imageName,
 		Tag:        imageTag,
 		Env: []string{
-			"MYSQL_ROOT_PASSWORD=test",
-			"MYSQL_DATABASE=test",
+			"POSTGRES_USER=test",
+			"POSTGRES_PASSWORD=test",
 		},
 		Platform: platform,
 	}
@@ -78,19 +79,23 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 	resource.Expire(testTimeout)
 
 	if err := pool.Retry(func() error {
-		mysqlClient, err = client.NewMysqlClient(ctx, "root", "test", "localhost",
-			resource.GetPort("3306/tcp"), "test", false, observability.Logger{})
+		postgresSQLClient, err = client.NewPostgresClient(ctx, "test", "test", "localhost",
+			resource.GetPort("3306/tcp"), "test", false, &client.SQLConnOpts{
+				MaxConnLifeTime: 5 * time.Minute,
+				MaxOpenConns:    1,
+				MaxIdleConns:    1,
+			}, observability.Logger{})
 		if err != nil {
 			return err
 		}
 
-		return mysqlClient.DB().Ping()
+		return postgresSQLClient.DB().Ping()
 	}); err != nil {
 		log.Fatalf("Could not connect to database: %s", err)
 	}
 
 	for _, mp := range migrationPath {
-		if err = mysqlClient.MigrateUp(ctx, mp); err != nil {
+		if err = postgresSQLClient.MigrateUp(ctx, mp); err != nil {
 			log.Fatalf("%s", err.Error())
 		}
 	}
@@ -104,6 +109,6 @@ func closeDB(pool *dockertest.Pool, resource *dockertest.Resource) {
 	}
 }
 
-func GetMysqlClient() *client.MysqlClient {
-	return mysqlClient
+func GetMysqlClient() *client.PostgresSQLClient {
+	return postgresSQLClient
 }

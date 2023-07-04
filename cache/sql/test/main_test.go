@@ -6,5 +6,5 @@ import (
 )
 
 func TestMain(m *testing.M) {
-	test_utils.SetupMysqlIntegrationTest(m, 120, "../migrations")
+	test_utils.SetupPostgresIntegrationTest(m, 120, "../migrations")
 }
