@@ -6,10 +6,10 @@ import (
 )
 
 type CacheUsageRepository interface {
-	Save(ctx context.Context, usage domain.CacheUsage, schema string) error
+	Save(ctx context.Context, usage domain.CacheUsage) error
 
-	GetValueByKey(ctx context.Context, key string, schema string) (domain.CacheUsage, error)
-	FindValueByKey(ctx context.Context, key string, schema string) (domain.CacheUsage, error)
+	GetValueByKey(ctx context.Context, key string) (domain.CacheUsage, error)
+	FindValueByKey(ctx context.Context, key string) (domain.CacheUsage, error)
 
-	Update(ctx context.Context, usage domain.CacheUsage, schema string) error
+	Update(ctx context.Context, usage domain.CacheUsage) error
 }

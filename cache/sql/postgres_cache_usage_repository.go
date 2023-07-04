@@ -11,6 +11,9 @@ import (
 	"time"
 )
 
+const CACHE_USAGE_TABLE = "cache_usage"
+const CACHE_SCHEMA = "cache"
+
 type PostgresCacheUsageRepository struct {
 	db        *sql.DB
 	dbTimeout time.Duration
@@ -28,8 +31,6 @@ func NewPostgresCacheUsageRepository(db *sql.DB, dbTimeout time.Duration, l obse
 		service:   service,
 	}
 }
-
-const SqlCacheUsageTable = "cache_usage"
 
 type SqlCacheUsage struct {
 	Key       string    `db:"_key"`
@@ -51,12 +52,12 @@ func MapToCacheUsage(u SqlCacheUsage) domain.CacheUsage {
 	return domain.NewCacheUsage(u.Key, u.Value)
 }
 
-func (c PostgresCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage, schema string) error {
+func (c PostgresCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage) error {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.save", c.service))
 	defer span.Finish()
 
 	cacheSqlStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
-	query, args := cacheSqlStruct.InsertInto(fmt.Sprintf("%s.%s", schema, SqlCacheUsageTable), MapToSqlCacheUsage(usage)).Build()
+	query, args := cacheSqlStruct.InsertInto(fmt.Sprintf("%s.%s", CACHE_SCHEMA, CACHE_USAGE_TABLE), MapToSqlCacheUsage(usage)).Build()
 
 	ctxTimeout, cancel := context.WithTimeout(ctx, c.dbTimeout)
 	defer cancel()
@@ -69,12 +70,12 @@ func (c PostgresCacheUsageRepository) Save(ctx context.Context, usage domain.Cac
 	return err
 }
 
-func (c PostgresCacheUsageRepository) GetValueByKey(ctx context.Context, key string, schema string) (domain.CacheUsage, error) {
+func (c PostgresCacheUsageRepository) GetValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.get-value-by-key", c.service))
 	defer span.Finish()
 
 	cacheSQLStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
-	sb := cacheSQLStruct.SelectFrom(fmt.Sprintf("%s.%s", schema, SqlCacheUsageTable))
+	sb := cacheSQLStruct.SelectFrom(fmt.Sprintf("%s.%s", CACHE_SCHEMA, CACHE_USAGE_TABLE))
 	sb = sb.Where(sb.Equal("_key", key))
 	query, args := sb.Build()
 
@@ -93,12 +94,12 @@ func (c PostgresCacheUsageRepository) GetValueByKey(ctx context.Context, key str
 	return MapToCacheUsage(cc), nil
 }
 
-func (c PostgresCacheUsageRepository) FindValueByKey(ctx context.Context, key string, schema string) (domain.CacheUsage, error) {
+func (c PostgresCacheUsageRepository) FindValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.find-value-by-key", c.service))
 	defer span.Finish()
 
 	cacheSQLStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
-	sb := cacheSQLStruct.SelectFrom(fmt.Sprintf("%s.%s", schema, SqlCacheUsageTable))
+	sb := cacheSQLStruct.SelectFrom(fmt.Sprintf("%s.%s", CACHE_SCHEMA, CACHE_USAGE_TABLE))
 	sb = sb.Where(sb.Equal("_key", key))
 	query, args := sb.Build()
 
@@ -126,12 +127,12 @@ func (c PostgresCacheUsageRepository) FindValueByKey(ctx context.Context, key st
 	return domain.CacheUsage{}, nil
 }
 
-func (c PostgresCacheUsageRepository) Update(ctx context.Context, usage domain.CacheUsage, schema string) error {
+func (c PostgresCacheUsageRepository) Update(ctx context.Context, usage domain.CacheUsage) error {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.update", c.service))
 	defer span.Finish()
 
 	ub := sqlbuilder.NewUpdateBuilder()
-	ub.Update(fmt.Sprintf("%s.%s", schema, SqlCacheUsageTable)).Set(ub.Assign("value", usage.Value()),
+	ub.Update(fmt.Sprintf("%s.%s", CACHE_SCHEMA, CACHE_USAGE_TABLE)).Set(ub.Assign("value", usage.Value()),
 		ub.Assign("updated_at", time.Now())).
 		Where(ub.In("_key", usage.Key()))
 	query, args := ub.Build()
