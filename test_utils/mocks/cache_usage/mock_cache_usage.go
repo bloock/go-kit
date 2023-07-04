@@ -36,59 +36,59 @@ func (m *MockCacheUsageRepository) EXPECT() *MockCacheUsageRepositoryMockRecorde
 }
 
 // FindValueByKey mocks base method.
-func (m *MockCacheUsageRepository) FindValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
+func (m *MockCacheUsageRepository) FindValueByKey(ctx context.Context, key, schema string) (domain.CacheUsage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "FindValueByKey", ctx, key)
+	ret := m.ctrl.Call(m, "FindValueByKey", ctx, key, schema)
 	ret0, _ := ret[0].(domain.CacheUsage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // FindValueByKey indicates an expected call of FindValueByKey.
-func (mr *MockCacheUsageRepositoryMockRecorder) FindValueByKey(ctx, key interface{}) *gomock.Call {
+func (mr *MockCacheUsageRepositoryMockRecorder) FindValueByKey(ctx, key, schema interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindValueByKey", reflect.TypeOf((*MockCacheUsageRepository)(nil).FindValueByKey), ctx, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindValueByKey", reflect.TypeOf((*MockCacheUsageRepository)(nil).FindValueByKey), ctx, key, schema)
 }
 
 // GetValueByKey mocks base method.
-func (m *MockCacheUsageRepository) GetValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
+func (m *MockCacheUsageRepository) GetValueByKey(ctx context.Context, key, schema string) (domain.CacheUsage, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "GetValueByKey", ctx, key)
+	ret := m.ctrl.Call(m, "GetValueByKey", ctx, key, schema)
 	ret0, _ := ret[0].(domain.CacheUsage)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // GetValueByKey indicates an expected call of GetValueByKey.
-func (mr *MockCacheUsageRepositoryMockRecorder) GetValueByKey(ctx, key interface{}) *gomock.Call {
+func (mr *MockCacheUsageRepositoryMockRecorder) GetValueByKey(ctx, key, schema interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValueByKey", reflect.TypeOf((*MockCacheUsageRepository)(nil).GetValueByKey), ctx, key)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetValueByKey", reflect.TypeOf((*MockCacheUsageRepository)(nil).GetValueByKey), ctx, key, schema)
 }
 
 // Save mocks base method.
-func (m *MockCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage) error {
+func (m *MockCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage, schema string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Save", ctx, usage)
+	ret := m.ctrl.Call(m, "Save", ctx, usage, schema)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Save indicates an expected call of Save.
-func (mr *MockCacheUsageRepositoryMockRecorder) Save(ctx, usage interface{}) *gomock.Call {
+func (mr *MockCacheUsageRepositoryMockRecorder) Save(ctx, usage, schema interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockCacheUsageRepository)(nil).Save), ctx, usage)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Save", reflect.TypeOf((*MockCacheUsageRepository)(nil).Save), ctx, usage, schema)
 }
 
 // Update mocks base method.
-func (m *MockCacheUsageRepository) Update(ctx context.Context, usage domain.CacheUsage) error {
+func (m *MockCacheUsageRepository) Update(ctx context.Context, usage domain.CacheUsage, schema string) error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "Update", ctx, usage)
+	ret := m.ctrl.Call(m, "Update", ctx, usage, schema)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // Update indicates an expected call of Update.
-func (mr *MockCacheUsageRepositoryMockRecorder) Update(ctx, usage interface{}) *gomock.Call {
+func (mr *MockCacheUsageRepositoryMockRecorder) Update(ctx, usage, schema interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCacheUsageRepository)(nil).Update), ctx, usage)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockCacheUsageRepository)(nil).Update), ctx, usage, schema)
 }
