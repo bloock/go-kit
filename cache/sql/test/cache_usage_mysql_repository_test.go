@@ -15,9 +15,9 @@ import (
 )
 
 func TestCacheUsageMysqlRepository(t *testing.T) {
-	mysqlClient := test_utils.GetMysqlClient()
-	cr := sql.NewPostgresCacheUsageRepository(mysqlClient.DB(), time.Second*30, observability.Logger{}, "test")
-	ct := test_utils.NewPostgresCrudRepository(mysqlClient, sql.CACHE_USAGE_TABLE, sqlbuilder.NewStruct(new(sql.SqlCacheUsage)))
+	postgresSQLClient := test_utils.PostgresSQLClient()
+	cr, _ := sql.NewPostgresCacheUsageRepository(*postgresSQLClient, time.Second*30, observability.Logger{}, "test")
+	ct := test_utils.NewPostgresCrudRepository(postgresSQLClient, sql.CACHE_USAGE_TABLE, sqlbuilder.NewStruct(new(sql.SqlCacheUsage)))
 
 	key := "core:37e1a574-d76e-47ef-8960-dcc970e5a893:limit"
 	value := -1

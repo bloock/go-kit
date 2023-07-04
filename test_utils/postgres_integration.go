@@ -109,6 +109,6 @@ func closeDB(pool *dockertest.Pool, resource *dockertest.Resource) {
 	}
 }
 
-func GetMysqlClient() *client.PostgresSQLClient {
+func PostgresSQLClient() *client.PostgresSQLClient {
 	return postgresSQLClient
 }

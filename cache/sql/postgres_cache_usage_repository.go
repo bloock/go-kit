@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/bloock/go-kit/client"
 	"github.com/bloock/go-kit/domain"
 	"github.com/bloock/go-kit/errors"
 	"github.com/bloock/go-kit/observability"
@@ -21,15 +22,18 @@ type PostgresCacheUsageRepository struct {
 	service   string
 }
 
-func NewPostgresCacheUsageRepository(db *sql.DB, dbTimeout time.Duration, l observability.Logger, service string) *PostgresCacheUsageRepository {
+func NewPostgresCacheUsageRepository(psql client.PostgresSQLClient, dbTimeout time.Duration, l observability.Logger, service string) (*PostgresCacheUsageRepository, error) {
 	l.UpdateLogger(l.With().Caller().Str("component", "cache-usage-postgres").Logger())
-
+	err := psql.MigrateUp(context.Background(), "./migrations")
+	if err != nil {
+		return &PostgresCacheUsageRepository{}, err
+	}
 	return &PostgresCacheUsageRepository{
-		db:        db,
+		db:        psql.DB(),
 		dbTimeout: dbTimeout,
 		logger:    l,
 		service:   service,
-	}
+	}, nil
 }
 
 type SqlCacheUsage struct {
