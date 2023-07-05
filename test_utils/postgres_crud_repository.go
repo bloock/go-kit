@@ -87,18 +87,10 @@ func (r PostgresCrudRepository) Delete(id int, columnName string) error {
 }
 
 func (r PostgresCrudRepository) Truncate() error {
-	if _, err := r.client.DB().Exec("SET FOREIGN_KEY_CHECKS = 0"); err != nil {
-		return err
-	}
 	query := fmt.Sprintf("TRUNCATE %s", r.table)
-
 	if _, err := r.client.DB().Exec(query); err != nil {
 		return err
 	}
-	if _, err := r.client.DB().Exec("SET FOREIGN_KEY_CHECKS = 1"); err != nil {
-		return err
-	}
-
 	return nil
 }
 
