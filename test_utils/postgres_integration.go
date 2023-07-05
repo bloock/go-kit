@@ -82,8 +82,8 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 		postgresSQLClient, err = client.NewPostgresClient(ctx, "test", "test", "localhost",
 			resource.GetPort("5432/tcp"), "test", false, &client.SQLConnOpts{
 				MaxConnLifeTime: 5 * time.Minute,
-				MaxOpenConns:    1,
-				MaxIdleConns:    1,
+				MaxOpenConns:    10,
+				MaxIdleConns:    10,
 			}, observability.Logger{})
 		if err != nil {
 			return err
