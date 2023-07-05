@@ -80,7 +80,7 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 
 	if err := pool.Retry(func() error {
 		postgresSQLClient, err = client.NewPostgresClient(ctx, "test", "test", "localhost",
-			resource.GetPort("3306/tcp"), "test", false, &client.SQLConnOpts{
+			resource.GetPort("5432/tcp"), "test", false, &client.SQLConnOpts{
 				MaxConnLifeTime: 5 * time.Minute,
 				MaxOpenConns:    1,
 				MaxIdleConns:    1,

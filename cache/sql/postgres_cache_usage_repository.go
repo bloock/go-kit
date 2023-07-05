@@ -22,18 +22,15 @@ type PostgresCacheUsageRepository struct {
 	service   string
 }
 
-func NewPostgresCacheUsageRepository(psql client.PostgresSQLClient, dbTimeout time.Duration, l observability.Logger, service string) (*PostgresCacheUsageRepository, error) {
+func NewPostgresCacheUsageRepository(psql client.PostgresSQLClient, dbTimeout time.Duration, l observability.Logger, service string) *PostgresCacheUsageRepository {
 	l.UpdateLogger(l.With().Caller().Str("component", "cache-usage-postgres").Logger())
-	err := psql.MigrateUp(context.Background(), "./migrations")
-	if err != nil {
-		return &PostgresCacheUsageRepository{}, err
-	}
+
 	return &PostgresCacheUsageRepository{
 		db:        psql.DB(),
 		dbTimeout: dbTimeout,
 		logger:    l,
 		service:   service,
-	}, nil
+	}
 }
 
 type SqlCacheUsage struct {
