@@ -56,7 +56,7 @@ func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gi
 
 		baseResponse := map[string]interface{}{}
 
-		err = json.Unmarshal(b, &baseResponse)
+		err := json.Unmarshal(b, &baseResponse)
 		if err != nil {
 			_ = ctx.Error(err)
 			ctx.Abort()
