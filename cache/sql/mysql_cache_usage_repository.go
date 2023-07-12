@@ -31,6 +31,26 @@ func NewMysqlCacheUsageRepository(db *sql.DB, dbTimeout time.Duration, l observa
 
 const SqlCacheUsageTable = "cache_usage"
 
+type SqlCacheUsage struct {
+	Key       string    `db:"_key"`
+	Value     int       `db:"value"`
+	CreatedAt time.Time `db:"created_at"`
+	UpdatedAt time.Time `db:"updated_at"`
+}
+
+func MapToSqlCacheUsage(u domain.CacheUsage) SqlCacheUsage {
+	return SqlCacheUsage{
+		Key:       u.Key(),
+		Value:     u.Value(),
+		CreatedAt: time.Now(),
+		UpdatedAt: time.Now(),
+	}
+}
+
+func MapToCacheUsage(u SqlCacheUsage) domain.CacheUsage {
+	return domain.NewCacheUsage(u.Key, u.Value)
+}
+
 func (c MysqlCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage) error {
 	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.save", c.service))
 	defer span.Finish()
