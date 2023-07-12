@@ -6,6 +6,7 @@ import (
 	pinned "github.com/bloock/go-kit/http/versioning"
 	"github.com/gin-gonic/gin"
 	"io"
+	"net/http"
 )
 
 func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gin.HandlerFunc {
@@ -20,25 +21,27 @@ func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gi
 			return
 		}
 
-		baseRequest := map[string]interface{}{}
-		err := ctx.BindJSON(&baseRequest)
-		if err != nil {
-			return
-		}
-
-		applyRequest, err := vm.ApplyRequest(baseRequest, version, versions)
-		if err != nil {
-			_ = ctx.Error(err)
-			ctx.Abort()
-		}
-		if applyRequest != nil {
-
-			requestBytes, err := json.Marshal(applyRequest)
+		if ctx.Request.Method != http.MethodGet {
+			baseRequest := map[string]interface{}{}
+			err := ctx.BindJSON(&baseRequest)
 			if err != nil {
-				_ = ctx.Error(err)
 				return
 			}
-			ctx.Request.Body = io.NopCloser(bytes.NewReader(requestBytes))
+
+			applyRequest, err := vm.ApplyRequest(baseRequest, version, versions)
+			if err != nil {
+				_ = ctx.Error(err)
+				ctx.Abort()
+			}
+			if applyRequest != nil {
+
+				requestBytes, err := json.Marshal(applyRequest)
+				if err != nil {
+					_ = ctx.Error(err)
+					return
+				}
+				ctx.Request.Body = io.NopCloser(bytes.NewReader(requestBytes))
+			}
 		}
 
 		ctx.Next()

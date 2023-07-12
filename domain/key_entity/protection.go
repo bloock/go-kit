@@ -20,7 +20,7 @@ func NewKeyProtection(_type int) (KeyProtection, error) {
 	case 1:
 		return SoftwareProtected, nil
 	/*case 2:
-		return HSMProtected, nil*/
+	return HSMProtected, nil*/
 	default:
 		return -1, ErrInvalidKeyProtection
 	}
