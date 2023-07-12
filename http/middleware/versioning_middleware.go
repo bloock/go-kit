@@ -10,6 +10,7 @@ import (
 
 func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		originalWriter := ctx.Writer
 		customResponseWriter := &customResponseWriter{ResponseWriter: ctx.Writer, bodyBuffer: bytes.NewBuffer(nil)}
 
 		ctx.Writer = customResponseWriter
@@ -43,8 +44,8 @@ func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gi
 		ctx.Next()
 
 		status := ctx.Writer.Status()
-		if status >= 400 {
-			ctx.Next()
+		if len(ctx.Errors) > 0 {
+			ctx.Writer = originalWriter
 			return
 		}
 
