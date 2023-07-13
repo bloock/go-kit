@@ -43,12 +43,9 @@ func (vm *VersionManager) ParseVersion(v *Version) error {
 	return nil
 }
 
-// Latest returns the most current active version.
-func (vm *VersionManager) Latest(vs []*Version) *Version {
-	if len(vs) == 0 {
-		return nil
-	}
-	return vs[0]
+// Oldest returns the oldest version.
+func (vm *VersionManager) Oldest(vs []*Version) *Version {
+	return &Version{DateTime: time.Time{}}
 }
 
 // It inspects the query parameters and request headers. Whichever

@@ -91,7 +91,7 @@ func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gi
 func getVersion(ctx *gin.Context, vm *pinned.VersionManager, versions []*pinned.Version) *pinned.Version {
 	version, err := vm.Parse(ctx.Request, versions)
 	if err == pinned.ErrNoVersionSupplied || err == pinned.ErrInvalidVersion {
-		version = vm.Latest(versions)
+		version = vm.Oldest(versions)
 	} else if err != nil {
 		_ = ctx.Error(err)
 		ctx.Abort()
