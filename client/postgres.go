@@ -22,7 +22,7 @@ func NewPostgresClient(ctx context.Context, user, pass, host, port, dbName strin
 	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "postgres").Logger())
 	sslMode := "disable"
 	if ssl {
-		sslMode = "prefer"
+		sslMode = "require"
 	}
 
 	postgresURI := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=%s", user, pass, host, port, dbName, sslMode)
