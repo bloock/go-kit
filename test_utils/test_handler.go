@@ -19,7 +19,7 @@ func (r *TestHandler) Handler() gin.HandlerFunc {
 		l := observability.InitLogger("local", "test_service", "1.0.0", true)
 		l.Debug(ctx).Msg("a gin message")
 
-		response := &Response{Msg: "Hello"}
+		response := &Response{NewMsg3: "Hello"}
 
 		c.JSON(http.StatusOK, response)
 	}
@@ -28,7 +28,12 @@ func (r *TestHandler) Handler() gin.HandlerFunc {
 func (r *TestHandler) Versions() []*versioning.Version {
 	return []*versioning.Version{
 		{
-			Date: "2018-02-10",
+			Date: "2018-03-11",
+			Changes: []*versioning.Change{
+				{
+					ResponseAction: msgFieldChange3,
+				},
+			},
 		},
 		{
 			Date: "2018-02-11",
@@ -39,18 +44,39 @@ func (r *TestHandler) Versions() []*versioning.Version {
 				},
 			},
 		},
+		{
+			Date: "2018-01-11",
+			Changes: []*versioning.Change{
+				{
+					ResponseAction: msgFieldChange2,
+				},
+			},
+		},
 	}
 }
 
 type Response struct {
-	Msg string
+	NewMsg3 string `json:"new_msg_3"`
 }
 
 func msgFieldChange(mapping map[string]interface{}) map[string]interface{} {
-	mapping["new_msg"] = mapping["Msg"]
-	delete(mapping, "Msg")
+	mapping["new_msg"] = mapping["new_msg_2"]
+	delete(mapping, "new_msg_2")
 	return mapping
 }
+
+func msgFieldChange2(mapping map[string]interface{}) map[string]interface{} {
+	mapping["msg"] = mapping["new_msg"]
+	delete(mapping, "new_msg")
+	return mapping
+}
+
+func msgFieldChange3(mapping map[string]interface{}) map[string]interface{} {
+	mapping["new_msg_2"] = mapping["new_msg_3"]
+	delete(mapping, "new_msg_3")
+	return mapping
+}
+
 func dateDeleteChange(mapping map[string]interface{}) map[string]interface{} {
 	delete(mapping, "date")
 	return mapping

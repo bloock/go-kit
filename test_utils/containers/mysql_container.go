@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/bloock/go-kit/client"
 	"github.com/bloock/go-kit/observability"
-	"github.com/bloock/go-kit/test_utils"
+	mysql2 "github.com/bloock/go-kit/test_utils/mysql"
 	"github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 	"github.com/ory/dockertest/v3"
@@ -88,7 +88,7 @@ func (gc GenericDockerContainer) StartContainer() (*dockertest.Resource, *docker
 
 func (mc MysqlDockerContainer) StartContainer(ctx context.Context) error {
 
-	_ = mysql.SetLogger(test_utils.Logger{})
+	_ = mysql.SetLogger(mysql2.Logger{})
 	id, _, _ := strings.Cut(uuid.NewString(), "-")
 	resource, pool, err := GenericDockerContainer{
 		Name:         "mysql-" + id,

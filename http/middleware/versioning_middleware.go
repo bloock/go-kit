@@ -6,10 +6,12 @@ import (
 	pinned "github.com/bloock/go-kit/http/versioning"
 	"github.com/gin-gonic/gin"
 	"io"
+	"net/http"
 )
 
 func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
+		originalWriter := ctx.Writer
 		customResponseWriter := &customResponseWriter{ResponseWriter: ctx.Writer, bodyBuffer: bytes.NewBuffer(nil)}
 
 		ctx.Writer = customResponseWriter
@@ -19,32 +21,34 @@ func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gi
 			return
 		}
 
-		baseRequest := map[string]interface{}{}
-		err := ctx.BindJSON(&baseRequest)
-		if err != nil {
-			return
-		}
-
-		applyRequest, err := vm.ApplyRequest(baseRequest, version, versions)
-		if err != nil {
-			_ = ctx.Error(err)
-			ctx.Abort()
-		}
-		if applyRequest != nil {
-
-			requestBytes, err := json.Marshal(applyRequest)
+		if ctx.Request.Method != http.MethodGet {
+			baseRequest := map[string]interface{}{}
+			err := ctx.BindJSON(&baseRequest)
 			if err != nil {
-				_ = ctx.Error(err)
 				return
 			}
-			ctx.Request.Body = io.NopCloser(bytes.NewReader(requestBytes))
+
+			applyRequest, err := vm.ApplyRequest(baseRequest, version, versions)
+			if err != nil {
+				_ = ctx.Error(err)
+				ctx.Abort()
+			}
+			if applyRequest != nil {
+
+				requestBytes, err := json.Marshal(applyRequest)
+				if err != nil {
+					_ = ctx.Error(err)
+					return
+				}
+				ctx.Request.Body = io.NopCloser(bytes.NewReader(requestBytes))
+			}
 		}
 
 		ctx.Next()
 
 		status := ctx.Writer.Status()
-		if status >= 400 {
-			ctx.Next()
+		if len(ctx.Errors) > 0 {
+			ctx.Writer = originalWriter
 			return
 		}
 
@@ -52,7 +56,7 @@ func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gi
 
 		baseResponse := map[string]interface{}{}
 
-		err = json.Unmarshal(b, &baseResponse)
+		err := json.Unmarshal(b, &baseResponse)
 		if err != nil {
 			_ = ctx.Error(err)
 			ctx.Abort()
@@ -87,7 +91,7 @@ func HandlerVersioning(vm *pinned.VersionManager, versions []*pinned.Version) gi
 func getVersion(ctx *gin.Context, vm *pinned.VersionManager, versions []*pinned.Version) *pinned.Version {
 	version, err := vm.Parse(ctx.Request, versions)
 	if err == pinned.ErrNoVersionSupplied || err == pinned.ErrInvalidVersion {
-		version = vm.Latest(versions)
+		version = vm.Oldest(versions)
 	} else if err != nil {
 		_ = ctx.Error(err)
 		ctx.Abort()
