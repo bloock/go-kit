@@ -89,14 +89,13 @@ func (vm *VersionManager) Parse(r *http.Request, vs []*Version) (*Version, error
 		t = qDate
 	}
 
-	v, err := vm.getVersionByTime(t, vs)
-	if err != nil {
-		return nil, err
+	for _, v := range vs {
+		if v.Deprecated {
+			return v, ErrVersionDeprecated
+		}
 	}
-	if v.Deprecated {
-		return v, ErrVersionDeprecated
-	}
-	return v, nil
+
+	return &Version{DateTime: t}, nil
 }
 
 func (vm *VersionManager) getVersionByTime(t time.Time, versions []*Version) (*Version, error) {
@@ -117,7 +116,6 @@ func (vm *VersionManager) getVersionByTime(t time.Time, versions []*Version) (*V
 // "undoes" the changes made to the API so that the object is structured according to
 // the specified version.
 func (vm *VersionManager) ApplyRequest(obj map[string]interface{}, version *Version, versions []*Version) (map[string]interface{}, error) {
-
 	requestedVersionDate := version.DateTime
 	for _, v := range versions {
 		// If the requested version is >= to the version, do not apply.
@@ -143,9 +141,7 @@ func (vm *VersionManager) ApplyRequest(obj map[string]interface{}, version *Vers
 func (vm *VersionManager) ApplyResponse(obj map[string]interface{}, version *Version, versions []*Version) (map[string]interface{}, error) {
 	requestedVersionDate := version.DateTime
 	for _, v := range versions {
-
 		// If the requested version is >= to the version, do not apply.
-
 		if requestedVersionDate.After(v.DateTime) || requestedVersionDate.Equal(v.DateTime) {
 			break
 		}
