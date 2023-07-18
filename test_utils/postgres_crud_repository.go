@@ -87,7 +87,7 @@ func (r PostgresCrudRepository) Delete(id int, columnName string) error {
 }
 
 func (r PostgresCrudRepository) Truncate() error {
-	query := fmt.Sprintf("TRUNCATE %s", r.table)
+	query := fmt.Sprintf("TRUNCATE %s CASCADE", r.table)
 	if _, err := r.client.DB().Exec(query); err != nil {
 		return err
 	}
