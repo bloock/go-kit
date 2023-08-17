@@ -184,8 +184,8 @@ var (
 
 // Identity events
 var (
-	credential          = "credential"
-	CredentialConfirmed = newEvent(identity, credential, "confirmed", newEventArgs{})
+	integrityProof          = "integrity_proof"
+	IntegrityProofConfirmed = newEvent(identity, integrityProof, "confirmed", newEventArgs{})
 
 	schemaDelete = "schema_delete"
 	SchemaDelete = newEvent(identity, schemaDelete, delete, newEventArgs{})
