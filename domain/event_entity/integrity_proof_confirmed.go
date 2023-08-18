@@ -25,27 +25,27 @@ type AnchorNetwork struct {
 func NewIntegrityProofConfirmed(leaves []string, nodes []string, depth string, bitmap string, _type string, anchor ProofAnchor) IntegrityProofConfirmed {
 	return IntegrityProofConfirmed{
 		Leaves: leaves,
-		Nodes: nodes,
-		Depth: depth,
+		Nodes:  nodes,
+		Depth:  depth,
 		Bitmap: bitmap,
 		Anchor: anchor,
-		Type: _type,
+		Type:   _type,
 	}
 }
 
 func NewProofAnchor(anchorId int64, root string, status string, networks []AnchorNetwork) ProofAnchor {
-	return ProofAnchor {
+	return ProofAnchor{
 		AnchorID: anchorId,
 		Networks: networks,
-		Root: root,
-		Status: status,
+		Root:     root,
+		Status:   status,
 	}
 }
 
 func NewAnchorNetwork(name string, state string, txHash string) AnchorNetwork {
-	return AnchorNetwork {
-		Name: name,
-		State: state,
+	return AnchorNetwork{
+		Name:   name,
+		State:  state,
 		TxHash: txHash,
 	}
 }

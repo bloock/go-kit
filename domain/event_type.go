@@ -186,6 +186,8 @@ var (
 var (
 	integrityProof          = "integrity_proof"
 	IntegrityProofConfirmed = newEvent(identity, integrityProof, "confirmed", newEventArgs{})
+	sparseMtProof           = "sparse_mt_proof"
+	SparseMtProofConfirmed  = newEvent(identity, sparseMtProof, "confirmed", newEventArgs{})
 
 	schemaDelete = "schema_delete"
 	SchemaDelete = newEvent(identity, schemaDelete, delete, newEventArgs{})
