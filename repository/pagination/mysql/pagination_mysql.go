@@ -16,7 +16,7 @@ type paginationResponse struct {
 func GetPagination(ctx context.Context, db *sql.DB, sb *sqlbuilder.SelectBuilder, pq pagination.PaginationQuery) (pagination.Pagination, error) {
 	paginationSQLStruct := sqlbuilder.NewStruct(new(paginationResponse))
 
-	sb.Select("count(*) as total").Limit(-1).Offset(-1)
+	sb.Select("count(*) as total").OrderBy().Limit(-1).Offset(-1)
 
 	query, args := sb.Build()
 
