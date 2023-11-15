@@ -17,10 +17,6 @@ const (
 	ResourceCoreTestProof             Resource = "core-test.proof"
 	ResourceCoreTestMessage           Resource = "core-test.message"
 	ResourceEventsActivity            Resource = "events.activity"
-	ResourceEventsAnchor              Resource = "events.anchor"
-	ResourceEventsWebhook             Resource = "events.webhook"
-	ResourceEventsAnalytics           Resource = "events.analytics"
-	ResourceEventsCertifications      Resource = "events.certification"
 	ResourceSubscriptionsSubscription Resource = "subscriptions.subscription"
 	ResourceSubscriptionsPlan         Resource = "subscriptions.plan"
 	ResourceSubscriptionsInvoice      Resource = "subscriptions.invoice"
@@ -39,6 +35,7 @@ const (
 	ResourceIdentitySchema            Resource = "identity.schema"
 	ResourceIdentityCredential        Resource = "identity.credential"
 	ResourceIdentityRevocation        Resource = "identity.revocation"
+	ResourceCertifierProcess          Resource = "certifier.process"
 )
 
 type Action string
