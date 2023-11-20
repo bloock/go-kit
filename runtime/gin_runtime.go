@@ -2,10 +2,10 @@ package runtime
 
 import (
 	"context"
-	pinned "github.com/bloock/go-kit/http/versioning"
-	"io"
 	"net/http"
 	"time"
+
+	pinned "github.com/bloock/go-kit/http/versioning"
 
 	"github.com/bloock/go-kit/client"
 	bloockContext "github.com/bloock/go-kit/context"
@@ -56,15 +56,8 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 	l := logger.SetLogger(
 		logger.WithSkipPath([]string{"/health"}),
 		logger.WithUTC(true),
-		logger.WithLogger(func(c *gin.Context, _ io.Writer, latency time.Duration) zerolog.Logger {
-			return e.logger.Logger().With().
-				Int("status", c.Writer.Status()).
-				Str("method", c.Request.Method).
-				Str("path", c.Request.URL.Path).
-				Str("ip", c.ClientIP()).
-				Dur("latency", latency).
-				Str("user-agent", c.Request.UserAgent()).
-				Str("user-id", bloockContext.GetUserID(c)).
+		logger.WithLogger(func(c *gin.Context, l zerolog.Logger) zerolog.Logger {
+			return l.With().Str("user-id", bloockContext.GetUserID(c)).
 				Str("request-id", bloockContext.GetRequestID(c)).
 				Logger()
 		}),
