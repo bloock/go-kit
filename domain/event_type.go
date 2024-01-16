@@ -12,6 +12,7 @@ var (
 	transactions     = "transactions"
 	transactionsTest = "transactions-test"
 	core             = "core"
+	integrity        = "integrity"
 	node             = "node"
 	dataAvailability = "data-availability"
 	keys             = "keys"
@@ -83,6 +84,12 @@ var (
 
 	sendRecord = "send_record"
 	RecordSent = newEvent(core, sendRecord, create, newEventArgs{})
+)
+
+// Integrity events
+var (
+	recordNetwork          = "record_network"
+	RecordNetworkConfirmed = newEvent(integrity, recordNetwork, "confirmed", newEventArgs{})
 )
 
 // Node events
