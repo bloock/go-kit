@@ -166,6 +166,9 @@ var (
 	UsageKeysTransactionUpdated = newEvent(keys, usageKeysTransaction, update, newEventArgs{})
 	UsageKeysTransactionDeleted = newEvent(keys, usageKeysTransaction, delete, newEventArgs{})
 	UsageKeysTransactionCreated = newEvent(keys, usageKeysTransaction, create, newEventArgs{})
+
+	secretBasedRecovery         = "secret_based_recovery"
+	KeysSecretBasedRecoveryMail = newEvent(keys, secretBasedRecovery, mail, newEventArgs{})
 )
 
 // Transaction events
@@ -191,8 +194,8 @@ var (
 
 // Identity events
 var (
-	sparseMtProof           = "sparse_mt_proof"
-	SparseMtProofConfirmed  = newEvent(identity, sparseMtProof, "confirmed", newEventArgs{})
+	sparseMtProof          = "sparse_mt_proof"
+	SparseMtProofConfirmed = newEvent(identity, sparseMtProof, "confirmed", newEventArgs{})
 
 	schemaDelete = "schema_delete"
 	SchemaDelete = newEvent(identity, schemaDelete, delete, newEventArgs{})
