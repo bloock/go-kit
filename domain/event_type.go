@@ -199,6 +199,9 @@ var (
 
 	schemaDelete = "schema_delete"
 	SchemaDelete = newEvent(identity, schemaDelete, delete, newEventArgs{})
+
+	ide             = "identity"
+	IdentityCreated = newEvent(identity, ide, create, newEventArgs{})
 )
 
 type newEventArgs struct {
