@@ -4,7 +4,7 @@ type Resource string
 
 const (
 	ResourceUsersUser                 Resource = "users.user"
-	ResourceCredentialsApikey         Resource = "credentials.api_key"
+	ResourceCredentialsApikey         Resource = "credentials.apiKey"
 	ResourceCredentialsTestApiKey     Resource = "credentials-test.apiKey"
 	ResourceCredentialsSession        Resource = "credentials.session"
 	ResourceCoreAnchor                Resource = "core.anchor"
@@ -28,7 +28,7 @@ const (
 	ResourceKeysVerify                Resource = "keys.verify"
 	ResourceKeysEncrypt               Resource = "keys.encrypt"
 	ResourceKeysDecrypt               Resource = "keys.decrypt"
-	ResourceKeysAccessControl         Resource = "keys.access_control"
+	ResourceKeysAccessControl         Resource = "keys.accessControl"
 	ResourceIdentityIssuer            Resource = "identity.issuer"
 	ResourceIdentitySchema            Resource = "identity.schema"
 	ResourceIdentityCredential        Resource = "identity.credential"
