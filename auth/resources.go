@@ -5,6 +5,7 @@ type Resource string
 const (
 	ResourceUsersUser                 Resource = "users.user"
 	ResourceCredentialsApikey         Resource = "credentials.api_key"
+	ResourceCredentialsTestApiKey     Resource = "credentials-test.apiKey"
 	ResourceCredentialsSession        Resource = "credentials.session"
 	ResourceCoreAnchor                Resource = "core.anchor"
 	ResourceCoreProof                 Resource = "core.proof"
