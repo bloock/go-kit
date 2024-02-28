@@ -24,16 +24,16 @@ func TestJwt(t *testing.T) {
 			notBefore,
 			"5fe1ff5d-dd31-496a-9dfa-c95cc7847df8",
 			[]ProductClaims{productClaims},
-			"Joe", "Doe", "joe@doe.com", true, false,
+			"Joe", "Doe", "joe@doe.com",
 			map[string][]string{
 				"foo.bar": {"create"},
 			},
-			true,
+			"free_plan",
 		)
 
 		token, err := NewJWT(jc, "secret")
 		assert.NoError(t, err)
-		assert.Equal(t, token, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQwOTgxNjcxMjYsIm5iZiI6MTQxNTc5MjcyNiwiaWF0IjoxNDE1NzkyNzI2LCJjbGllbnRfaWQiOiI1ZmUxZmY1ZC1kZDMxLTQ5NmEtOWRmYS1jOTVjYzc4NDdkZjgiLCJwcm9kdWN0IjpbeyJpZCI6InByb2R1Y3RfaWQiLCJtZXRhZGF0YSI6eyJuYW1lIjoiYmFzaWMifX1dLCJ1c2VyIjp7Im5hbWUiOiJKb2UiLCJzdXJuYW1lIjoiRG9lIiwiZW1haWwiOiJqb2VAZG9lLmNvbSIsImFjdGl2YXRlZCI6dHJ1ZSwidmVyaWZpZWQiOnRydWV9LCJzY29wZXMiOnsiZm9vLmJhciI6WyJjcmVhdGUiXX19.3VGtw7yzKUkm5vzfY9oFkN8L3K5ERIjsRkodPW8FhyQ")
+		assert.Equal(t, token, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjQwOTgxNjcxMjYsIm5iZiI6MTQxNTc5MjcyNiwiaWF0IjoxNDE1NzkyNzI2LCJjbGllbnRfaWQiOiI1ZmUxZmY1ZC1kZDMxLTQ5NmEtOWRmYS1jOTVjYzc4NDdkZjgiLCJwcm9kdWN0IjpbeyJpZCI6InByb2R1Y3RfaWQiLCJtZXRhZGF0YSI6eyJuYW1lIjoiYmFzaWMifX1dLCJ1c2VyIjp7Im5hbWUiOiJKb2UiLCJzdXJuYW1lIjoiRG9lIiwiZW1haWwiOiJqb2VAZG9lLmNvbSIsInVzZXJfcm9sZSI6ImZyZWVfcGxhbiJ9LCJzY29wZXMiOnsiZm9vLmJhciI6WyJjcmVhdGUiXX19.HSCVfLRjAv49LGTHQeozs8n7LJamaqeKTd7AXjuwonw")
 	})
 
 	t.Run("Given a valid claim should parse jwt claims successfully", func(t *testing.T) {
@@ -43,11 +43,11 @@ func TestJwt(t *testing.T) {
 			notBefore,
 			"5fe1ff5d-dd31-496a-9dfa-c95cc7847df8",
 			[]ProductClaims{productClaims},
-			"Joe", "Doe", "joe@doe.com", true, false,
+			"Joe", "Doe", "joe@doe.com",
 			map[string][]string{
 				"foo.bar": {"create"},
 			},
-			true,
+			"disabled",
 		)
 
 		var claims JWTClaims

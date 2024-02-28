@@ -21,12 +21,10 @@ func NewProductClaims(id string, metadata map[string]interface{}) ProductClaims 
 }
 
 type userClaims struct {
-	Name      string `json:"name,omitempty"`
-	Surname   string `json:"surname,omitempty"`
-	Email     string `json:"email,omitempty"`
-	Activated bool   `json:"activated,omitempty"`
-	Verified  bool   `json:"verified,omitempty"`
-	Deleted   bool   `json:"deleted,omitempty"`
+	Name     string `json:"name,omitempty"`
+	Surname  string `json:"surname,omitempty"`
+	Email    string `json:"email,omitempty"`
+	UserRole string `json:"user_role"`
 }
 
 type JWTClaims struct {
@@ -41,7 +39,7 @@ func (c JWTClaims) Valid() error {
 	return nil
 }
 
-func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, products []ProductClaims, userName string, userSurname string, userEmail string, userActivated, userDeleted bool, scopes map[string][]string, userVerified bool) JWTClaims {
+func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, products []ProductClaims, userName string, userSurname string, userEmail string, scopes map[string][]string, userRole string) JWTClaims {
 	return JWTClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
@@ -51,12 +49,10 @@ func NewJWTClaim(expiresAt, issuedAt, notBefore time.Time, clientID string, prod
 		ClientID: clientID,
 		Products: products,
 		User: userClaims{
-			Name:      userName,
-			Surname:   userSurname,
-			Email:     userEmail,
-			Activated: userActivated,
-			Verified:  userVerified,
-			Deleted:   userDeleted,
+			Name:     userName,
+			Surname:  userSurname,
+			Email:    userEmail,
+			UserRole: userRole,
 		},
 		Scopes: scopes,
 	}
