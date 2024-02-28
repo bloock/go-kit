@@ -65,6 +65,9 @@ var (
 var (
 	passwordReset                = "password_reset"
 	CredentialsPasswordResetMail = newEvent(credentials, passwordReset, mail, newEventArgs{})
+
+	userVerification       = "user_verification"
+	CredentialsUserVerification = newEvent(credentials, userVerification, confirm, newEventArgs{})
 )
 
 // Core events
