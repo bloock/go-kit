@@ -50,9 +50,7 @@ var (
 // Subscription events
 var (
 	subscription        = "subscription"
-	SubscriptionCreated = newEvent(subscriptions, subscription, create, newEventArgs{})
 	SubscriptionUpdated = newEvent(subscriptions, subscription, update, newEventArgs{})
-	SubscriptionDeleted = newEvent(subscriptions, subscription, delete, newEventArgs{})
 
 	product        = "product"
 	ProductCreated = newEvent(subscriptions, product, create, newEventArgs{})
