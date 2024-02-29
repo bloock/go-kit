@@ -7,11 +7,10 @@ type UsersUser struct {
 	Email       string `json:"email"`
 	Password    string `json:"password"`
 	VerifyToken string `json:"verify_token"`
-	Deleted     bool   `json:"deleted"`
 	Country     string `json:"country"`
 }
 
-func NewUserEventEntity(id, name, surname, email, password, verifyToken string, deleted bool, country string) UsersUser {
+func NewUserEventEntity(id, name, surname, email, password, verifyToken string, country string) UsersUser {
 	return UsersUser{
 		ID:          id,
 		Name:        name,
@@ -19,7 +18,6 @@ func NewUserEventEntity(id, name, surname, email, password, verifyToken string, 
 		Email:       email,
 		Password:    password,
 		VerifyToken: verifyToken,
-		Deleted:     deleted,
 		Country:     country,
 	}
 }
