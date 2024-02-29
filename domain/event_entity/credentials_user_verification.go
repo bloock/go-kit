@@ -1,9 +1,9 @@
 package event_entity
 
 type CredentialsUserVerification struct {
-	UserID string
-	Name string
+	UserID  string
+	Name    string
 	Surname string
-	Email string
+	Email   string
 	Country string
 }
