@@ -34,7 +34,6 @@ var (
 	user        = "user"
 	UserCreated = newEvent(users, user, create, newEventArgs{})
 	UserUpdated = newEvent(users, user, update, newEventArgs{})
-	UserDeleted = newEvent(users, user, delete, newEventArgs{})
 
 	verification          = "verification"
 	UsersVerificationMail = newEvent(users, verification, mail, newEventArgs{})
