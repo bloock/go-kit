@@ -56,6 +56,9 @@ var (
 	ProductCreated = newEvent(subscriptions, product, create, newEventArgs{})
 	ProductUpdated = newEvent(subscriptions, product, update, newEventArgs{})
 	ProductDeleted = newEvent(subscriptions, product, delete, newEventArgs{})
+
+	trialEnd = "trial_end"
+	TrialEndMail = newEvent(subscriptions, trialEnd, mail, newEventArgs{})
 )
 
 // Credential events
