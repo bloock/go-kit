@@ -33,7 +33,9 @@ const (
 	ResourceIdentitySchema            Resource = "identity.schema"
 	ResourceIdentityCredential        Resource = "identity.credential"
 	ResourceIdentityRevocation        Resource = "identity.revocation"
+	ResourceIdentityVerification      Resource = "identity.verification"
 	ResourceCertifierProcess          Resource = "certifier.process"
+	ResourceEventsActivity            Resource = "events.activity"
 )
 
 type Action string
