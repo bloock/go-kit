@@ -10,16 +10,13 @@ type PublishIntervalMinutes int
 var ErrInvalidPublishIntervalMinutes = errors.NewHttpAppError(http.StatusBadRequest, "publish interval minutes not supported")
 
 const (
-	PublishIntervalMinutes1 PublishIntervalMinutes = iota
-	PublishIntervalMinutes5
+	PublishIntervalMinutes5 PublishIntervalMinutes = iota
 	PublishIntervalMinutes15
 	PublishIntervalMinutes60
 )
 
 func NewPublishIntervalMinutes(_type int) (PublishIntervalMinutes, error) {
 	switch _type {
-	case 1:
-		return PublishIntervalMinutes1, nil
 	case 5:
 		return PublishIntervalMinutes5, nil
 	case 15:
@@ -33,8 +30,6 @@ func NewPublishIntervalMinutes(_type int) (PublishIntervalMinutes, error) {
 
 func (p PublishIntervalMinutes) Int() int {
 	switch p {
-	case PublishIntervalMinutes1:
-		return 1
 	case PublishIntervalMinutes5:
 		return 5
 	case PublishIntervalMinutes15:
