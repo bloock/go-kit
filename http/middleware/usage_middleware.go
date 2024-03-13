@@ -113,16 +113,16 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 
 func (u UsageMiddleware) UpdateUsageMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		listErrors := c.Errors.Errors()
-		clientID := c.MustGet(CLIENT_ID).(string)
 		_, isDisallow := c.Get(USAGE_DISABLE)
-		q, isQuantity := c.Get(USAGE_QUANTITY)
-		var quantity = 1
-		key := GenerateUsageKey(clientID, u.service)
-
+		listErrors := c.Errors.Errors()
 		if isDisallow || listErrors != nil {
 			return
 		}
+
+		clientID := c.MustGet(CLIENT_ID).(string)
+		q, isQuantity := c.Get(USAGE_QUANTITY)
+		var quantity = 1
+		key := GenerateUsageKey(clientID, u.service)
 
 		if isQuantity {
 			quantity = q.(int)
