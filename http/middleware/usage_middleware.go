@@ -45,6 +45,10 @@ func NewUsageMiddleware(l observability.Logger, redis cache.Cache, cu cache.Cach
 
 func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		_, isDisallow := c.Get(USAGE_DISABLE)
+		if isDisallow {
+			return
+		}
 		clientID := c.Request.Header.Get(auth.CLIENT_ID_HEADER)
 		if clientID == "" {
 			jwtToken := auth.GetBearerTokenHeader(c)
