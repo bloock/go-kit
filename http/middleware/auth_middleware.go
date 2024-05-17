@@ -14,12 +14,12 @@ import (
 )
 
 type AuthMiddleware struct {
-	httpClient bloockHttp.RestClient
+	httpClient bloockHttp.HttpRequest
 	authHost   string
 	logger     observability.Logger
 }
 
-func NewAuthMiddlewareEntity(httpClient bloockHttp.RestClient, authHost string, l observability.Logger) AuthMiddleware {
+func NewAuthMiddlewareEntity(httpClient bloockHttp.HttpRequest, authHost string, l observability.Logger) AuthMiddleware {
 	l.UpdateLogger(l.With().Caller().Str("component", "auth-middleware").Logger())
 
 	return AuthMiddleware{
