@@ -17,6 +17,7 @@ import (
 
 type AuthMiddleware interface {
 	GetCredentialsAuthenticate(ctx *gin.Context) (CredentialAuthResponse, error)
+	Authorize(ability auth.Ability) gin.HandlerFunc
 }
 
 type AuthMiddlewareEntity struct {

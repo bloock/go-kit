@@ -7,6 +7,7 @@ package mock_middleware
 import (
 	reflect "reflect"
 
+	auth "github.com/bloock/go-kit/auth"
 	middleware "github.com/bloock/go-kit/http/middleware"
 	gin "github.com/gin-gonic/gin"
 	gomock "github.com/golang/mock/gomock"
@@ -33,6 +34,20 @@ func NewMockAuthMiddleware(ctrl *gomock.Controller) *MockAuthMiddleware {
 // EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockAuthMiddleware) EXPECT() *MockAuthMiddlewareMockRecorder {
 	return m.recorder
+}
+
+// Authorize mocks base method.
+func (m *MockAuthMiddleware) Authorize(ability auth.Ability) gin.HandlerFunc {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Authorize", ability)
+	ret0, _ := ret[0].(gin.HandlerFunc)
+	return ret0
+}
+
+// Authorize indicates an expected call of Authorize.
+func (mr *MockAuthMiddlewareMockRecorder) Authorize(ability interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Authorize", reflect.TypeOf((*MockAuthMiddleware)(nil).Authorize), ability)
 }
 
 // GetCredentialsAuthenticate mocks base method.
