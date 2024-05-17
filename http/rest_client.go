@@ -13,6 +13,11 @@ import (
 
 type RestClient struct{}
 
+type ErrorHttpResponse struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
 func (r RestClient) Get(ctx context.Context, url string, response interface{}) error {
 	client := http.Client{}
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -39,6 +44,45 @@ func (r RestClient) Get(ctx context.Context, url string, response interface{}) e
 	err = json.Unmarshal(respByte, &response)
 	if err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (r RestClient) GetWithHeaders(ctx context.Context, url string, response interface{}, headers map[string][]string) error {
+	client := http.Client{}
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return httpError.ErrUnexpected(err)
+	}
+	req.Header = headers
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return httpError.ErrUnexpected(err)
+	}
+	defer resp.Body.Close()
+
+	respByte, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return httpError.ErrUnexpected(err)
+	}
+
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		var errorMessage string
+		var respError ErrorHttpResponse
+		err = json.Unmarshal(respByte, &respError)
+		if err != nil {
+			errorMessage = string(respByte)
+		}
+		errorMessage = respError.Message
+		err = httpError.NewHttpAppError(resp.StatusCode, errorMessage)
+		return err
+	}
+
+	err = json.Unmarshal(respByte, &response)
+	if err != nil {
+		return httpError.ErrUnexpected(err)
 	}
 
 	return nil

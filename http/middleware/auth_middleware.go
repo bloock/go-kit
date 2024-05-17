@@ -1,36 +1,29 @@
 package middleware
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/bloock/go-kit/auth"
 	bloockCtx "github.com/bloock/go-kit/context"
 	httpError "github.com/bloock/go-kit/errors"
+	bloockHttp "github.com/bloock/go-kit/http"
 	"github.com/bloock/go-kit/observability"
 	"github.com/gin-gonic/gin"
 	"golang.org/x/net/context"
-	"io"
-	"net/http"
 	"time"
 )
 
-type AuthMiddleware interface {
-	GetCredentialsAuthenticate(ctx *gin.Context) (CredentialAuthResponse, error)
-	Authorize(ability auth.Ability) gin.HandlerFunc
-}
-
-type AuthMiddlewareEntity struct {
-	httpClient http.Client
+type AuthMiddleware struct {
+	httpClient bloockHttp.RestClient
 	authHost   string
 	logger     observability.Logger
 }
 
-func NewAuthMiddlewareEntity(authHost string, l observability.Logger) AuthMiddlewareEntity {
+func NewAuthMiddlewareEntity(httpClient bloockHttp.RestClient, authHost string, l observability.Logger) AuthMiddleware {
 	l.UpdateLogger(l.With().Caller().Str("component", "auth-middleware").Logger())
 
-	return AuthMiddlewareEntity{
-		httpClient: http.Client{},
+	return AuthMiddleware{
+		httpClient: httpClient,
 		authHost:   authHost,
 		logger:     l,
 	}
@@ -40,12 +33,7 @@ type CredentialAuthResponse struct {
 	JWT string `json:"jwt"`
 }
 
-type CredentialAuthErrorResponse struct {
-	Code    int    `json:"code"`
-	Message string `json:"message"`
-}
-
-func (a AuthMiddlewareEntity) Authorize(ability auth.Ability) gin.HandlerFunc {
+func (a AuthMiddleware) Authorize(ability auth.Ability) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		credAuthResp, err := a.GetCredentialsAuthenticate(ctx)
 		if err != nil {
@@ -77,7 +65,7 @@ func (a AuthMiddlewareEntity) Authorize(ability auth.Ability) gin.HandlerFunc {
 	}
 }
 
-func (a AuthMiddlewareEntity) GetCredentialsAuthenticate(ctx *gin.Context) (CredentialAuthResponse, error) {
+func (a AuthMiddleware) GetCredentialsAuthenticate(ctx *gin.Context) (CredentialAuthResponse, error) {
 	requestID, ok := ctx.Get(bloockCtx.RequestIDKey)
 	if !ok {
 		err := httpError.ErrUnexpected(errors.New("request id not found"))
@@ -90,47 +78,11 @@ func (a AuthMiddlewareEntity) GetCredentialsAuthenticate(ctx *gin.Context) (Cred
 	ctxTimeout, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 
-	req, err := http.NewRequestWithContext(ctxTimeout, http.MethodGet, url, nil)
-	if err != nil {
-		err = httpError.ErrUnexpected(err)
-		a.logger.Info(ctx).Err(err).Msg("")
-		return CredentialAuthResponse{}, err
-	}
-	req.Header = ctx.Request.Header
-	req.Header.Set(bloockCtx.RequestIDKey, requestID.(string))
-
-	resp, err := a.httpClient.Do(req)
-	if err != nil {
-		err = httpError.ErrUnexpected(err)
-		a.logger.Info(ctx).Err(err).Msg("")
-		return CredentialAuthResponse{}, err
-	}
-	defer resp.Body.Close()
-
-	respByte, err := io.ReadAll(resp.Body)
-	if err != nil {
-		err = httpError.ErrUnexpected(err)
-		a.logger.Info(ctx).Err(err).Msg("")
-		return CredentialAuthResponse{}, err
-	}
-
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		var errorMessage string
-		var respError CredentialAuthErrorResponse
-		err = json.Unmarshal(respByte, &respError)
-		if err != nil {
-			errorMessage = string(respByte)
-		}
-		errorMessage = respError.Message
-		err = httpError.NewHttpAppError(resp.StatusCode, errorMessage)
-		a.logger.Info(ctx).Err(err).Msg("")
-		return CredentialAuthResponse{}, err
-	}
+	ctx.Request.Header.Set(bloockCtx.RequestIDKey, requestID.(string))
 
 	var response CredentialAuthResponse
-	err = json.Unmarshal(respByte, &response)
+	err := a.httpClient.GetWithHeaders(ctxTimeout, url, &response, ctx.Request.Header)
 	if err != nil {
-		err = httpError.ErrUnexpected(err)
 		a.logger.Info(ctx).Err(err).Msg("")
 		return CredentialAuthResponse{}, err
 	}

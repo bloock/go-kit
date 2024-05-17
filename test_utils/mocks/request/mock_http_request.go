@@ -62,6 +62,20 @@ func (mr *MockHttpRequestMockRecorder) Get(ctx, url, response interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockHttpRequest)(nil).Get), ctx, url, response)
 }
 
+// GetWithHeaders mocks base method.
+func (m *MockHttpRequest) GetWithHeaders(ctx context.Context, url string, response interface{}, headers map[string][]string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetWithHeaders", ctx, url, response, headers)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// GetWithHeaders indicates an expected call of GetWithHeaders.
+func (mr *MockHttpRequestMockRecorder) GetWithHeaders(ctx, url, response, headers interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetWithHeaders", reflect.TypeOf((*MockHttpRequest)(nil).GetWithHeaders), ctx, url, response, headers)
+}
+
 // Post mocks base method.
 func (m *MockHttpRequest) Post(ctx context.Context, url string, body, response interface{}, contentType string) error {
 	m.ctrl.T.Helper()

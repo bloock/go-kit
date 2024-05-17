@@ -6,4 +6,3 @@ mocks:
 	mockgen -source=domain/event.go -destination test_utils/mocks/event/mock_event.go
 	mockgen -source=repository/publisher/publisher.go -destination test_utils/mocks/publisher/mock_publisher.go
 	mockgen -source=cache/cache_usage_repository.go -destination test_utils/mocks/cache_usage/mock_cache_usage.go
-	mockgen -source=http/middleware/auth_middleware.go -destination test_utils/mocks/middleware/mock_auth_middleware_usage.go
