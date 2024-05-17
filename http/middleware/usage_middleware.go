@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/bloock/go-kit/auth"
 	"github.com/bloock/go-kit/cache"
+	bloockCtx "github.com/bloock/go-kit/context"
 	"github.com/bloock/go-kit/domain"
 	httpError "github.com/bloock/go-kit/errors"
 	"github.com/bloock/go-kit/observability"
@@ -49,8 +50,9 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 		if isDisallow {
 			return
 		}
-		clientID := c.Request.Header.Get(auth.CLIENT_ID_HEADER)
-		if clientID == "" {
+		clientID := ""
+		value, ok := c.Get(bloockCtx.UserIDKey)
+		if !ok {
 			jwtToken := auth.GetBearerTokenHeader(c)
 			var claims auth.JWTClaims
 			err := auth.DecodeJWTUnverified(jwtToken, &claims)
@@ -61,6 +63,8 @@ func (u UsageMiddleware) CheckUsageMiddleware() gin.HandlerFunc {
 				return
 			}
 			clientID = claims.ClientID
+		} else {
+			clientID = value.(string)
 		}
 
 		keyLimit := GenerateUsageLimitKey(clientID, u.service)
