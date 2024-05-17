@@ -6,6 +6,7 @@ import (
 
 var UserIDKey = "X-User-ID"
 var RequestIDKey = "X-Request-ID"
+var ClientIPKey = "X-Client-IP"
 
 func GetUserID(ctx context.Context) string {
 	userID, ok := ctx.Value(UserIDKey).(string)
@@ -21,4 +22,12 @@ func GetRequestID(ctx context.Context) string {
 		return ""
 	}
 	return requestID
+}
+
+func GetClientIP(ctx context.Context) string {
+	clientIP, ok := ctx.Value(ClientIPKey).(string)
+	if !ok {
+		return ""
+	}
+	return clientIP
 }
