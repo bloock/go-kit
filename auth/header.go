@@ -9,7 +9,6 @@ import (
 const (
 	AUTHORIZATION_HEADER = "Authorization"
 	BEARER_PREFIX        = "Bearer"
-	CLIENT_ID_HEADER     = "X-User-ID"
 )
 
 func GetBearerTokenHeader(ctx *gin.Context) string {
