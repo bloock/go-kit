@@ -15,16 +15,20 @@ import (
 	"time"
 )
 
-type AuthMiddleware struct {
+type AuthMiddleware interface {
+	GetCredentialsAuthenticate(ctx *gin.Context) (CredentialAuthResponse, error)
+}
+
+type AuthMiddlewareEntity struct {
 	httpClient http.Client
 	authHost   string
 	logger     observability.Logger
 }
 
-func NewAuthMiddleware(authHost string, l observability.Logger) AuthMiddleware {
+func NewAuthMiddlewareEntity(authHost string, l observability.Logger) AuthMiddlewareEntity {
 	l.UpdateLogger(l.With().Caller().Str("component", "auth-middleware").Logger())
 
-	return AuthMiddleware{
+	return AuthMiddlewareEntity{
 		httpClient: http.Client{},
 		authHost:   authHost,
 		logger:     l,
@@ -40,9 +44,9 @@ type CredentialAuthErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func (a AuthMiddleware) Authorize(ability auth.Ability) gin.HandlerFunc {
+func (a AuthMiddlewareEntity) Authorize(ability auth.Ability) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		credAuthResp, err := a.getCredentialsAuthenticate(ctx)
+		credAuthResp, err := a.GetCredentialsAuthenticate(ctx)
 		if err != nil {
 			_ = ctx.Error(err)
 			ctx.Abort()
@@ -72,7 +76,7 @@ func (a AuthMiddleware) Authorize(ability auth.Ability) gin.HandlerFunc {
 	}
 }
 
-func (a AuthMiddleware) getCredentialsAuthenticate(ctx *gin.Context) (CredentialAuthResponse, error) {
+func (a AuthMiddlewareEntity) GetCredentialsAuthenticate(ctx *gin.Context) (CredentialAuthResponse, error) {
 	requestID, ok := ctx.Get(bloockCtx.RequestIDKey)
 	if !ok {
 		err := httpError.ErrUnexpected(errors.New("request id not found"))
