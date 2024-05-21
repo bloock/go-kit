@@ -197,6 +197,9 @@ var (
 
 // Identity events
 var (
+	credential          = "credential"
+	CredentialConfirmed = newEvent(identity, credential, "confirmed", newEventArgs{})
+
 	sparseMtProof          = "sparse_mt_proof"
 	SparseMtProofConfirmed = newEvent(identity, sparseMtProof, "confirmed", newEventArgs{})
 
