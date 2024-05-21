@@ -50,6 +50,7 @@ func (a AuthMiddleware) Authorize(ability auth.Ability) gin.HandlerFunc {
 			return
 		}
 		ctx.Set(bloockCtx.UserIDKey, claims.ClientID)
+		ctx.Set(bloockCtx.AuthTokenKey, credAuthResp.JWT)
 
 		if allowedActions := claims.Scopes[ability.Resource()]; allowedActions != nil {
 			for _, a := range allowedActions {

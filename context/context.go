@@ -7,6 +7,7 @@ import (
 var UserIDKey = "X-User-ID"
 var RequestIDKey = "X-Request-ID"
 var ClientIPKey = "X-Client-IP"
+var AuthTokenKey = "X-Auth-JWT"
 
 func GetUserID(ctx context.Context) string {
 	userID, ok := ctx.Value(UserIDKey).(string)
