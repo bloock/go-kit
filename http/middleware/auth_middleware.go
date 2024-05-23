@@ -74,7 +74,7 @@ func (a AuthMiddleware) GetCredentialsAuthenticate(ctx *gin.Context) (Credential
 		return CredentialAuthResponse{}, err
 	}
 
-	url := fmt.Sprintf("%s/credentials/v1/authenticate", a.authHost)
+	url := fmt.Sprintf("%s/v1/authenticate", a.authHost)
 
 	ctxTimeout, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()

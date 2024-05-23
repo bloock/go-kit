@@ -15,6 +15,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	gintrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gin-gonic/gin"
+	"github.com/gin-contrib/cors"
 )
 
 var api_version_header = "api_version"
@@ -62,7 +63,13 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 				Logger()
 		}),
 	)
+	config := cors.DefaultConfig()
+	config.AllowOrigins = []string{"*"}
+	config.AllowHeaders = []string{"*"}
+	config.AllowCredentials = true
+
 	e.client.Engine().Use(l)
+	e.client.Engine().Use(cors.New(config))
 	e.client.Engine().Use(middleware.ErrorMiddleware())
 	e.client.Engine().Use(middleware.ContextMiddleware())
 	e.client.Engine().Use(gintrace.Middleware(
