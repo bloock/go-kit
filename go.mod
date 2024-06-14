@@ -19,10 +19,10 @@ require (
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/lib/pq v1.10.2
 	github.com/ory/dockertest/v3 v3.9.1
-	github.com/rabbitmq/amqp091-go v1.7.0
+	github.com/rabbitmq/amqp091-go v1.10.0
 	github.com/rs/zerolog v1.29.1
 	github.com/stretchr/testify v1.9.0
-	github.com/wagslane/go-rabbitmq v0.7.2
+	github.com/wagslane/go-rabbitmq v0.13.0
 	go.mongodb.org/mongo-driver v1.8.3
 	golang.org/x/net v0.24.0
 	gopkg.in/DataDog/dd-trace-go.v1 v1.44.1

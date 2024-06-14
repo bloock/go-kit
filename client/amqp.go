@@ -27,8 +27,8 @@ type AMQPClient struct {
 	consumerPrefix string
 
 	addr           string
-	consumers      []string
-	consumer       rabbitmq.Consumer
+	conn           *rabbitmq.Conn
+	consumers      []*rabbitmq.Consumer
 	publisher      *rabbitmq.Publisher
 	reconnectDelay time.Duration
 
@@ -51,32 +51,31 @@ func NewAMQPClient(ctx context.Context, c string, user, password, host, port, vh
 		default:
 			time.Sleep(1 * time.Second)
 
+			conn, err := rabbitmq.NewConn(
+				addr,
+				rabbitmq.WithConnectionOptionsLogging,
+			)
+			if err != nil {
+				l.Warn(connectionCtx).Msgf("error while creating connection with error %s", err.Error())
+				continue
+			}
+
 			publisher, err := rabbitmq.NewPublisher(
-				addr, amqp.Config{},
+				conn,
 				rabbitmq.WithPublisherOptionsLogging,
-				rabbitmq.WithPublisherOptionsLogger(&l),
 			)
 			if err != nil {
 				l.Warn(connectionCtx).Msgf("error while creating publisher with error %s", err.Error())
 				continue
 			}
 
-			consumer, err := rabbitmq.NewConsumer(
-				addr, amqp.Config{},
-				rabbitmq.WithConsumerOptionsLogging,
-				rabbitmq.WithConsumerOptionsLogger(&l),
-			)
-			if err != nil {
-				l.Warn(connectionCtx).Msgf("couldn't create consumer: %s", err.Error())
-				continue
-			}
-
 			client := AMQPClient{
 				ctx:            ctx,
 				addr:           addr,
+				conn:           conn,
 				consumerPrefix: c,
 				publisher:      publisher,
-				consumer:       consumer,
+				consumers:      []*rabbitmq.Consumer{},
 				reconnectDelay: 5 * time.Second,
 				logger:         l,
 				wg:             &sync.WaitGroup{},
@@ -96,10 +95,20 @@ func (a *AMQPClient) Consume(ctx context.Context, t domain.EventType, handlers .
 		return err
 	}
 
+	consumer, err := rabbitmq.NewConsumer(
+		a.conn,
+		q.Name,
+		rabbitmq.WithConsumerOptionsConcurrency(1),
+		rabbitmq.WithConsumerOptionsQueueNoDeclare,
+		rabbitmq.WithConsumerOptionsQOSPrefetch(1),
+		rabbitmq.WithConsumerOptionsConsumerName(a.consumerName(t.Name())),
+		rabbitmq.WithConsumerOptionsLogging,
+	)
+
 	go func() {
 		defer a.wg.Done()
 
-		err = a.consumer.StartConsuming(
+		err = consumer.Run(
 			func(d rabbitmq.Delivery) rabbitmq.Action {
 				result := rabbitmq.Ack
 
@@ -111,17 +120,11 @@ func (a *AMQPClient) Consume(ctx context.Context, t domain.EventType, handlers .
 				}
 				return result
 			},
-			q.Name,
-			[]string{""},
-			rabbitmq.WithConsumeOptionsConcurrency(1),
-			rabbitmq.WithConsumeOptionsQueueNoDeclare,
-			rabbitmq.WithConsumeOptionsQOSPrefetch(1),
-			rabbitmq.WithConsumeOptionsConsumerName(a.consumerName(t.Name())),
 		)
 		if err != nil {
 			a.logger.Error(ctx).Str("type", t.Name()).Msgf("error starting consuming queue: %s", err.Error())
 		} else {
-			a.consumers = append(a.consumers, a.consumerName(t.Name()))
+			a.consumers = append(a.consumers, consumer)
 		}
 	}()
 
@@ -315,6 +318,8 @@ func (a *AMQPClient) DeclareQueue(ctx context.Context, t domain.EventType, args 
 		return nil, err
 	}
 
+	conn.Close()
+
 	return &q, nil
 }
 
@@ -323,13 +328,11 @@ func (c *AMQPClient) Ping() error {
 }
 
 func (a *AMQPClient) Close(ctx context.Context) error {
-	a.consumer.Disconnect()
-
 	for _, c := range a.consumers {
-		a.consumer.StopConsuming(c, false)
+		c.Close()
 	}
 
-	a.publisher.StopPublishing()
+	a.publisher.Close()
 
 	a.logger.Info(ctx).Msg("gracefully stopped rabbitMQ connection")
 	return nil
