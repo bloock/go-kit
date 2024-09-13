@@ -3,6 +3,7 @@ package middleware
 import (
 	"bytes"
 	"fmt"
+	"github.com/bloock/go-kit/context"
 	"io"
 	"net/http"
 
@@ -107,6 +108,11 @@ func NewResponseContext(c *gin.Context, w eventsWrappedWriter, typ, requestBody 
 			responseBody = "Internal Server Error"
 		}
 	}
+	userID := ""
+	uid, ok := c.Get(context.UserIDKey)
+	if ok {
+		userID = uid.(string)
+	}
 
 	return &ResponseContext{
 		Type:         typ,
@@ -116,7 +122,7 @@ func NewResponseContext(c *gin.Context, w eventsWrappedWriter, typ, requestBody 
 		RequestBody:  requestBody,
 		ResponseBody: responseBody,
 		IpAddress:    c.ClientIP(),
-		UserID:       c.Request.Header.Get("X-User-ID"),
+		UserID:       userID,
 		Method:       c.Request.Method,
 	}
 }

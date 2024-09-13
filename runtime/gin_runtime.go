@@ -11,11 +11,11 @@ import (
 	bloockContext "github.com/bloock/go-kit/context"
 	"github.com/bloock/go-kit/http/middleware"
 	"github.com/bloock/go-kit/observability"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 	gintrace "gopkg.in/DataDog/dd-trace-go.v1/contrib/gin-gonic/gin"
-	"github.com/gin-contrib/cors"
 )
 
 var api_version_header = "api_version"
