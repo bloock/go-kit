@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"context"
+	sentrygin "github.com/getsentry/sentry-go/gin"
 	"net/http"
 	"time"
 
@@ -53,7 +54,6 @@ func NewGinRuntime(name string, c *client.GinEngine, shutdownTime time.Duration,
 }
 
 func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
-
 	l := logger.SetLogger(
 		logger.WithSkipPath([]string{"/health"}),
 		logger.WithUTC(true),
@@ -72,6 +72,7 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 	e.client.Engine().Use(cors.New(config))
 	e.client.Engine().Use(middleware.ErrorMiddleware())
 	e.client.Engine().Use(middleware.ContextMiddleware())
+	e.client.Engine().Use(sentrygin.New(sentrygin.Options{Repanic: true}))
 	e.client.Engine().Use(gintrace.Middleware(
 		e.name,
 		gintrace.WithIgnoreRequest(func(c *gin.Context) bool {

@@ -48,9 +48,6 @@ func (c cronJob) Run() {
 	ctx := context.WithValue(c.ctx, bloockContext.UserIDKey, "")
 	ctx = context.WithValue(ctx, bloockContext.RequestIDKey, uuid.New().String())
 
-	s, ctx := observability.NewSpan(ctx, c.name)
-	defer s.Finish()
-
 	c.l.Info(ctx).Str("job-name", c.name).Msg("starting job")
 
 	err := c.job(ctx)

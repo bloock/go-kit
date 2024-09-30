@@ -34,9 +34,6 @@ func NewPostgresCacheUsageRepository(psql client.PostgresSQLClient, dbTimeout ti
 }
 
 func (c PostgresCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage) error {
-	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.save", c.service))
-	defer span.Finish()
-
 	cacheSqlStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
 	query, args := cacheSqlStruct.InsertInto(fmt.Sprintf("%s.%s", CACHE_SCHEMA, CACHE_USAGE_TABLE), MapToSqlCacheUsage(usage)).Build()
 
@@ -52,9 +49,6 @@ func (c PostgresCacheUsageRepository) Save(ctx context.Context, usage domain.Cac
 }
 
 func (c PostgresCacheUsageRepository) GetValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
-	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.get-value-by-key", c.service))
-	defer span.Finish()
-
 	cacheSQLStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
 	sb := cacheSQLStruct.SelectFrom(fmt.Sprintf("%s.%s", CACHE_SCHEMA, CACHE_USAGE_TABLE))
 	sb = sb.Where(sb.Equal("_key", key))
@@ -76,9 +70,6 @@ func (c PostgresCacheUsageRepository) GetValueByKey(ctx context.Context, key str
 }
 
 func (c PostgresCacheUsageRepository) FindValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
-	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.find-value-by-key", c.service))
-	defer span.Finish()
-
 	cacheSQLStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
 	sb := cacheSQLStruct.SelectFrom(fmt.Sprintf("%s.%s", CACHE_SCHEMA, CACHE_USAGE_TABLE))
 	sb = sb.Where(sb.Equal("_key", key))
@@ -109,9 +100,6 @@ func (c PostgresCacheUsageRepository) FindValueByKey(ctx context.Context, key st
 }
 
 func (c PostgresCacheUsageRepository) Update(ctx context.Context, usage domain.CacheUsage) error {
-	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.update", c.service))
-	defer span.Finish()
-
 	ub := sqlbuilder.NewUpdateBuilder()
 	ub.Update(fmt.Sprintf("%s.%s", CACHE_SCHEMA, CACHE_USAGE_TABLE)).Set(ub.Assign("value", usage.Value()),
 		ub.Assign("updated_at", time.Now())).

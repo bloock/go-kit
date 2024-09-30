@@ -1,6 +1,7 @@
 package test_utils
 
 import (
+	"context"
 	"github.com/bloock/go-kit/http/versioning"
 	"github.com/bloock/go-kit/observability"
 	"github.com/gin-gonic/gin"
@@ -13,8 +14,7 @@ var TestHandlerInstance = &TestHandler{}
 
 func (r *TestHandler) Handler() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		s, ctx := observability.NewSpan(c, "service.repository.action")
-		defer s.Finish()
+		ctx := context.Background()
 
 		l := observability.InitLogger("local", "test_service", "1.0.0", true)
 		l.Debug(ctx).Msg("a gin message")

@@ -16,8 +16,7 @@ import (
 
 func main() {
 	l := observability.InitLogger("local", "test_service", "1.0.0", true)
-	tracer := observability.InitTracer("local", "test_service", "1.0.0", true)
-	defer tracer.Stop()
+	err := observability.InitTracer(context.Background(), "connection", "dev", "1.0.0", observability.Logger{})
 
 	wg := sync.WaitGroup{}
 	wg.Add(2)
@@ -64,8 +63,7 @@ func main() {
 
 func CronHandler() client.CronHandler {
 	return func(c context.Context) error {
-		s, ctx := observability.NewSpan(c, "an_span")
-		defer s.Finish()
+		ctx := context.Background()
 
 		l := observability.InitLogger("local", "test_service", "1.0.0", true)
 		l.Error(ctx).Str("t", "user").Msg("a cron message")

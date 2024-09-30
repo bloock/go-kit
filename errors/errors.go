@@ -2,6 +2,7 @@ package errors
 
 import (
 	"fmt"
+	"github.com/getsentry/sentry-go"
 	"net/http"
 	"strings"
 )
@@ -15,6 +16,7 @@ func ErrInvalidBodyJSON(err error) HttpAppError {
 }
 
 func ErrUnexpected(err error) HttpAppError {
+	sentry.CaptureException(err)
 	return NewHttpAppError(http.StatusInternalServerError, err.Error())
 }
 

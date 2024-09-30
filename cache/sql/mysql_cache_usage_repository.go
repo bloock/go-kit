@@ -3,7 +3,6 @@ package sql
 import (
 	"context"
 	"database/sql"
-	"fmt"
 	"github.com/bloock/go-kit/domain"
 	"github.com/bloock/go-kit/errors"
 	"github.com/bloock/go-kit/observability"
@@ -52,9 +51,6 @@ func MapToCacheUsage(u SqlCacheUsage) domain.CacheUsage {
 }
 
 func (c MysqlCacheUsageRepository) Save(ctx context.Context, usage domain.CacheUsage) error {
-	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.save", c.service))
-	defer span.Finish()
-
 	cacheSqlStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
 	query, args := cacheSqlStruct.InsertInto(SqlCacheUsageTable, MapToSqlCacheUsage(usage)).Build()
 
@@ -70,9 +66,6 @@ func (c MysqlCacheUsageRepository) Save(ctx context.Context, usage domain.CacheU
 }
 
 func (c MysqlCacheUsageRepository) GetValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
-	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.get-value-by-key", c.service))
-	defer span.Finish()
-
 	cacheSQLStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
 	sb := cacheSQLStruct.SelectFrom(SqlCacheUsageTable)
 	sb = sb.Where(sb.Equal("_key", key))
@@ -94,9 +87,6 @@ func (c MysqlCacheUsageRepository) GetValueByKey(ctx context.Context, key string
 }
 
 func (c MysqlCacheUsageRepository) FindValueByKey(ctx context.Context, key string) (domain.CacheUsage, error) {
-	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.find-value-by-key", c.service))
-	defer span.Finish()
-
 	cacheSQLStruct := sqlbuilder.NewStruct(new(SqlCacheUsage))
 	sb := cacheSQLStruct.SelectFrom(SqlCacheUsageTable)
 	sb = sb.Where(sb.Equal("_key", key))
@@ -127,9 +117,6 @@ func (c MysqlCacheUsageRepository) FindValueByKey(ctx context.Context, key strin
 }
 
 func (c MysqlCacheUsageRepository) Update(ctx context.Context, usage domain.CacheUsage) error {
-	span, ctx := observability.NewSpan(ctx, fmt.Sprintf("%s.cache-usage-repository.update", c.service))
-	defer span.Finish()
-
 	ub := sqlbuilder.NewUpdateBuilder()
 	ub.Update(SqlCacheUsageTable).Set(ub.Assign("value", usage.Value()),
 		ub.Assign("updated_at", time.Now())).

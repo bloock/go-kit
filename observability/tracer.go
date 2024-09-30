@@ -2,28 +2,41 @@ package observability
 
 import (
 	"context"
+	"github.com/bloock/go-kit/config"
+	"github.com/getsentry/sentry-go"
+)
 
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace"
-	"gopkg.in/DataDog/dd-trace-go.v1/ddtrace/tracer"
+const (
+	RepositoryOperation = "repository"
 )
 
 type Tracer struct{}
 
-func InitTracer(env, service, version string, debug bool) Tracer {
-	tracer.Start(
-		tracer.WithEnv(env),
-		tracer.WithService(service),
-		tracer.WithServiceVersion(version),
-		tracer.WithDebugMode(debug),
-	)
+func InitTracer(ctx context.Context, connUrl, env, version string, l Logger) error {
+	options := sentry.ClientOptions{
+		Dsn:         connUrl,
+		Environment: env,
+		Release:     version,
+	}
+	if env == config.ProductionEnvironment {
+		options.EnableTracing = true
+		options.TracesSampleRate = 1.0
+		options.TracesSampler = func(ctx sentry.SamplingContext) float64 {
+			if ctx.Span.Op == RepositoryOperation {
+				return 1.0
+			}
+			return 0.0
+		}
+	}
 
-	return Tracer{}
+	if err := sentry.Init(options); err != nil {
+		l.Error(ctx).Msgf("sentry initialization failed: %v\n", err.Error())
+		return err
+	}
+	return nil
 }
 
-func NewSpan(ctx context.Context, name string) (ddtrace.Span, context.Context) {
-	return tracer.StartSpanFromContext(ctx, name)
-}
-
-func (*Tracer) Stop() {
-	tracer.Stop()
+func NewRepositorySpan(ctx context.Context, name string) {
+	span := sentry.StartSpan(ctx, RepositoryOperation, sentry.WithTransactionName(name))
+	defer span.Finish()
 }
