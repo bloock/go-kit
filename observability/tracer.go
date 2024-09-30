@@ -12,6 +12,10 @@ const (
 
 type Tracer struct{}
 
+type Span struct {
+	span *sentry.Span
+}
+
 func InitTracer(ctx context.Context, connUrl, env, version string, l Logger) error {
 	options := sentry.ClientOptions{
 		Dsn:         connUrl,
@@ -36,7 +40,13 @@ func InitTracer(ctx context.Context, connUrl, env, version string, l Logger) err
 	return nil
 }
 
-func NewRepositorySpan(ctx context.Context, name string) {
+func NewRepositorySpan(ctx context.Context, name string) Span {
 	span := sentry.StartSpan(ctx, RepositoryOperation, sentry.WithTransactionName(name))
-	defer span.Finish()
+	return Span{
+		span: span,
+	}
+}
+
+func (s Span) Close() {
+	s.span.Finish()
 }
