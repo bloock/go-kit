@@ -40,13 +40,13 @@ func InitTracer(ctx context.Context, connUrl, env, version string, l Logger) err
 	return nil
 }
 
-func NewRepositorySpan(ctx context.Context, name string) Span {
+func NewRepositorySpan(ctx context.Context, name string) *Span {
 	span := sentry.StartSpan(ctx, RepositoryOperation, sentry.WithTransactionName(name))
-	return Span{
+	return &Span{
 		span: span,
 	}
 }
 
-func (s Span) Close() {
+func (s *Span) Close() {
 	s.span.Finish()
 }
