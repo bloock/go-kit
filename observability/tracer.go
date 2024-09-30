@@ -8,6 +8,7 @@ import (
 
 const (
 	RepositoryOperation = "repository"
+	HttpServerOperation = "http.server"
 )
 
 type Tracer struct{}
@@ -26,7 +27,7 @@ func InitTracer(ctx context.Context, connUrl, env, version string, l Logger) err
 		options.EnableTracing = true
 		options.TracesSampleRate = 1.0
 		options.TracesSampler = func(ctx sentry.SamplingContext) float64 {
-			if ctx.Span.Op == RepositoryOperation {
+			if ctx.Span.Op == RepositoryOperation || ctx.Span.Op == HttpServerOperation  {
 				return 1.0
 			}
 			return 0.0
