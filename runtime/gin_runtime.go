@@ -105,3 +105,7 @@ func (e *GinRuntime) Run(ctx context.Context) {
 		e.logger.Info(ctx).Msg("gin runtime closed successfully")
 	}
 }
+
+func (e *GinRuntime) Client() *client.GinEngine {
+	return e.client
+}
