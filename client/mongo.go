@@ -15,20 +15,35 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/readpref"
 )
 
+const (
+	defaultTimeout = 5 * time.Second
+)
+
 type MongoClient struct {
-	client *mongoDriver.Client
-	logger observability.Logger
+	client       *mongoDriver.Client
+	databaseName string
+	timeout      time.Duration
+	logger       observability.Logger
 }
 
-func NewMongoClient(user, pass, host, port string, isCosmos bool, timeout time.Duration, l observability.Logger) (*MongoClient, error) {
+func NewMongoClient(user, pass, host, port, databaseName string, isCosmos bool, l observability.Logger, opts ...ClientOpt) (*MongoClient, error) {
 	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "mongo").Logger())
 
-	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?retrywrites=false&maxIdleTimeMS=120000", user, pass, host, port)
+	op := &clientOpts{
+		timeout:  defaultTimeout,
+		readPref: readpref.Nearest(),
+	}
+
+	for _, fn := range opts {
+		fn(op)
+	}
+
+	mongoURI := fmt.Sprintf("mongodb://%s:%s/?retrywrites=false&maxIdleTimeMS=120000", host, port)
 	if isCosmos {
 		mongoURI = mongoURI + "&ssl=true&replicaSet=globaldb"
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	ctx, cancel := context.WithTimeout(context.Background(), op.timeout)
 	defer cancel()
 
 	client, err := mongoDriver.Connect(ctx, options.Client().ApplyURI(mongoURI))
@@ -36,22 +51,28 @@ func NewMongoClient(user, pass, host, port string, isCosmos bool, timeout time.D
 		return nil, err
 	}
 
-	if err := client.Ping(ctx, readpref.Primary()); err != nil {
+	if err = client.Ping(ctx, readpref.Primary()); err != nil {
 		return nil, err
 	}
 
 	return &MongoClient{
-		client: client,
-		logger: l,
+		client:       client,
+		databaseName: databaseName,
+		timeout:      op.timeout,
+		logger:       l,
 	}, nil
 }
 
-func (c MongoClient) DB() *mongoDriver.Client {
+func (c MongoClient) Client() *mongoDriver.Client {
 	return c.client
 }
 
+func (c MongoClient) DB() *mongoDriver.Database {
+	return c.client.Database(c.databaseName)
+}
+
 func (c MongoClient) MigrateUp(dbName string, path string) error {
-	driver, err := mongodb.WithInstance(c.DB(), &mongodb.Config{
+	driver, err := mongodb.WithInstance(c.Client(), &mongodb.Config{
 		DatabaseName:    dbName,
 		TransactionMode: false,
 	})
@@ -68,7 +89,7 @@ func (c MongoClient) MigrateUp(dbName string, path string) error {
 		return err
 	}
 
-	if err := m.Up(); err != nil {
+	if err = m.Up(); err != nil {
 		if err == migrate.ErrNoChange {
 			return nil
 		}
@@ -80,7 +101,7 @@ func (c MongoClient) MigrateUp(dbName string, path string) error {
 }
 
 func (c MongoClient) MigrateDown(dbName string, path string) error {
-	driver, err := mongodb.WithInstance(c.DB(), &mongodb.Config{
+	driver, err := mongodb.WithInstance(c.Client(), &mongodb.Config{
 		DatabaseName:    dbName,
 		TransactionMode: false,
 	})
@@ -102,4 +123,23 @@ func (c MongoClient) MigrateDown(dbName string, path string) error {
 	}
 
 	return nil
+}
+
+type ClientOpt func(opts *clientOpts)
+
+type clientOpts struct {
+	timeout  time.Duration
+	readPref *readpref.ReadPref
+}
+
+func WithTimeout(timeout time.Duration) ClientOpt {
+	return func(opts *clientOpts) {
+		opts.timeout = timeout
+	}
+}
+
+func WithReadPref(pref *readpref.ReadPref) ClientOpt {
+	return func(opts *clientOpts) {
+		opts.readPref = pref
+	}
 }

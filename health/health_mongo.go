@@ -26,7 +26,7 @@ func (h HealthMongo) HealthCheck() ExternalServiceDetails {
 	var e string
 
 	ctx := context.Background()
-	err := h.client.DB().Ping(ctx, readpref.Primary())
+	err := h.client.Client().Ping(ctx, readpref.Primary())
 	if err != nil {
 		s = "error"
 		e = err.Error()
