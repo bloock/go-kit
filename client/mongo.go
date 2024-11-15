@@ -38,7 +38,7 @@ func NewMongoClient(user, pass, host, port, databaseName string, isCosmos bool, 
 		fn(op)
 	}
 
-	mongoURI := fmt.Sprintf("mongodb://%s:%s/?retrywrites=false&maxIdleTimeMS=120000", host, port)
+	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?retrywrites=false&maxIdleTimeMS=120000", user, pass, host, port)
 	if isCosmos {
 		mongoURI = mongoURI + "&ssl=true&replicaSet=globaldb"
 	}
