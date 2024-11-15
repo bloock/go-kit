@@ -14,5 +14,5 @@ func NewHttpAppError(code int, message string) HttpAppError {
 }
 
 func (e HttpAppError) Error() string {
-	return fmt.Sprintf("errors: %s. code: %d.", e.Message, e.Code)
+	return fmt.Sprintf("errors: %s.", e.Message)
 }
