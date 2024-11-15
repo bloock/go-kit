@@ -5,6 +5,7 @@ import (
 	"github.com/bloock/go-kit/client"
 	"github.com/bloock/go-kit/observability"
 	"github.com/ory/dockertest/v3"
+	"github.com/ory/dockertest/v3/docker"
 	"log"
 	"os"
 	"testing"
@@ -47,7 +48,11 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 		},
 	}
 
-	resource, err := pool.RunWithOptions(&opt)
+	resource, err := pool.RunWithOptions(&opt, func(config *docker.HostConfig) {
+		config.RestartPolicy = docker.RestartPolicy{
+			Name: "no",
+		}
+	})
 	if err != nil {
 		log.Fatalf("Could not start resource: %s", err)
 	}
