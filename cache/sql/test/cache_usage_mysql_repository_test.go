@@ -6,7 +6,7 @@ import (
 	"github.com/bloock/go-kit/domain"
 	"github.com/bloock/go-kit/errors"
 	"github.com/bloock/go-kit/observability"
-	"github.com/bloock/go-kit/test_utils"
+	"github.com/bloock/go-kit/test_utils/postgres"
 	"github.com/huandu/go-sqlbuilder"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,9 +15,9 @@ import (
 )
 
 func TestCacheUsageMysqlRepository(t *testing.T) {
-	postgresSQLClient := test_utils.PostgresSQLClient()
+	postgresSQLClient := postgres.PostgresSQLClient()
 	cr := sql.NewPostgresCacheUsageRepository(*postgresSQLClient, time.Second*30, observability.Logger{}, "test")
-	ct := test_utils.NewPostgresCrudRepository(postgresSQLClient, sql.CACHE_USAGE_TABLE, sqlbuilder.NewStruct(new(sql.SqlCacheUsage)))
+	ct := postgres.NewPostgresCrudRepository(postgresSQLClient, sql.CACHE_USAGE_TABLE, sqlbuilder.NewStruct(new(sql.SqlCacheUsage)))
 
 	key := "core:37e1a574-d76e-47ef-8960-dcc970e5a893:limit"
 	value := -1
