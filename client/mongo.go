@@ -71,6 +71,10 @@ func (c MongoClient) DB() *mongoDriver.Database {
 	return c.client.Database(c.databaseName)
 }
 
+func (c *MongoClient) ContextWithTimeout(parent context.Context) (context.Context, context.CancelFunc) {
+	return context.WithTimeout(parent, c.timeout)
+}
+
 func (c MongoClient) MigrateUp(dbName string, path string) error {
 	driver, err := mongodb.WithInstance(c.Client(), &mongodb.Config{
 		DatabaseName:    dbName,
