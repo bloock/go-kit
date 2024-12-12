@@ -80,7 +80,7 @@ func TestPaginationQuery(t *testing.T) {
 		queryParams["per_page"] = "10"
 		c := createTestRequest(queryParams)
 
-		pq, err := NewPaginationQuery(c)
+		pq, err := NewGinPaginationQuery(c)
 		assert.NoError(t, err)
 
 		assert.Equal(t, 1, pq.Page)

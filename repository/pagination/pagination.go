@@ -1,8 +1,11 @@
 package pagination
 
 import (
+	"errors"
 	"fmt"
 	httpError "github.com/bloock/go-kit/errors"
+	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -14,7 +17,7 @@ type PaginationQuery struct {
 	PerPage int `form:"per_page" json:"per_page"`
 }
 
-func NewPaginationQuery(ctx *gin.Context) (PaginationQuery, error) {
+func NewGinPaginationQuery(ctx *gin.Context) (PaginationQuery, error) {
 	var pq PaginationQuery
 	err := ctx.BindQuery(&pq)
 	if err != nil {
@@ -22,17 +25,36 @@ func NewPaginationQuery(ctx *gin.Context) (PaginationQuery, error) {
 		return PaginationQuery{}, err
 	}
 
-	if pq.Page < FirstPage {
-		err = httpError.ErrInvalidBodyJSON(fmt.Errorf("page number should be bigger than %d", FirstPage))
+	return pq, validatePaginationQuery(pq)
+}
+
+func NewChiPaginationQuery(r *http.Request) (PaginationQuery, error) {
+	page, err := strconv.Atoi(r.URL.Query().Get("page"))
+	if err != nil {
+		err = httpError.ErrInvalidBodyJSON(errors.New("empty page query"))
 		return PaginationQuery{}, err
+	}
+	perPage, err := strconv.Atoi(r.URL.Query().Get("per_page"))
+	if err != nil {
+		err = httpError.ErrInvalidBodyJSON(errors.New("empty per_page query"))
+		return PaginationQuery{}, err
+	}
+	pq := PaginationQuery{Page: page, PerPage: perPage}
+
+	return pq, validatePaginationQuery(pq)
+}
+
+func validatePaginationQuery(pq PaginationQuery) error {
+	if pq.Page < FirstPage {
+		err := httpError.ErrInvalidBodyJSON(fmt.Errorf("page number should be bigger than %d", FirstPage))
+		return err
 	}
 
 	if pq.PerPage < 1 {
-		err = httpError.ErrInvalidBodyJSON(fmt.Errorf("per page value should be bigger than 1"))
-		return PaginationQuery{}, err
+		err := httpError.ErrInvalidBodyJSON(fmt.Errorf("per page value should be bigger than 1"))
+		return err
 	}
-
-	return pq, nil
+	return nil
 }
 
 func (p PaginationQuery) Skip() int {
