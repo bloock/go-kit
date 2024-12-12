@@ -17,5 +17,5 @@ func RenderError(w http.ResponseWriter, r *http.Request, err error) {
 	}
 
 	render.Status(r, parsedError.Code)
-	render.JSON(w, r, parsedError.Error())
+	render.JSON(w, r, parsedError)
 }
