@@ -1,4 +1,4 @@
-package middleware
+package gin
 
 import (
 	"crypto/md5"

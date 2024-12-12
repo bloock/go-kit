@@ -1,27 +1,34 @@
-package middleware
+package chi
 
 import (
+	goctx "context"
 	"errors"
 	"github.com/bloock/go-kit/context"
 	"github.com/bloock/go-kit/domain"
-	"github.com/gin-gonic/gin"
+	"log"
 	"net"
+	"net/http"
 	"strings"
 )
 
-func ContextMiddleware() gin.HandlerFunc {
-	return func(ctx *gin.Context) {
-		clientIP, _ := findClientIP(ctx)
+func ContextMiddleware(next http.Handler) http.Handler {
+	fn := func(w http.ResponseWriter, r *http.Request) {
+		ctx := r.Context()
+		clientIP, _ := findClientIP(r)
 		if clientIP != "" {
-			ctx.Set(context.ClientIPKey, clientIP)
+			ctx = goctx.WithValue(ctx, context.ClientIPKey, clientIP)
 		}
-		ctx.Set(context.RequestIDKey, domain.GenUUID())
-		ctx.Next()
+
+		ctx = goctx.WithValue(ctx, context.RequestIDKey, domain.GenUUID())
+		next.ServeHTTP(w, r.WithContext(ctx))
+
+		log.Println("Return Context midd")
 	}
+	return http.HandlerFunc(fn)
 }
 
-func findClientIP(ctx *gin.Context) (string, error) {
-	ips := ctx.Request.Header.Get("X-Forwarded-For")
+func findClientIP(r *http.Request) (string, error) {
+	ips := r.Header.Get("X-Forwarded-For")
 	splitIps := strings.Split(ips, ",")
 
 	if len(splitIps) > 0 {
@@ -32,7 +39,7 @@ func findClientIP(ctx *gin.Context) (string, error) {
 		}
 	}
 
-	ip, _, err := net.SplitHostPort(ctx.Request.RemoteAddr)
+	ip, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return "", err
 	}

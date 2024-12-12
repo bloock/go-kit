@@ -2,6 +2,7 @@ package runtime
 
 import (
 	"context"
+	gin_middleware "github.com/bloock/go-kit/http/middleware/gin"
 	sentrygin "github.com/getsentry/sentry-go/gin"
 	"net/http"
 	"time"
@@ -10,7 +11,6 @@ import (
 
 	"github.com/bloock/go-kit/client"
 	bloockContext "github.com/bloock/go-kit/context"
-	"github.com/bloock/go-kit/http/middleware"
 	"github.com/bloock/go-kit/observability"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/logger"
@@ -70,8 +70,8 @@ func (e *GinRuntime) SetHandlers(f func(*gin.Engine)) {
 
 	e.client.Engine().Use(l)
 	e.client.Engine().Use(cors.New(config))
-	e.client.Engine().Use(middleware.ErrorMiddleware())
-	e.client.Engine().Use(middleware.ContextMiddleware())
+	e.client.Engine().Use(gin_middleware.ErrorMiddleware())
+	e.client.Engine().Use(gin_middleware.ContextMiddleware())
 	e.client.Engine().Use(sentrygin.New(sentrygin.Options{Repanic: true}))
 	e.client.Engine().Use(gintrace.Middleware(
 		e.name,
