@@ -53,8 +53,6 @@ func Logger(logger observability.Logger) func(http.Handler) http.Handler {
 			}()
 
 			next.ServeHTTP(ww, r)
-
-			log.Println("Return Logger midd")
 		}
 		return http.HandlerFunc(fn)
 	}

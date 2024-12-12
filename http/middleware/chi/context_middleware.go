@@ -5,7 +5,6 @@ import (
 	"errors"
 	"github.com/bloock/go-kit/context"
 	"github.com/bloock/go-kit/domain"
-	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -21,8 +20,6 @@ func ContextMiddleware(next http.Handler) http.Handler {
 
 		ctx = goctx.WithValue(ctx, context.RequestIDKey, domain.GenUUID())
 		next.ServeHTTP(w, r.WithContext(ctx))
-
-		log.Println("Return Context midd")
 	}
 	return http.HandlerFunc(fn)
 }
