@@ -2,6 +2,8 @@ package main
 
 import (
 	"context"
+	"errors"
+	kitError "github.com/bloock/go-kit/errors"
 	gin_middleware "github.com/bloock/go-kit/http/middleware/gin"
 	"github.com/bloock/go-kit/http/presenters"
 	pinned "github.com/bloock/go-kit/http/versioning"
@@ -69,12 +71,12 @@ func main() {
 		})
 
 		r.Post("/test", func(writer http.ResponseWriter, request *http.Request) {
-			presenters.RenderJSON(writer, request, http.StatusBadRequest, "post method error")
+			presenters.RenderError(writer, request, kitError.ErrInvalidBodyJSON(errors.New("error bad request")))
 			return
 		})
 
 		r.Patch("/test", func(writer http.ResponseWriter, request *http.Request) {
-			presenters.RenderJSON(writer, request, http.StatusInternalServerError, "patch method error")
+			presenters.RenderError(writer, request, kitError.ErrUnexpected(errors.New("error internal server")))
 			return
 		})
 	})
