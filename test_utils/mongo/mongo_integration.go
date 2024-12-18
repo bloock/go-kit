@@ -2,6 +2,7 @@ package mongo
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -63,7 +64,7 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 	}
 
 	if err = pool.Retry(func() error {
-		uri := "mongodb://test:test@localhost:27017/?retrywrites=false&maxIdleTimeMS=120000"
+		uri := fmt.Sprintf("mongodb://test:test@localhost:%s/?retrywrites=false&maxIdleTimeMS=120000", resource.GetPort("27017/tcp"))
 		mongoClient, err = client.NewMongoClient(uri, dbName, observability.Logger{})
 		if err != nil {
 			return err
