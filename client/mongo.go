@@ -26,7 +26,7 @@ type MongoClient struct {
 	logger       observability.Logger
 }
 
-func NewMongoClient(user, pass, host, port, appName, databaseName string, l observability.Logger, opts ...ClientOpt) (*MongoClient, error) {
+func NewMongoClient(uri, databaseName string, l observability.Logger, opts ...ClientOpt) (*MongoClient, error) {
 	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "mongo").Logger())
 
 	op := &clientOpts{
@@ -38,12 +38,10 @@ func NewMongoClient(user, pass, host, port, appName, databaseName string, l obse
 		fn(op)
 	}
 
-	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority&appName=%s", user, pass, host, port, appName)
-
 	ctx, cancel := context.WithTimeout(context.Background(), op.timeout)
 	defer cancel()
 
-	client, err := mongoDriver.Connect(ctx, options.Client().ApplyURI(mongoURI))
+	client, err := mongoDriver.Connect(ctx, options.Client().ApplyURI(uri))
 	if err != nil {
 		return nil, err
 	}

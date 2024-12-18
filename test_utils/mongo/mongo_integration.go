@@ -63,8 +63,8 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 	}
 
 	if err = pool.Retry(func() error {
-		mongoClient, err = client.NewMongoClient("test", "test", "localhost",
-			resource.GetPort("27017/tcp"), dbName, "", observability.Logger{})
+		uri := "mongodb://test:test@localhost:27017/?retrywrites=false&maxIdleTimeMS=120000"
+		mongoClient, err = client.NewMongoClient(uri, dbName, observability.Logger{})
 		if err != nil {
 			return err
 		}
