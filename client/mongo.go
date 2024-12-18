@@ -26,7 +26,7 @@ type MongoClient struct {
 	logger       observability.Logger
 }
 
-func NewMongoClient(user, pass, host, port, databaseName string, isCosmos bool, l observability.Logger, opts ...ClientOpt) (*MongoClient, error) {
+func NewMongoClient(user, pass, host, port, appName, databaseName string, l observability.Logger, opts ...ClientOpt) (*MongoClient, error) {
 	l.UpdateLogger(l.With().Str("layer", "infrastructure").Str("component", "mongo").Logger())
 
 	op := &clientOpts{
@@ -38,10 +38,7 @@ func NewMongoClient(user, pass, host, port, databaseName string, isCosmos bool, 
 		fn(op)
 	}
 
-	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?retrywrites=false&maxIdleTimeMS=120000", user, pass, host, port)
-	if isCosmos {
-		mongoURI = mongoURI + "&ssl=true&replicaSet=globaldb"
-	}
+	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?retryWrites=true&w=majority&appName=%s", user, pass, host, port, appName)
 
 	ctx, cancel := context.WithTimeout(context.Background(), op.timeout)
 	defer cancel()

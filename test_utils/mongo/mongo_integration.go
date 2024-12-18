@@ -2,13 +2,14 @@ package mongo
 
 import (
 	"context"
+	"log"
+	"os"
+	"testing"
+
 	"github.com/bloock/go-kit/client"
 	"github.com/bloock/go-kit/observability"
 	"github.com/ory/dockertest/v3"
 	"github.com/ory/dockertest/v3/docker"
-	"log"
-	"os"
-	"testing"
 )
 
 const (
@@ -63,7 +64,7 @@ func initDB(testTimeout uint, migrationPath ...string) (*dockertest.Pool, *docke
 
 	if err = pool.Retry(func() error {
 		mongoClient, err = client.NewMongoClient("test", "test", "localhost",
-			resource.GetPort("27017/tcp"), dbName, false, observability.Logger{})
+			resource.GetPort("27017/tcp"), dbName, "", observability.Logger{})
 		if err != nil {
 			return err
 		}
