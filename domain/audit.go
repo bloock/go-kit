@@ -33,3 +33,14 @@ func NewAudit(user_id string, update_at time.Time, created_at time.Time) (Audit,
 		createdAT: created_at,
 	}, nil
 }
+
+type AuditObject struct {
+	UserID    string    `bson:"user_id"`
+	UpdateAT  time.Time `bson:"update_at"`
+	CreatedAT time.Time `bson:"created_at"`
+}
+
+func (a AuditObject) MapToAudit() Audit {
+	audit, _ := NewAudit(a.UserID, a.UpdateAT, a.CreatedAT)
+	return audit
+}
